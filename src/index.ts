@@ -1,6 +1,6 @@
 import cors from "cors"
 import express from "express"
-// import * as routes from "./routes";
+import * as routes from "./routes";
 
 const app = express()
 const port = 8880
@@ -8,7 +8,6 @@ const port = 8880
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE")
-    res.setHeader("Content-Type", "application/json")
     next()
 });
 
@@ -19,7 +18,7 @@ process.on("unhandledRejection", (reason, p) => {
     // application specific logging, throwing an error, or other logic here
 });
 
-// routes.register( app )
+routes.register( app )
 app.use(cors())
 // start the Express server
 app.listen( port, () => {
