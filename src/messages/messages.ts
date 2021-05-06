@@ -9,3 +9,4 @@ export class Messages {
     public static LEVEL_STALL = 'LevelStall'
 
     public static RESET = 'Reset'
+}
