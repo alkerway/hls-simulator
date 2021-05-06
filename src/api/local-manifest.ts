@@ -5,7 +5,7 @@ import fs from 'fs'
 import { html404 } from '../utils'
 import LiveManifestServer from '../controllers/livemanifestserver'
 
-export const staticManifest = async(req: Request, res: Response) => {
+export const localManifest = async(req: Request, res: Response) => {
     const moduleDir = path.parse(__dirname)
     const extension = path.extname(req.url)
     const reqIsFrag = extension.toLowerCase() === '.ts'
