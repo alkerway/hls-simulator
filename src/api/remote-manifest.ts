@@ -28,7 +28,7 @@ export const remoteManifest = async(req: Request, res: Response) => {
                 const liveText = LiveManifestServer.getLiveLevel(vodText, remoteUrl)
                 res.set(headers).status(200).send(liveText)
             }
-        });
+        })
     } else if (reqIsFrag) {
         res.redirect(remoteUrl)
     }

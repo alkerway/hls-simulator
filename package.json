@@ -1,5 +1,5 @@
 {
-  "name": "faulty-hls-simulator",
+  "name": "hls-simulator",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",

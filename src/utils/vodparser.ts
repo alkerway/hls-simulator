@@ -3,14 +3,13 @@ export const vodAtTime = (vodManifest: string, time: number, remoteLevelUrl?: st
     const liveLines = []
     const lines = vodManifest.split('\n')
     let pastManifestTime = 0
-    let onNewFrag = true
+
     let fragCounter = 0
     for (const line of lines) {
         if (line.startsWith('##') || !line.trim()) {
             // line is comment
             liveLines.push(line)
         } else if (line.startsWith('#')) {
-            onNewFrag = false
             liveLines.push(line)
             if (line.indexOf('EXTINF:') > -1) {
                 const durationRegex = /EXTINF\:(.+),/
