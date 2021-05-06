@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import LiveManifestServer from '../controllers/livemanifestserver'
+import LiveManifestServer from '../controllers/live-manifest-server'
 
 export const startLiveManifest = async(req: Request, res: Response) => {
     LiveManifestServer.startLiveManifest()

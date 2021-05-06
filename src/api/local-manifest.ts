@@ -3,7 +3,7 @@ import { OutgoingHttpHeaders } from 'http'
 import path from 'path'
 import fs from 'fs'
 import { html404 } from '../utils'
-import LiveManifestServer from '../controllers/livemanifestserver'
+import LiveManifestServer from '../controllers/live-manifest-server'
 
 export const localManifest = async(req: Request, res: Response) => {
     const moduleDir = path.parse(__dirname)

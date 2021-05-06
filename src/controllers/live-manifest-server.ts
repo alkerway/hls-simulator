@@ -2,6 +2,7 @@ import { vodAtTime } from '../utils'
 
 class LiveManifestServer {
     private sessionStart = -1
+    public lastLiveLevel = ''
 
     private getSessionTime = () => {
         return Math.floor(Date.now() / 1000) - this.sessionStart
@@ -12,7 +13,8 @@ class LiveManifestServer {
             return vodLevel
         }
         const curTime = this.getSessionTime()
-        return vodAtTime(vodLevel, curTime, remoteLevelUrl)
+        this.lastLiveLevel = vodAtTime(vodLevel, curTime, remoteLevelUrl)
+        return this.lastLiveLevel
     }
 
     public startLiveManifest = () => {

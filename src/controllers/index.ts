@@ -1,1 +1,1 @@
-export * from './livemanifestserver'
+export * from './live-manifest-server'
