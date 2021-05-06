@@ -4,6 +4,7 @@ export const vodAtTime = (vodManifest: string, time: number, remoteLevelUrl?: st
     const lines = vodManifest.split('\n')
     let pastManifestTime = 0
     let onNewFrag = true
+    let fragCounter = 0
     for (const line of lines) {
         if (line.startsWith('##') || !line.trim()) {
             // line is comment
@@ -20,9 +21,11 @@ export const vodAtTime = (vodManifest: string, time: number, remoteLevelUrl?: st
             }
         } else {
             if (remoteLevelUrl) {
+                const lineBase = `frag_${fragCounter}.ts`
+                fragCounter++
                 // convert to full url
                 if (line.startsWith('http')) {
-                    liveLines.push(line)
+                    liveLines.push(`${lineBase}?url=${line}`)
                 } else {
                     const pathParts = remoteLevelUrl
                         .split('?')[0]
@@ -30,7 +33,7 @@ export const vodAtTime = (vodManifest: string, time: number, remoteLevelUrl?: st
                         .slice(0, line.startsWith('/') ? 3 : -1)
                         .join('/')
                     const fullFragUrl = `${pathParts}/${line}`
-                    liveLines.push(fullFragUrl)
+                    liveLines.push(`${lineBase}?url=${fullFragUrl}`)
                 }
             } else {
                 liveLines.push(line)
