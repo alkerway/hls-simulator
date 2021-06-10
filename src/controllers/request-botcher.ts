@@ -25,9 +25,8 @@ class Botcher {
         return true
     }
 
-    public botchFrag = (req: Request, res: Response): boolean => {
+    public botchFrag = (req: Request, res: Response, remoteUrl: string): boolean => {
         if (MessageState.vals[Messages.ALL_FRAG_403]) {
-            console.log(MessageState.vals)
             res.status(403).send(html403)
             return false
         }
@@ -38,6 +37,10 @@ class Botcher {
         }
         if (MessageState.vals[Messages.NEXT_FRAG_TIMEOUT]) {
             MessageState.vals[Messages.NEXT_FRAG_TIMEOUT] = false
+            return false
+        }
+        if (MessageState.vals[Messages.ALL_FRAG_DELAY]) {
+            setTimeout(() => res.redirect(remoteUrl), 10000)
             return false
         }
         return true

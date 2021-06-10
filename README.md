@@ -6,7 +6,11 @@ With this tool one can:
 
 ## How It Works
 
-The process is API-based. It is easy to use curl to perform requests. Currently it works with level manifests only, no masters.
+The process is API-based. One can use curl to perform requests. Currently it works with level manifests only, no masters. To set up the server, run the following:
+1. `npm install`
+2. `npm run build`
+3. `cd dist`
+4. `node index.js`
 
 ### Starting a Session
 
@@ -32,7 +36,7 @@ The API can be used to create issues using the format
 
 `curl http://<hls-simulator-server>/deliver?msg=<message-text>`
 
-A full list of messages can be found by requesting the `/listMessages` endpoint. The current list is below, extending it should be pretty easy.
+A full list of messages can be found by requesting the `/listMessages` endpoint. The current list is below and can be expanded.
 
 #### `NextFrag403`
 
@@ -45,6 +49,10 @@ Any following frag request will get a 403 status and html page response
 #### `NextFragTimeout`
 
 The next frag request will time out without a response
+
+#### `AllFragDelay`
+
+Any following frag requests will be delayed 10 seconds before receiving a response.
 
 #### `NextLevel403`
 
@@ -60,7 +68,7 @@ The next level manifest request will time out without a response
 
 #### `LevelStall`
 
-Any following level requests will return the same level manifest as the last request before the message. This essentially means the level manifest will not update with new frags, but will still return ok.
+Any following level requests will return the same level manifest as the last request before the message. The level manifest will not update with new frags, but will still return ok.
 
 #### `Reset`
 

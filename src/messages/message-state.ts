@@ -5,6 +5,7 @@ class MessageState {
         [Messages.NEXT_FRAG_403]: false,
         [Messages.NEXT_FRAG_TIMEOUT]: false,
         [Messages.ALL_FRAG_403]: false,
+        [Messages.ALL_FRAG_DELAY]: false,
 
         [Messages.NEXT_LEVEL_403]: false,
         [Messages.NEXT_LEVEL_TIMEOUT]: false,

@@ -36,8 +36,7 @@ export const remoteManifest = async(req: Request, res: Response) => {
             })
         }
     } else if (reqIsFrag) {
-        const isSafe = Botcher.botchFrag(req, res)
-
+        const isSafe = Botcher.botchFrag(req, res, remoteUrl)
         if (isSafe) {
             res.redirect(remoteUrl)
         }
