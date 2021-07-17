@@ -52,7 +52,7 @@ The next frag request will time out without a response
 
 #### `AllFragDelay`
 
-Any following frag requests will be delayed 10 seconds before receiving a response.
+Any following frag requests will be delayed a random number of seconds (between 1 and 20) before receiving a response.
 
 #### `NextLevel403`
 
