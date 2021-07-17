@@ -40,7 +40,9 @@ class Botcher {
             return false
         }
         if (MessageState.vals[Messages.ALL_FRAG_DELAY]) {
-            setTimeout(() => res.redirect(remoteUrl), 10000)
+            // random delay time between 1 and 21 seconds
+            const delayTimeSeconds = Math.random() * 20 + 1
+            setTimeout(() => res.redirect(remoteUrl), 1000 * delayTimeSeconds)
             return false
         }
         return true
