@@ -1,3 +1,4 @@
+import { possiblePlaylistTags } from "./HlsTags"
 
 export const vodAtTime = (vodManifest: string, time: number, remoteLevelUrl?: string) => {
     const liveLines = []
@@ -5,20 +6,36 @@ export const vodAtTime = (vodManifest: string, time: number, remoteLevelUrl?: st
     let pastManifestTime = 0
 
     let fragCounter = 0
-    for (const line of lines) {
-        if (line.startsWith('##') || !line.trim()) {
+    let lineIdx = 0
+    let stopAddingHeaderTags = false
+    while (true) {
+        const line = lines[lineIdx]
+        if (line.startsWith('##')) {
             // line is comment
             liveLines.push(line)
         } else if (line.startsWith('#')) {
-            liveLines.push(line)
-            if (line.indexOf('EXTINF:') > -1) {
-                const durationRegex = /EXTINF\:(.+),/
-                const match = durationRegex.exec(line)
-                if (match && match[1]) {
-                    pastManifestTime += Number(match[1])
+            const isEndlist = line.startsWith('#EXT-X-ENDLIST')
+            const isHeaderTag = possiblePlaylistTags.find(tag => line.startsWith(tag))
+            if (!isEndlist) {
+                if (isHeaderTag) {
+                    if (!stopAddingHeaderTags) {
+                        liveLines.push(line)
+                    }
+                } else {
+                    if (line.startsWith('#EXTINF:')) {
+                        const durationRegex = /EXTINF\:(.+),/
+                        const match = durationRegex.exec(line)
+                        if (match && match[1]) {
+                            pastManifestTime += Number(match[1])
+                            if (pastManifestTime > time) {
+                                break
+                            }
+                        }
+                    }
+                    liveLines.push(line)
                 }
             }
-        } else {
+        } else if (line.trim()) {
             if (remoteLevelUrl) {
                 const lineBase = `frag_${fragCounter}.ts`
                 fragCounter++
@@ -37,11 +54,14 @@ export const vodAtTime = (vodManifest: string, time: number, remoteLevelUrl?: st
             } else {
                 liveLines.push(line)
             }
-            if (pastManifestTime > time) {
-                break
-            }
+        }
+        lineIdx = (lineIdx + 1) % lines.length
+        if (lineIdx === 0 && fragCounter !== 0) {
+            // TODO if (notRollingDvr option) break else add endlist
+            liveLines.push('#EXT-X-DISCONTINUITY ')
+            stopAddingHeaderTags = true
         }
     }
     // liveLines.splice(2, 0, '#EXT-X-PLAYLIST-TYPE:EVENT')
-    return liveLines.join('\n')
+    return liveLines.join('\n') + '\n'
 }
