@@ -22,6 +22,10 @@ class Botcher {
             res.status(200).send(lastLiveLevel)
             return false
         }
+        if (MessageState.vals[Messages.STREAM_END]) {
+            res.status(200).send(lastLiveLevel + '#EXT-X-ENDLIST\n')
+            return false
+        }
         return true
     }
 

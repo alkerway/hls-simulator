@@ -11,6 +11,8 @@ class MessageState {
         [Messages.NEXT_LEVEL_TIMEOUT]: false,
         [Messages.ALL_LEVEL_403]: false,
         [Messages.LEVEL_STALL]: false,
+
+        [Messages.STREAM_END]: false
     }
     public vals = Object.assign({}, this.originalState)
     public reset = () => {

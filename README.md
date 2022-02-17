@@ -30,9 +30,9 @@ We can get our live stream by requesting `http://localhost:8880/remote/level.m3u
 
 Playing the url in a video player will play a live manifest.
 
-## Creating Problems
+## Simulate Events
 
-The API can be used to create issues using the format
+The API can be used to create issues or simulate events using the format
 
 `curl http://<hls-simulator-server>/deliver?msg=<message-text>`
 
@@ -70,6 +70,10 @@ The next level manifest request will time out without a response
 
 Any following level requests will return the same level manifest as the last request before the message. The level manifest will not update with new frags, but will still return ok.
 
+#### `StreamEnd`
+
+The next level manifest will have an `#EXT-X-ENDLIST` tag appended to the end. Further level requests will receive the same manifest.
+
 #### `Reset`
 
-Any issues created by the above requests will go away. For example, if `AllFrag403` was called previously, a call to `Reset` means following fragment requests will no longer return a 403 response. If `LevelStall` was called previously, the level will update according in line with the session timer (most likely jump ahead).
+Any issues created by the above requests will go away. For example, if `AllFrag403` was called previously, a call to `Reset` means following fragment requests will no longer return a 403 response. If `LevelStall` or `StreamEnd` was called previously, the level will update according in line with the session timer (most likely jump ahead).

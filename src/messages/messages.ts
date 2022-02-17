@@ -9,5 +9,6 @@ export class Messages {
     public static ALL_LEVEL_403 = 'AllLevel403'
     public static LEVEL_STALL = 'LevelStall'
 
+    public static STREAM_END = 'StreamEnd'
     public static RESET = 'Reset'
 }
