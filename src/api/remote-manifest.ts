@@ -6,14 +6,15 @@ import LiveManifestServer from '../controllers/live-manifest-server'
 import Botcher from '../controllers/request-botcher'
 
 export const remoteManifest = async(req: Request, res: Response) => {
-    const extension = path.extname(req.url)
+    const remoteUrl = String(req.query.url)
+    if (!remoteUrl || remoteUrl.indexOf('http') !== 0) {
+        return res.status(400).send('Invalid or missing remote level url in query parameters\n')
+    }
+
+    const extension = path.extname(remoteUrl)
     const reqIsFrag = extension.toLowerCase() === '.ts'
     const reqIsManifest = extension.toLowerCase() === '.m3u8'
 
-    const remoteUrl = String(req.query.url)
-    if (!remoteUrl || remoteUrl.indexOf('http') !== 0) {
-        return res.status(400).send('Invalid or missing remote level url in query parameters')
-    }
     if (reqIsManifest) {
         const headers: OutgoingHttpHeaders = {}
         headers.MimeType = 'application/x-mpegURL'
@@ -22,6 +23,7 @@ export const remoteManifest = async(req: Request, res: Response) => {
         const isSafe = Botcher.botchLevel(req, res, LiveManifestServer.lastLiveLevel)
 
         if (isSafe) {
+            const dvrWindowSeconds = Number(req.query.dvrWindowSeconds) ?? 0
             request(remoteUrl, (err, remoteResponse, body) => {
                 if (err) {
                     return res.status(502).send('Error requesting remote level url')
@@ -30,7 +32,7 @@ export const remoteManifest = async(req: Request, res: Response) => {
                         return res.status(remoteResponse.statusCode).send(body)
                     }
                     const vodText = body
-                    const liveText = LiveManifestServer.getLiveLevel(vodText, remoteUrl)
+                    const liveText = LiveManifestServer.getLiveLevel(vodText, remoteUrl, dvrWindowSeconds)
                     res.status(200).send(liveText)
                 }
             })
@@ -40,5 +42,7 @@ export const remoteManifest = async(req: Request, res: Response) => {
         if (isSafe) {
             res.redirect(remoteUrl)
         }
+    } else {
+        res.status(400).send('Request is not for manifest or fragment\n')
     }
 }

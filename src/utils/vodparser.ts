@@ -1,9 +1,5 @@
 import { possiblePlaylistTags } from "./HlsTags"
 
-import config from '../config.json'
-
-const { serveRollingDvr } = config
-
 const getExtInfDuration = (infLine: string): number => {
     const durationRegex = /EXTINF\:(.+),/
     const match = durationRegex.exec(infLine)
@@ -13,7 +9,7 @@ const getExtInfDuration = (infLine: string): number => {
     return 0
 }
 
-export const vodAtTime = (vodManifest: string, time: number, remoteLevelUrl?: string) => {
+export const vodAtTime = (vodManifest: string, time: number, remoteLevelUrl: string, dvrWindowSeconds: number) => {
     const liveLines = []
     const lines = vodManifest.split('\n')
     let pastManifestTime = 0
@@ -71,8 +67,7 @@ export const vodAtTime = (vodManifest: string, time: number, remoteLevelUrl?: st
             stopAddingHeaderTags = true
         }
     }
-    if (serveRollingDvr) {
-        const dvrDurationSeconds = 60
+    if (typeof dvrWindowSeconds ==='number' && dvrWindowSeconds > 0) {
         let secondsIntoWindowSoFar = 0
         let numFragsRemoved = 0
         let foundMediaSequenceValue = 0
@@ -86,7 +81,7 @@ export const vodAtTime = (vodManifest: string, time: number, remoteLevelUrl?: st
                 }
                 return true
             }
-            if (secondsIntoWindowSoFar > dvrDurationSeconds) {
+            if (secondsIntoWindowSoFar > dvrWindowSeconds) {
                 if (line.trim() && !line.startsWith('#')) {
                     numFragsRemoved += 1
                 }

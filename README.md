@@ -30,6 +30,10 @@ We can get our live stream by requesting `http://localhost:8880/remote/level.m3u
 
 Playing the url in a video player will play a live manifest.
 
+### Url Options
+
+* The query parameter `&dvrWindowSeconds=60` tells the server to start returning a rolling dvr level manifest once the vod-to-live manifest timer exceeds 60 seconds. A dvr window of 60 means the level returned will contain the minimum number of fragments that exceed 60 seconds of duration. If this parameter is not specified, the app will return a event-style playlist.
+
 ## Simulate Events
 
 The API can be used to create issues or simulate events using the format

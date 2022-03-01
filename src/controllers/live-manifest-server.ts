@@ -9,12 +9,12 @@ class LiveManifestServer {
         return Math.floor(Date.now() / 1000) - this.sessionStart
     }
 
-    public getLiveLevel = (vodLevel: string, remoteLevelUrl?: string) => {
+    public getLiveLevel = (vodLevel: string, remoteLevelUrl: string, dvrWindowSeconds: number) => {
         // if (this.sessionStart < 0) {
         //     return vodLevel
         // }
         const curTime = this.getSessionTime()
-        this.lastLiveLevel = vodAtTime(vodLevel, curTime, remoteLevelUrl)
+        this.lastLiveLevel = vodAtTime(vodLevel, curTime, remoteLevelUrl, dvrWindowSeconds)
         return this.lastLiveLevel
     }
 
