@@ -1,7 +1,8 @@
 import { Request, Response } from 'express'
-import LiveManifestServer from '../controllers/live-manifest-server'
+import SessionState from '../messages/session-state'
 
 export const startLiveManifest = async(req: Request, res: Response) => {
-    LiveManifestServer.startLiveManifest()
-    return res.status(200).send('Ok\n')
+    const reqSessionId = req.query.sessionId && String(req.query.sessionId)
+    const { sessionStartTime, sessionId } = SessionState.startSession(reqSessionId)
+    return res.status(200).send({sessionStartTime, sessionId})
 }

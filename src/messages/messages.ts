@@ -1,14 +1,14 @@
-export class Messages {
-    public static NEXT_FRAG_403 = 'NextFrag403'
-    public static NEXT_FRAG_TIMEOUT = 'NextFragTimeout'
-    public static ALL_FRAG_403 = 'AllFrag403'
-    public static ALL_FRAG_DELAY = 'AllFragDelay'
+export enum Messages {
+    NEXT_FRAG_403 = 'NextFrag403',
+    NEXT_FRAG_TIMEOUT = 'NextFragTimeout',
+    ALL_FRAG_403 = 'AllFrag403',
+    ALL_FRAG_DELAY = 'AllFragDelay',
 
-    public static NEXT_LEVEL_403 = 'NextLevel403'
-    public static NEXT_LEVEL_TIMEOUT = 'NextLevelTimeout'
-    public static ALL_LEVEL_403 = 'AllLevel403'
-    public static LEVEL_STALL = 'LevelStall'
+    NEXT_LEVEL_403 = 'NextLevel403',
+    NEXT_LEVEL_TIMEOUT = 'NextLevelTimeout',
+    ALL_LEVEL_403 = 'AllLevel403',
+    LEVEL_STALL = 'LevelStall',
 
-    public static STREAM_END = 'StreamEnd'
-    public static RESET = 'Reset'
+    STREAM_END = 'StreamEnd',
+    RESET = 'Reset',
 }

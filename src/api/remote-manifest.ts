@@ -4,6 +4,7 @@ import path from 'path'
 import request from 'request'
 import LiveManifestServer from '../controllers/live-manifest-server'
 import Botcher from '../controllers/request-botcher'
+import SessionState from '../messages/session-state'
 
 export const remoteManifest = async(req: Request, res: Response) => {
     const remoteUrl = String(req.query.url)
@@ -15,12 +16,17 @@ export const remoteManifest = async(req: Request, res: Response) => {
     const reqIsFrag = extension.toLowerCase() === '.ts'
     const reqIsManifest = extension.toLowerCase() === '.m3u8'
 
+    const sessionId = String(req.query.sessionId)
+    if (!SessionState.sessionExists(sessionId)) {
+        return res.status(400).send('No session found for id ' + sessionId)
+    }
+
     if (reqIsManifest) {
         const headers: OutgoingHttpHeaders = {}
         headers.MimeType = 'application/x-mpegURL'
         res.set(headers)
 
-        const isSafe = Botcher.botchLevel(req, res, LiveManifestServer.lastLiveLevel)
+        const isSafe = Botcher.botchLevel(req, res, sessionId, LiveManifestServer.lastLiveLevel)
 
         if (isSafe) {
             const dvrWindowSeconds = Number(req.query.dvrWindowSeconds) ?? 0
@@ -32,13 +38,13 @@ export const remoteManifest = async(req: Request, res: Response) => {
                         return res.status(remoteResponse.statusCode).send(body)
                     }
                     const vodText = body
-                    const liveText = LiveManifestServer.getLiveLevel(vodText, remoteUrl, dvrWindowSeconds)
+                    const liveText = LiveManifestServer.getLiveLevel(sessionId, vodText, remoteUrl, dvrWindowSeconds)
                     res.status(200).send(liveText)
                 }
             })
         }
     } else if (reqIsFrag) {
-        const isSafe = Botcher.botchFrag(req, res, remoteUrl)
+        const isSafe = Botcher.botchFrag(req, res, sessionId, remoteUrl)
         if (isSafe) {
             res.redirect(remoteUrl)
         }

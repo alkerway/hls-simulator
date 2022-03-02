@@ -14,19 +14,19 @@ The process is API-based. One can use curl to perform requests. Currently it wor
 
 ### Starting a Session
 
-A call to `curl http://localhost:8880/startSession` will start the vod-to-live manifest timer. For instance, a manifest level request 20 seconds after the `startSession` call will return a manifest around 20 seconds long.
+A call to `curl http://localhost:8880/startSession` will start the vod-to-live manifest timer. For instance, a manifest level request 20 seconds after the `startSession` call will return a manifest around 20 seconds long. The call to `startSession` will return the session start time in seconds, and a sessionId to match the startTime and following messages (below).
 
 ### Constructing a live stream url
 
 A live stream url can be built in the following manner:
 
-`http://<hls-simulator-server>/remote/level.m3u8?url=<vod-level-manifest-url>`
+`http://<hls-simulator-server>/remote/level.m3u8?sessionId=<id>&url=<vod-level-manifest-url>`
 
-For example, using the test level manifest from the hls.js demo page (below):
+For example, with a sessionId of `abc` and the test level manifest from the hls.js demo page (below):
 
 `https://test-streams.mux.dev/x36xhzz/url_8/193039199_mp4_h264_aac_fhd_7.m3u8` 
 
-We can get our live stream by requesting `http://localhost:8880/remote/level.m3u8?url=https://test-streams.mux.dev/x36xhzz/url_8/193039199_mp4_h264_aac_fhd_7.m3u8`
+We can get our live stream by requesting `http://localhost:8880/remote/level.m3u8?sessionId=abc&url=https://test-streams.mux.dev/x36xhzz/url_8/193039199_mp4_h264_aac_fhd_7.m3u8`
 
 Playing the url in a video player will play a live manifest.
 
@@ -38,9 +38,9 @@ Playing the url in a video player will play a live manifest.
 
 The API can be used to create issues or simulate events using the format
 
-`curl http://<hls-simulator-server>/deliver?msg=<message-text>`
+`curl http://<hls-simulator-server>/deliver?sessionId=<id>&msg=<message-text>`
 
-A full list of messages can be found by requesting the `/listMessages` endpoint. The current list is below and can be expanded.
+A full list of messages can be found by requesting the `/listMessages` endpoint. The current list is below and is case sensitive.
 
 #### `NextFrag403`
 

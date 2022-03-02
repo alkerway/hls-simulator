@@ -1,14 +1,20 @@
 import { Request, Response } from 'express'
-import MessageState from '../messages/message-state'
 import { Messages } from '../messages'
+import SessionState from '../messages/session-state'
 
 export const deliver = async(req: Request, res: Response) => {
-    const message = String(req.query.msg)
-    if (message in MessageState.vals) {
-        MessageState.vals[message] = true
+    const message = String(req.query.msg) as Messages
+    const sessionId = String(req.query.sessionId)
+
+    if (!SessionState.sessionExists(sessionId)) {
+        return res.status(400).send('No session found for id ' + sessionId)
+    }
+
+    if (SessionState.isValidMessage(message)) {
+        SessionState.setMessageValue(sessionId, message, true)
         res.status(200).send('ok')
     } else if (message === Messages.RESET) {
-        MessageState.reset()
+        SessionState.reset(sessionId)
         res.status(200).send('ok')
     } else {
         res.status(400).send('Invalid or missing message passed in query params')
