@@ -1,5 +1,5 @@
 import { vodAtTime } from '../utils'
-import SessionState  from '../messages/session-state'
+import SessionState  from '../sessions/session-state'
 
 class LiveManifestServer {
     public lastLiveLevel = ''

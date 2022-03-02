@@ -1,4 +1,4 @@
-import { Messages } from "."
+import { Messages } from "./messages"
 
 type MessageState = {[key in Messages]?: boolean}
 

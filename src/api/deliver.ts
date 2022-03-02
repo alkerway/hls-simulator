@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
-import { Messages } from '../messages'
-import SessionState from '../messages/session-state'
+import { Messages } from '../sessions/messages'
+import SessionState from '../sessions/session-state'
 
 export const deliver = async(req: Request, res: Response) => {
     const message = String(req.query.msg) as Messages

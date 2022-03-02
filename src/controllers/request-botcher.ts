@@ -1,7 +1,7 @@
 import { Request, Response } from 'express'
 import { html403 } from '../utils'
-import { Messages } from '../messages'
-import SessionState from '../messages/session-state'
+import { Messages } from '../sessions/messages'
+import SessionState from '../sessions/session-state'
 
 class Botcher {
     public botchLevel = (req: Request, res: Response, sessionId: string, lastLiveLevel: string): boolean => {

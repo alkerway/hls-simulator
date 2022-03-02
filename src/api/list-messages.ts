@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { Messages } from '../messages'
+import { Messages } from '../sessions/messages'
 
 export const listMessages  = async(req: Request, res: Response) => {
     const vals = Object.values(Messages)

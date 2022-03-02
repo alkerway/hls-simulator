@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import SessionState from '../messages/session-state'
+import SessionState from '../sessions/session-state'
 
 export const startLiveManifest = async(req: Request, res: Response) => {
     const reqSessionId = req.query.sessionId && String(req.query.sessionId)

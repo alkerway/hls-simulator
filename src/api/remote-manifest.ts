@@ -4,7 +4,7 @@ import path from 'path'
 import request from 'request'
 import LiveManifestServer from '../controllers/live-manifest-server'
 import Botcher from '../controllers/request-botcher'
-import SessionState from '../messages/session-state'
+import SessionState from '../sessions/session-state'
 
 export const remoteManifest = async(req: Request, res: Response) => {
     const remoteUrl = String(req.query.url)
