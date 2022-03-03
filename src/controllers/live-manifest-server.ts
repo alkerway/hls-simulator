@@ -9,7 +9,7 @@ class LiveManifestServer {
         if (curTime < 0) {
             return vodLevel
         }
-        this.lastLiveLevel = vodAtTime(vodLevel, curTime, remoteLevelUrl, dvrWindowSeconds)
+        this.lastLiveLevel = vodAtTime(vodLevel, curTime, remoteLevelUrl, dvrWindowSeconds, sessionId)
         return this.lastLiveLevel
     }
 }

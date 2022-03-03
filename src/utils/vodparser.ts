@@ -9,7 +9,7 @@ const getExtInfDuration = (infLine: string): number => {
     return 0
 }
 
-export const vodAtTime = (vodManifest: string, time: number, remoteLevelUrl: string, dvrWindowSeconds: number) => {
+export const vodAtTime = (vodManifest: string, time: number, remoteLevelUrl: string, dvrWindowSeconds: number, sessionId: string) => {
     const liveLines = []
     const lines = vodManifest.split('\n')
     let pastManifestTime = 0
@@ -43,11 +43,11 @@ export const vodAtTime = (vodManifest: string, time: number, remoteLevelUrl: str
             }
         } else if (line.trim()) {
             if (remoteLevelUrl) {
-                const lineBase = `frag_${fragCounter}.ts`
+                const lineBase = `frag_${fragCounter}.ts?sessionId=${sessionId}`
                 fragCounter++
                 // convert to full url
                 if (line.startsWith('http')) {
-                    liveLines.push(`${lineBase}?url=${line}`)
+                    liveLines.push(`${lineBase}&url=${line}`)
                 } else {
                     const pathParts = remoteLevelUrl
                         .split('?')[0]
@@ -55,7 +55,7 @@ export const vodAtTime = (vodManifest: string, time: number, remoteLevelUrl: str
                         .slice(0, line.startsWith('/') ? 3 : -1)
                         .join('/')
                     const fullFragUrl = `${pathParts}/${line}`
-                    liveLines.push(`${lineBase}?url=${fullFragUrl}`)
+                    liveLines.push(`${lineBase}&url=${fullFragUrl}`)
                 }
             } else {
                 liveLines.push(line)
