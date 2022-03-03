@@ -7,7 +7,7 @@ const setGeneratedUrl = () => {
     if (AppState.sessionId && AppState.inputUrl) {
         url = `${location.origin}/remote/level?sessionId=${AppState.sessionId}&url=${encodeURIComponent(AppState.inputUrl)}`
         if (AppState.dvrWindow > 0) {
-            url = `${url}&dvrWindow=${AppState.dvrWindow}`
+            url = `${url}&dvrWindowSeconds=${AppState.dvrWindow}`
         }
     }
     generatedUrlDisplay.textContent = url
