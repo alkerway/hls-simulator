@@ -1,23 +1,5 @@
-const startSessionButton = document.getElementById('startSessionButton')
-const resetTimerButton = document.getElementById('resetTimerButton')
-const inputUrl = document.getElementById('inputUrl')
-const dvrWindowInput = document.getElementById('rollingDvrInput')
-const generatedUrlDisplay = document.getElementById('generatedUrlDisplay')
-const copyGeneratedUrlButton = document.getElementById('copyGeneratedUrlButton')
-
-const nextFrag403Button = document.getElementById('NextFrag403Button')
-const nextLevel403Button = document.getElementById('NextLevel403Button')
-const nextLevelTimeoutButton = document.getElementById('NextLevelTimeoutButton')
-const nextFragTimeoutButton = document.getElementById('NextFragTimeoutButton')
-const allFrag403Button = document.getElementById('AllFrag403Button')
-const allLevel403Button = document.getElementById('AllLevel403Button')
-const allFragDelayButton = document.getElementById('AllFragDelayButton')
-const levelStallButton = document.getElementById('LevelStallButton')
-const streamEndButton = document.getElementById('StreamEndButton')
-const resetButton = document.getElementById('ResetButton')
-
-AppState.inputUrl = inputUrl.value
-AppState.dvrWindow = dvrWindowInput.value
+AppState.inputUrl = Elements.inputUrl.value
+AppState.dvrWindow = Elements.dvrWindowInput.value
 
 const makeRequest = (url, returnJson=false) => {
     const myHeaders = new Headers();
@@ -38,35 +20,35 @@ const makeRequest = (url, returnJson=false) => {
         })
 }
 
-startSessionButton.addEventListener('click', () => {
+Elements.startSessionButton.addEventListener('click', () => {
     makeRequest('/startSession', true)
         .then(Events.sessionUpdated$.next)
         .catch(console.warn)
 })
 
-resetTimerButton.addEventListener('click', () => {
+Elements.resetTimerButton.addEventListener('click', () => {
     makeRequest(`/startSession?sessionId=${AppState.sessionId}`, true)
         .then(Events.sessionUpdated$.next)
         .catch(console.warn)
 })
 
-inputUrl.addEventListener('keyup', () => {
-    const curValue = inputUrl.value
+Elements.inputUrl.addEventListener('keyup', () => {
+    const curValue = Elements.inputUrl.value
     Events.inputUrlUpdated$.next(curValue)
 })
 
-dvrWindowInput.addEventListener('keyup', () => {
-    const curValue = dvrWindowInput.value
+Elements.dvrWindowInput.addEventListener('keyup', () => {
+    const curValue = Elements.dvrWindowInput.value
     Events.dvrWindowUpdated$.next(curValue)
 })
 
-dvrWindowInput.addEventListener('mouseup', () => {
-    const curValue = dvrWindowInput.value
+Elements.dvrWindowInput.addEventListener('mouseup', () => {
+    const curValue = Elements.dvrWindowInput.value
     Events.dvrWindowUpdated$.next(curValue)
 })
 
-copyGeneratedUrlButton.addEventListener('click', () => {
-    const genValue = generatedUrlDisplay.value
+Elements.copyGeneratedUrlButton.addEventListener('click', () => {
+    const genValue = Elements.generatedUrlDisplay.value
     navigator.clipboard.writeText(genValue)
 })
 
@@ -76,13 +58,13 @@ const deliverMessage = (message) => {
         .catch(console.warn)
 }
 
-nextFrag403Button.addEventListener('click', () => deliverMessage('NextFrag403'))
-nextLevel403Button.addEventListener('click', () => deliverMessage('NextLevel403'))
-nextLevelTimeoutButton.addEventListener('click', () => deliverMessage('NextLevelTimeout'))
-nextFragTimeoutButton.addEventListener('click', () => deliverMessage('NextFragTimeout'))
-allFrag403Button.addEventListener('click', () => deliverMessage('AllFrag403'))
-allLevel403Button.addEventListener('click', () => deliverMessage('AllLevel403'))
-allFragDelayButton.addEventListener('click', () => deliverMessage('AllFragDelay'))
-levelStallButton.addEventListener('click', () => deliverMessage('LevelStall'))
-streamEndButton.addEventListener('click', () => deliverMessage('StreamEnd'))
-resetButton.addEventListener('click', () => deliverMessage('Reset'))
+Elements.nextFrag403Button.addEventListener('click', () => deliverMessage('NextFrag403'))
+Elements.nextLevel403Button.addEventListener('click', () => deliverMessage('NextLevel403'))
+Elements.nextLevelTimeoutButton.addEventListener('click', () => deliverMessage('NextLevelTimeout'))
+Elements.nextFragTimeoutButton.addEventListener('click', () => deliverMessage('NextFragTimeout'))
+Elements.allFrag403Button.addEventListener('click', () => deliverMessage('AllFrag403'))
+Elements.allLevel403Button.addEventListener('click', () => deliverMessage('AllLevel403'))
+Elements.allFragDelayButton.addEventListener('click', () => deliverMessage('AllFragDelay'))
+Elements.levelStallButton.addEventListener('click', () => deliverMessage('LevelStall'))
+Elements.streamEndButton.addEventListener('click', () => deliverMessage('StreamEnd'))
+Elements.resetButton.addEventListener('click', () => deliverMessage('Reset'))
