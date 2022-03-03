@@ -15,4 +15,5 @@ const Events = {
     sessionUpdated$: new Event(),
     inputUrlUpdated$: new Event(),
     dvrWindowUpdated$: new Event(),
+    messageDelivered$: new Event()
 }

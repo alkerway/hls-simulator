@@ -11,22 +11,41 @@ const nextLevelTimeoutButton = document.getElementById('NextLevelTimeoutButton')
 const nextFragTimeoutButton = document.getElementById('NextFragTimeoutButton')
 const allFrag403Button = document.getElementById('AllFrag403Button')
 const allLevel403Button = document.getElementById('AllLevel403Button')
+const allFragDelayButton = document.getElementById('AllFragDelayButton')
+const levelStallButton = document.getElementById('LevelStallButton')
 const streamEndButton = document.getElementById('StreamEndButton')
 const resetButton = document.getElementById('ResetButton')
 
 AppState.inputUrl = inputUrl.value
 AppState.dvrWindow = dvrWindowInput.value
 
+const makeRequest = (url, returnJson=false) => {
+    const myHeaders = new Headers();
+    myHeaders.append('pragma', 'no-cache');
+    myHeaders.append('cache-control', 'no-cache');
+
+    const requestInit = {
+        method: 'GET',
+        headers: myHeaders,
+    };
+    return fetch(url, requestInit)
+        .then(async (res) =>  {
+            if (res.ok) {
+                return returnJson ? res.json() : res.text()
+            }
+            const errorText = await res.text()
+            throw new Error(errorText)
+        })
+}
+
 startSessionButton.addEventListener('click', () => {
-    fetch('/startSession')
-        .then(res => res.json())
+    makeRequest('/startSession', true)
         .then(Events.sessionUpdated$.next)
         .catch(console.warn)
 })
 
 resetTimerButton.addEventListener('click', () => {
-    fetch(`/startSession?sessionId=${AppState.sessionId}`)
-        .then(res => res.json())
+    makeRequest(`/startSession?sessionId=${AppState.sessionId}`, true)
         .then(Events.sessionUpdated$.next)
         .catch(console.warn)
 })
@@ -52,8 +71,8 @@ copyGeneratedUrlButton.addEventListener('click', () => {
 })
 
 const deliverMessage = (message) => {
-    fetch(`/deliver?sessionId=${AppState.sessionId}&msg=${message}`)
-        .then(res => res.text())
+    makeRequest(`/deliver?sessionId=${AppState.sessionId}&msg=${message}`)
+        .then(() => Events.messageDelivered$.next(message))
         .catch(console.warn)
 }
 
@@ -63,5 +82,7 @@ nextLevelTimeoutButton.addEventListener('click', () => deliverMessage('NextLevel
 nextFragTimeoutButton.addEventListener('click', () => deliverMessage('NextFragTimeout'))
 allFrag403Button.addEventListener('click', () => deliverMessage('AllFrag403'))
 allLevel403Button.addEventListener('click', () => deliverMessage('AllLevel403'))
+allFragDelayButton.addEventListener('click', () => deliverMessage('AllFragDelay'))
+levelStallButton.addEventListener('click', () => deliverMessage('LevelStall'))
 streamEndButton.addEventListener('click', () => deliverMessage('StreamEnd'))
 resetButton.addEventListener('click', () => deliverMessage('Reset'))

@@ -12,24 +12,24 @@
 </head>
 <body>
     <div>
-        <h3>Step 1: Start a Session</h3>
+        <h4>Step 1: Start a Session</h4>
         <button id="startSessionButton" class="button-primary">Start Session</button>
         <div>Session Id: <span id="sessionIdDisplay"></span></div>
         <div>Manifest Timer: <span id="sessionStartTimeDisplay">0.0</span></div>
         <button id="resetTimerButton">Reset Timer</button>
     </div>
     <div>
-        <h3>Step 2: Input Url</h3>
+        <h4>Step 2: Input Url</h4>
         <input style="width: 650px;" type="text" id="inputUrl" placeholder="Enter Level Manifest Url">
-        <div>Rolling Dvr Length: <input type="number" id="rollingDvrInput" value="-1"></div>
-        <h5>Generated Url Below</h5>
-        <button id="copyGeneratedUrlButton">Copy</button>
+        <div>Rolling Dvr Length (seconds): <input style="width: 80px" type="number" id="rollingDvrInput" value="-1"></div>
+        <h5>Generated Url <button id="copyGeneratedUrlButton">Copy Generated Url</button>
+        </h5>
         <div>
             <textarea style="width: 650px" id="generatedUrlDisplay"></textarea>
         </div>
     </div>
     <div>
-        <h3>Step 3: Options</h3>
+        <h4>Step 3: Simulate Things</h4>
         <div>
             <button class="optionButton" id="NextFrag403Button">Next Frag 403</button>
             <button class="optionButton" id="NextLevel403Button">Next Level 403</button>
@@ -39,9 +39,19 @@
         <div>
             <button class="optionButton" id="AllFrag403Button">All Frag 403</button>
             <button class="optionButton" id="AllLevel403Button">All Level 403</button>
+            <button class="optionButton" id="AllFragDelayButton">All Frag Delay</button>
+
+        </div>
+        <div>
+            <button class="optionButton" id="LevelStallButton">Level Stall</button>
             <button class="optionButton" id="StreamEndButton">Stream End</button>
         </div>
         <button class="optionButton" id="ResetButton">Reset</button>
+    </div>
+    <br>
+    <br>
+    <div>
+        Github repo: <a target="_blank" href="https://github.com/alkerway/hls-simulator/">https://github.com/alkerway/hls-simulator/</a>
     </div>
     <script type="module" src="js/domUpdaters.js"></script>
     <script type="module" src="js/domListeners.js"></script>
