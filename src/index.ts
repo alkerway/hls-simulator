@@ -18,6 +18,7 @@ process.on("unhandledRejection", (reason, p) => {
     // application specific logging, throwing an error, or other logic here
 });
 
+app.use(express.static('./src/gui'))
 routes.register( app )
 app.use(cors())
 // start the Express server

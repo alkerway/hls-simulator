@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HLS Simulator</title>
+    <link rel="stylesheet" href="skeleton.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="js/appstate.js"></script>
+    <script src="js/events.js"></script>
+</head>
+<body>
+    <div>
+        <h3>Step 1: Start a Session</h3>
+        <button id="startSessionButton" class="button-primary">Start Session</button>
+        <div>Session Id: <span id="sessionIdDisplay"></span></div>
+        <div>Manifest Timer: <span id="sessionStartTimeDisplay">0.0</span></div>
+        <button id="resetTimerButton">Reset Timer</button>
+    </div>
+    <div>
+        <h3>Step 2: Input Url</h3>
+        <input style="width: 650px;" type="text" id="inputUrl" placeholder="Enter Level Manifest Url">
+        <div>Rolling Dvr Length: <input type="number" id="rollingDvrInput" value="-1"></div>
+        <h5>Generated Url Below</h5>
+        <button id="copyGeneratedUrlButton">Copy</button>
+        <div>
+            <textarea style="width: 650px" id="generatedUrlDisplay"></textarea>
+        </div>
+    </div>
+    <div>
+        <h3>Step 3: Options</h3>
+        <button>Next Frag 403</button>
+        <button>End</button>
+        <button>Reset</button>
+    </div>
+    <script type="module" src="js/domUpdaters.js"></script>
+    <script type="module" src="js/domListeners.js"></script>
+</body>
+</html>
