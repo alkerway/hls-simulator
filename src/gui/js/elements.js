@@ -18,5 +18,7 @@ const Elements = {
     allFragDelayButton: document.getElementById('AllFragDelayButton'),
     levelStallButton: document.getElementById('LevelStallButton'),
     streamEndButton: document.getElementById('StreamEndButton'),
-    resetButton: document.getElementById('ResetButton')
+    resetButton: document.getElementById('ResetButton'),
+
+    logsWindow: document.getElementById('logsWindow')
 }

@@ -32,6 +32,15 @@ Events.dvrWindowUpdated$.subscribe((dvrWindow) => {
     setGeneratedUrl()
 })
 
+Events.log$.subscribe((text) => {
+    const wasScrolledToLast = Elements.logsWindow.scrollHeight - Elements.logsWindow.clientHeight === Elements.logsWindow.scrollTop
+    const logNode = document.createElement('div')
+    logNode.textContent = text
+    Elements.logsWindow.appendChild(logNode)
+    if (wasScrolledToLast) {
+        Elements.logsWindow.scrollTop = Elements.logsWindow.scrollHeight
+    }
+})
 
 Events.messageDelivered$.subscribe((message) => {
     switch (message) {

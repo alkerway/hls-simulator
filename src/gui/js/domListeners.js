@@ -13,6 +13,7 @@ const makeRequest = (url, returnJson=false) => {
     return fetch(url, requestInit)
         .then(async (res) =>  {
             if (res.ok) {
+                Events.log$.next('Request success')
                 return returnJson ? res.json() : res.text()
             }
             const errorText = await res.text()
@@ -21,15 +22,17 @@ const makeRequest = (url, returnJson=false) => {
 }
 
 Elements.startSessionButton.addEventListener('click', () => {
+    Events.log$.next('Sending start session request...')
     makeRequest('/startSession', true)
         .then(Events.sessionUpdated$.next)
-        .catch(console.warn)
+        .catch((err) => Events.log$.next(err))
 })
 
 Elements.resetTimerButton.addEventListener('click', () => {
+    Events.log$.next('Sending reset session request...')
     makeRequest(`/startSession?sessionId=${AppState.sessionId}`, true)
         .then(Events.sessionUpdated$.next)
-        .catch(console.warn)
+        .catch((err) => Events.log$.next(err))
 })
 
 Elements.inputUrl.addEventListener('keyup', () => {
@@ -50,12 +53,15 @@ Elements.dvrWindowInput.addEventListener('mouseup', () => {
 Elements.copyGeneratedUrlButton.addEventListener('click', () => {
     const genValue = Elements.generatedUrlDisplay.value
     navigator.clipboard.writeText(genValue)
+        .then(() => Events.log$.next('Copy success'))
+        .catch((err) => Events.log$.next(err))
 })
 
 const deliverMessage = (message) => {
+    Events.log$.next(`Sending ${message} request...`)
     makeRequest(`/deliver?sessionId=${AppState.sessionId}&msg=${message}`)
         .then(() => Events.messageDelivered$.next(message))
-        .catch(console.warn)
+        .catch((err) => Events.log$.next(err))
 }
 
 Elements.nextFrag403Button.addEventListener('click', () => deliverMessage('NextFrag403'))
