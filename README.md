@@ -4,43 +4,66 @@ With this tool one can:
 1. Serve VOD manifests as live manifests
 1. Create common failures (timeouts, stalls, etc) in frag or level requests 
 
-## How It Works
+## Demo
 
-The process is API-based. One can use curl to perform requests. Currently it works with level manifests only, no masters. To set up the server, run the following:
+![GUI gif](./demo.gif)
+
+# Docs
+## Running the App
+
+The process is API-based. One can use curl to perform requests, or use the GUI built in by requesting the `/` endpoint in a browser. The README will document the GUI functions and list the curl equivalents along the way.
+
+To set up the app, clone the repo then run the following:
+
 1. `npm install`
 2. `npm run build`
-3. `cd dist`
-4. `node index.js`
+3. `npm run start`
 
-### Starting a Session
+## Step 1: Starting a Session
 
-A call to `curl http://localhost:8880/startSession` will start the vod-to-live manifest timer. For instance, a manifest level request 20 seconds after the `startSession` call will return a manifest around 20 seconds long. The call to `startSession` will return the session start time in seconds, and a sessionId to match the startTime and following messages (below).
+Clicking `Start Session` will start the vod-to-live manifest timer. A manifest level request 60 seconds after the `startSession` call will return a manifest around 60 seconds long.
 
-### Constructing a live stream url
+> Curl equivalent: `curl http://localhost:8880/startSession` will return the session start time in seconds, and a sessionId (e.g. "abc") to match the startTime and following messages (below).
 
-A live stream url can be built in the following manner:
+Clicking `Reset Timer` will keep the session but reset the timer.
 
-`http://<hls-simulator-server>/remote/level.m3u8?sessionId=<id>&url=<vod-level-manifest-url>`
+> Curl equivalent: `curl http://localhost:8880/startSession?sessionId=abc`
 
-For example, with a sessionId of `abc` and the test level manifest from the hls.js demo page (below):
+
+## Step 2: Constructing a live stream url
+
+Currently the app only works with level manifests only, no masters. 
+
+To get a simulated live manifest url, input a vod level manifest into the url input. The generated live manifest url will be in the Generated Url field, and can be played in video players.
+
+An example live level manifest is below:
 
 `https://test-streams.mux.dev/x36xhzz/url_8/193039199_mp4_h264_aac_fhd_7.m3u8` 
 
-We can get our live stream by requesting `http://localhost:8880/remote/level.m3u8?sessionId=abc&url=https://test-streams.mux.dev/x36xhzz/url_8/193039199_mp4_h264_aac_fhd_7.m3u8`
 
-Playing the url in a video player will play a live manifest.
+> Curl equivalent: build the live stream url in the following manner:
+>
+> `http://<hls-simulator-server>/remote/level.m3u8?sessionId=<id>&url=<vod-level-manifest-url>`
+> 
+> An example, with a sessionId of `abc` and the test level manifest mentioned:
+>
+> `http://localhost:8880/remote/level.m3u8?sessionId=abc&url=https://test-streams.mux.dev/x36xhzz/url_8/193039199_mp4_h264_aac_fhd_7.m3u8`
 
-### Url Options
 
-* The query parameter `&dvrWindowSeconds=60` tells the server to start returning a rolling dvr level manifest once the vod-to-live manifest timer exceeds 60 seconds. A dvr window of 60 means the level returned will contain the minimum number of fragments that exceed 60 seconds of duration. If this parameter is not specified, the app will return a event-style playlist.
+### Rolling Dvr
 
-## Simulate Events
+The Rolling Dvr Length option tells the server to start returning a rolling dvr level manifest once the vod-to-live manifest timer exceeds the specified number of seconds. A dvr length of 60 means the level returned will contain the minimum number of fragments that exceed 60 seconds of duration. If this parameter is not specified or not positive, the app will return a event-style playlist.
 
-The API can be used to create issues or simulate events using the format
+> Curl equivalent: append `&dvrWindowSeconds=60` to the generated live stream url
 
-`curl http://<hls-simulator-server>/deliver?sessionId=<id>&msg=<message-text>`
+## Step 3: Simulate Events
 
-A full list of messages can be found by requesting the `/listMessages` endpoint. The current list is below and is case sensitive.
+The buttons in step 3 can all be clicked to simulate events. The events are listed below.
+
+
+> Curl equivalent: `curl http://<hls-simulator-server>/deliver?sessionId=<id>&msg=<message-text>`
+>
+> Note: the messages are case sensitive
 
 #### `NextFrag403`
 
