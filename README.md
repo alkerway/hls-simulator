@@ -11,7 +11,7 @@ With this tool one can:
 # Docs
 ## Running the App
 
-The process is API-based. One can use curl to perform requests, or use the GUI built in by requesting the `/` endpoint in a browser. The README will document the GUI functions and list the curl equivalents along the way.
+The app's structure is API-based. One can use curl to perform requests, or use the GUI built in by requesting the `/` endpoint in a browser. This README will document the GUI functions and list the curl equivalents along the way.
 
 To set up the app, clone the repo then run the following:
 
