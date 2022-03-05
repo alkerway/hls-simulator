@@ -36,16 +36,13 @@ Currently the app only works with level manifests only, no masters.
 
 To get a simulated live manifest url, input a vod level manifest into the url input. The generated live manifest url will be in the Generated Url field, and can be played in video players.
 
-An example live level manifest is below:
-
-`https://test-streams.mux.dev/x36xhzz/url_8/193039199_mp4_h264_aac_fhd_7.m3u8` 
-
-
 > Curl equivalent: build the live stream url in the following manner:
 >
 > `http://<hls-simulator-server>/remote/level.m3u8?sessionId=<id>&url=<vod-level-manifest-url>`
 > 
-> An example, with a sessionId of `abc` and the test level manifest mentioned:
+> An example of a vod level manifest and then a live generated manifest url, with a sessionId of `abc`
+>
+> `https://test-streams.mux.dev/x36xhzz/url_8/193039199_mp4_h264_aac_fhd_7.m3u8` 
 >
 > `http://localhost:8880/remote/level.m3u8?sessionId=abc&url=https://test-streams.mux.dev/x36xhzz/url_8/193039199_mp4_h264_aac_fhd_7.m3u8`
 
