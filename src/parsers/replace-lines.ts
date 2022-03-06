@@ -1,4 +1,10 @@
-export const replaceManifestUrls = (originalManifest: string, remoteUrl: string, isMaster: boolean, sessionId: string, dvrWindowSeconds?: number): string => {
+export const replaceManifestUrls = (originalManifest: string,
+    remoteUrl: string,
+    isMaster: boolean,
+    sessionId: string,
+    dvrWindowSeconds: number,
+    keepVod: boolean): string => {
+
     let urlCounter = 1
     const originalLines = originalManifest.split('\n')
     const newLines = originalLines.map((line) => {
@@ -7,6 +13,9 @@ export const replaceManifestUrls = (originalManifest: string, remoteUrl: string,
             urlLine = `${urlLine}_${urlCounter}?sessionId=${sessionId}`
             if (isMaster && dvrWindowSeconds > 0) {
                 urlLine = `${urlLine}&dvrWindowSeconds=${dvrWindowSeconds}`
+            }
+            if (isMaster && keepVod) {
+                urlLine = `${urlLine}&keepVod=true`
             }
             if (line.startsWith('http')) {
                  urlLine = `${urlLine}&url=${line}`

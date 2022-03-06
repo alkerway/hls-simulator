@@ -19,9 +19,9 @@ export const remoteManifest = async(req: Request, res: Response) => {
     const reqIsManifest = extension.toLowerCase() === '.m3u8'
 
     const sessionId = String(req.query.sessionId)
-    // if (!SessionState.sessionExists(sessionId)) {
-    //     return res.status(400).send('No session found for id ' + sessionId)
-    // }
+    if (!SessionState.sessionExists(sessionId)) {
+        return res.status(400).send('No session found for id ' + sessionId)
+    }
 
     if (reqIsManifest) {
         const headers: OutgoingHttpHeaders = {}
@@ -41,21 +41,23 @@ export const remoteManifest = async(req: Request, res: Response) => {
             } else {
                 const manifestType = whatIsThisManifest(body)
                 const dvrWindowSeconds = Number(req.query.dvrWindowSeconds) ?? 0
+                const keepVod = req.query.keepVod === 'true'
                 switch(manifestType) {
                     case 'master':
                         responseStatus = 200
-                        responseBody = replaceManifestUrls(body, remoteUrl, true, sessionId, dvrWindowSeconds)
+                        responseBody = replaceManifestUrls(body, remoteUrl, true, sessionId, dvrWindowSeconds, keepVod)
                         break
                     case 'vodlevel':
                     case 'livelevel':
-                        const isSafe = Botcher.botchLevel(req, res, sessionId, ManifestServer.lastLiveLevel)
+                        const isSafe = Botcher.botchLevel(req, res, sessionId, ManifestServer.lastLevelResponse)
                         if (isSafe) {
                             const remoteManifestText = body
-                            const liveText = ManifestServer.getLiveLevel(sessionId,
+                            const liveText = ManifestServer.getLevel(sessionId,
                                 remoteManifestText,
                                 remoteUrl,
+                                manifestType === 'livelevel',
                                 dvrWindowSeconds,
-                                manifestType === 'livelevel')
+                                keepVod)
 
                             responseStatus = 200
                             responseBody = liveText

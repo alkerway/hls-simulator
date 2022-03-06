@@ -21,7 +21,7 @@ To set up the app, clone the repo then run the following:
 
 ## Step 1: Starting a Session
 
-Clicking `Start Session` will start the vod-to-live manifest timer. A manifest level request 60 seconds after the `startSession` call will return a manifest around 60 seconds long.
+Clicking `Start Session` will return a session Id and start the vod-to-live manifest timer. A manifest level request 60 seconds after the `startSession` call will return a manifest around 60 seconds long.
 
 > Curl equivalent: `curl http://localhost:8880/startSession` will return the session start time in seconds, and a sessionId (e.g. "abc") to match the startTime and following messages (below).
 
@@ -32,7 +32,7 @@ Clicking `Reset Timer` will keep the session but reset the timer.
 
 ## Step 2: Constructing a live stream url
 
-The app will work with both master and level urls. For live remote manifests, the session timer and dvr length are ignored and the app will function as a proxy that can still simulate events.
+The app will work with both inputs of either master or level remote urls. For live remote manifests, as well as vod manifests with the option `keepVod`, the session timer and dvr length are ignored and the app will function as a proxy that can still simulate events.
 
 To get a simulated live manifest url, input a manifest url into the url input. The generated manifest url will be in the Generated Url field, and can be played in video players.
 
@@ -51,7 +51,13 @@ To get a simulated live manifest url, input a manifest url into the url input. T
 
 The Rolling Dvr Length option tells the server to start returning a rolling dvr level manifest once the vod-to-live manifest timer exceeds the specified number of seconds. A dvr length of 60 means the level returned will contain the minimum number of fragments that exceed 60 seconds of duration. If this parameter is not specified or not positive, the app will return a event-style playlist. This option will only take effect for vod remote manifests that are turned into live manifests by the app.
 
-> Curl equivalent: append `&dvrWindowSeconds=60` to the generated live stream url
+> Curl equivalent: append `&dvrWindowSeconds=60` to the generated manifest url
+
+### KeepVod
+
+By default, given a vod manifest, the app will return a live manifest that updates according to the sesion timer. To return a vod manifest instead that mirrors the remote vod manifest, set the keepVod option. One can still simulate frag network events with this setup.
+
+> Curl equivalent: append `&keepVod=true` to the generated manifest url
 
 ## Step 3: Simulate Events
 

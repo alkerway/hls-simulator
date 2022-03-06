@@ -3,19 +3,21 @@ import { vodToLive } from '../parsers/vodlevel'
 import SessionState  from '../sessions/session-state'
 
 class ManifestServer {
-    public lastLiveLevel = ''
+    public lastLevelResponse = ''
 
-    public getLiveLevel = (sessionId: string, vodLevel: string, remoteLevelUrl: string, dvrWindowSeconds: number, remoteIsLive: boolean) => {
+    public getLevel = (sessionId: string, vodLevel: string, remoteLevelUrl: string, remoteIsLive: boolean, dvrWindowSeconds: number, keepVod: boolean) => {
         if (remoteIsLive) {
-            this.lastLiveLevel = replaceManifestUrls(vodLevel, remoteLevelUrl, false, sessionId)
+            this.lastLevelResponse = replaceManifestUrls(vodLevel, remoteLevelUrl, false, sessionId, 0, false)
+        } else if (keepVod) {
+            this.lastLevelResponse = replaceManifestUrls(vodLevel, remoteLevelUrl, false, sessionId, 0, false)
         } else {
             const curTime = SessionState.getSessionTime(sessionId)
             if (curTime < 0) {
                 return vodLevel
             }
-            this.lastLiveLevel = vodToLive(vodLevel, curTime, remoteLevelUrl, dvrWindowSeconds, sessionId)
+            this.lastLevelResponse = vodToLive(vodLevel, curTime, remoteLevelUrl, dvrWindowSeconds, sessionId)
         }
-        return this.lastLiveLevel
+        return this.lastLevelResponse
     }
 }
 

@@ -1,7 +1,7 @@
 const setGeneratedUrl = () => {
     let url = ''
     if (AppState.sessionId && AppState.inputUrl) {
-        url = `${location.origin}/remote/level?sessionId=${AppState.sessionId}&url=${encodeURIComponent(AppState.inputUrl)}`
+        url = `${location.origin}/remote/hls?sessionId=${AppState.sessionId}&url=${encodeURIComponent(AppState.inputUrl)}`
         if (AppState.dvrWindow > 0) {
             url = `${url}&dvrWindowSeconds=${AppState.dvrWindow}`
         }
