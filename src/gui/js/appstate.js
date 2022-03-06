@@ -3,4 +3,5 @@ const AppState = {
     sessionId: '',
     inputUrl: '',
     dvrWindow: -1,
+    keepVod: false
 }

@@ -1,5 +1,6 @@
 AppState.inputUrl = Elements.inputUrl.value
 AppState.dvrWindow = Elements.dvrWindowInput.value
+AppState.keepVod = Elements.keepVodInput.checked
 
 const makeRequest = (url, returnJson=false) => {
     const myHeaders = new Headers();
@@ -48,6 +49,11 @@ Elements.dvrWindowInput.addEventListener('keyup', () => {
 Elements.dvrWindowInput.addEventListener('mouseup', () => {
     const curValue = Elements.dvrWindowInput.value
     Events.dvrWindowUpdated$.next(curValue)
+})
+
+Elements.keepVodInput.addEventListener('change', () => {
+    const isChecked = Elements.keepVodInput.checked
+    Events.keepVodUpdated$.next(isChecked)
 })
 
 Elements.copyGeneratedUrlButton.addEventListener('click', () => {

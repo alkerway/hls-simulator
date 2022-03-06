@@ -21,7 +21,10 @@
         <div class="eight columns">
             <h4>Step 2: Enter Manifest Url</h4>
             <input style="width: 100%" type="text" id="inputUrl" placeholder="Manifest Url Here">
-            <div>Rolling Dvr Length (in seconds, vod only): <input style="width: 80px" type="number" id="rollingDvrInput" value="-1"></div>
+            <div>
+                Rolling Dvr Length (in seconds, vod only): <input style="width: 80px" type="number" id="rollingDvrInput" value="-1">
+                Return vod response (vod only, default false): <input type="checkbox" id="keepVodInput">
+            </div>
             <h5>Generated Url
                 <button id="copyGeneratedUrlButton">Copy Generated Url</button>
                 <button id="logRemoteManifestButton">Log Remote Manifest</button>

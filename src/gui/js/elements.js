@@ -6,6 +6,7 @@ const Elements = {
 
     inputUrl: document.getElementById('inputUrl'),
     dvrWindowInput: document.getElementById('rollingDvrInput'),
+    keepVodInput: document.getElementById('keepVodInput'),
     generatedUrlDisplay: document.getElementById('generatedUrlDisplay'),
     copyGeneratedUrlButton: document.getElementById('copyGeneratedUrlButton'),
     logRemoteManifestButton: document.getElementById('logRemoteManifestButton'),

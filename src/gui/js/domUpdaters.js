@@ -5,6 +5,9 @@ const setGeneratedUrl = () => {
         if (AppState.dvrWindow > 0) {
             url = `${url}&dvrWindowSeconds=${AppState.dvrWindow}`
         }
+        if (AppState.keepVod) {
+            url = `${url}&keepVod=true`
+        }
     }
     Elements.generatedUrlDisplay.textContent = url
 }
@@ -29,6 +32,11 @@ Events.inputUrlUpdated$.subscribe((inputUrl) => {
 
 Events.dvrWindowUpdated$.subscribe((dvrWindow) => {
     AppState.dvrWindow = dvrWindow
+    setGeneratedUrl()
+})
+
+Events.keepVodUpdated$.subscribe((isChecked) => {
+    AppState.keepVod = isChecked
     setGeneratedUrl()
 })
 
