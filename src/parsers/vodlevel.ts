@@ -1,4 +1,4 @@
-import { possiblePlaylistTags } from "./HlsTags"
+import { possiblePlaylistTags } from "../utils/HlsTags"
 
 const getExtInfDuration = (infLine: string): number => {
     const durationRegex = /EXTINF\:(.+),/
