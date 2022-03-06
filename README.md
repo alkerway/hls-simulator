@@ -1,8 +1,8 @@
 # HLS Simulator
 
 With this tool one can:
-1. Serve VOD manifests as live manifests
 1. Create common failures (timeouts, stalls, etc) in frag or level requests 
+1. Serve VOD manifests as live manifests
 
 ## Demo
 
@@ -32,9 +32,9 @@ Clicking `Reset Timer` will keep the session but reset the timer.
 
 ## Step 2: Constructing a live stream url
 
-The app will work with both inputs of either master or level remote urls. For live remote manifests, as well as vod manifests with the option `keepVod`, the session timer and dvr length are ignored and the app will function as a proxy that can still simulate events.
+The app will work with an input of either a master or level manifest remote url. For live remote manifests, as well as vod manifests with the option `keepVod`, the session timer and dvr length are ignored and the app will function as a proxy that can simulate events. For vod remote manifests, by default, the app will generate a live stream based on the session timer.
 
-To get a simulated live manifest url, input a manifest url into the url input. The generated manifest url will be in the Generated Url field, and can be played in video players.
+To get a simulated live manifest url, enter a manifest url into the url input. The generated manifest url will be in the Generated Url field, and can be played in a video player.
 
 > Curl equivalent: build the live stream url in the following manner:
 >
@@ -70,7 +70,7 @@ The buttons in step 3 can all be clicked to simulate events. The events are list
 
 #### `NextFrag403`
 
-The next frag request will get a 403 status and html page response; frag requests after that will return normally
+The next frag request will get a 403 status and html page response; subsequent frag requests will return normally
 
 #### `AllFrag403`
 
@@ -86,7 +86,7 @@ Any following frag requests will be delayed a random number of seconds (between 
 
 #### `NextLevel403`
 
-The next level manifest request will get a 403 status and html page response; level manifest requests after that will return normally
+The next level manifest request will get a 403 status and html page response; subsequent level manifest requests will return normally
 
 #### `AllLevel403`
 
