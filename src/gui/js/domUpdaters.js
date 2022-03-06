@@ -1,13 +1,14 @@
 const setGeneratedUrl = () => {
     let url = ''
     if (AppState.sessionId && AppState.inputUrl) {
-        url = `${location.origin}/remote/hls?sessionId=${AppState.sessionId}&url=${encodeURIComponent(AppState.inputUrl)}`
+        url = `${location.origin}/remote/hls?sessionId=${AppState.sessionId}`
         if (AppState.dvrWindow > 0) {
             url = `${url}&dvrWindowSeconds=${AppState.dvrWindow}`
         }
         if (AppState.keepVod) {
             url = `${url}&keepVod=true`
         }
+        url = `${url}&url=${encodeURIComponent(AppState.inputUrl)}`
     }
     Elements.generatedUrlDisplay.textContent = url
 }
