@@ -9,7 +9,7 @@ const getExtInfDuration = (infLine: string): number => {
     return 0
 }
 
-export const vodAtTime = (vodManifest: string, time: number, remoteLevelUrl: string, dvrWindowSeconds: number, sessionId: string) => {
+export const vodToLive = (vodManifest: string, time: number, remoteLevelUrl: string, dvrWindowSeconds: number, sessionId: string) => {
     const liveLines = []
     const lines = vodManifest.split('\n')
     let pastManifestTime = 0

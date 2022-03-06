@@ -1,6 +1,6 @@
 import cors from "cors"
 import express from "express"
-import * as routes from "./routes";
+import * as routes from "./api/routes";
 
 const app = express()
 const port = 8880

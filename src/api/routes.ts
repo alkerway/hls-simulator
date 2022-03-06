@@ -1,5 +1,5 @@
 import * as express from 'express';
-import * as Api from '../api';
+import * as Api from '.';
 
 export const register = ( app: express.Application ) => {
     app.get('/startSession', Api.startLiveManifest)

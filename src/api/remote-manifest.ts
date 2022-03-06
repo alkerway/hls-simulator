@@ -6,7 +6,7 @@ import { whatIsThisManifest } from '../parsers/manifestclassifier'
 import ManifestServer from '../controllers/manifest-server'
 import Botcher from '../controllers/request-botcher'
 import SessionState from '../sessions/session-state'
-import { rewriteMaster } from '../parsers/master'
+import { replaceManifestUrls } from '../parsers/replace-lines'
 
 export const remoteManifest = async(req: Request, res: Response) => {
     const remoteUrl = String(req.query.url)
@@ -44,7 +44,7 @@ export const remoteManifest = async(req: Request, res: Response) => {
                 switch(manifestType) {
                     case 'master':
                         responseStatus = 200
-                        responseBody = rewriteMaster(body, remoteUrl, sessionId, dvrWindowSeconds)
+                        responseBody = replaceManifestUrls(body, remoteUrl, true, sessionId, dvrWindowSeconds)
                         break
                     case 'vodlevel':
                     case 'livelevel':
