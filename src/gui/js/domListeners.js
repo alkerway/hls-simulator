@@ -57,6 +57,16 @@ Elements.copyGeneratedUrlButton.addEventListener('click', () => {
         .catch((err) => Events.log$.next(err))
 })
 
+Elements.logRemoteManifestButton.addEventListener('click', () => {
+    makeRequest(Elements.generatedUrlDisplay.value)
+        .then(Events.log$.next)
+        .catch((err) => Events.log$.next(err))
+})
+
+Elements.clearLogsButton.addEventListener('click', () => {
+    Events.clearLog$.next()
+})
+
 const deliverMessage = (message) => {
     Events.log$.next(`Sending ${message} request...`)
     makeRequest(`/deliver?sessionId=${AppState.sessionId}&msg=${message}`)

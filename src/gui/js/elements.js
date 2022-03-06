@@ -8,6 +8,7 @@ const Elements = {
     dvrWindowInput: document.getElementById('rollingDvrInput'),
     generatedUrlDisplay: document.getElementById('generatedUrlDisplay'),
     copyGeneratedUrlButton: document.getElementById('copyGeneratedUrlButton'),
+    logRemoteManifestButton: document.getElementById('logRemoteManifestButton'),
 
     nextFrag403Button: document.getElementById('NextFrag403Button'),
     nextLevel403Button: document.getElementById('NextLevel403Button'),
@@ -20,5 +21,6 @@ const Elements = {
     streamEndButton: document.getElementById('StreamEndButton'),
     resetButton: document.getElementById('ResetButton'),
 
-    logsWindow: document.getElementById('logsWindow')
+    logsWindow: document.getElementById('logsWindow'),
+    clearLogsButton: document.getElementById('clearLogsButton')
 }

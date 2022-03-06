@@ -19,10 +19,12 @@
             <button id="resetTimerButton">Reset Timer</button>
         </div>
         <div class="eight columns">
-            <h4>Step 2: Input Url</h4>
-            <input style="width: 100%" type="text" id="inputUrl" placeholder="Enter Level Manifest Url">
-            <div>Rolling Dvr Length (seconds): <input style="width: 80px" type="number" id="rollingDvrInput" value="-1"></div>
-            <h5>Generated Url <button id="copyGeneratedUrlButton">Copy Generated Url</button>
+            <h4>Step 2: Enter Manifest Url</h4>
+            <input style="width: 100%" type="text" id="inputUrl" placeholder="Manifest Url Here">
+            <div>Rolling Dvr Length (in seconds, vod only): <input style="width: 80px" type="number" id="rollingDvrInput" value="-1"></div>
+            <h5>Generated Url
+                <button id="copyGeneratedUrlButton">Copy Generated Url</button>
+                <button id="logRemoteManifestButton">Log Remote Manifest</button>
             </h5>
             <div>
                 <textarea style="width: 100%" id="generatedUrlDisplay"></textarea>
@@ -51,8 +53,8 @@
             <button class="optionButton" id="ResetButton">Reset</button>
         </div>
         <div class="five columns">
-            <h4>Logs</h4>
-            <div id="logsWindow" style="border: 1px solid #aaa; width: 100%; height: 250px; overflow-y: scroll;"></div>
+            <h4>Logs <button id="clearLogsButton">Clear</button></h4>
+            <div id="logsWindow" style="border: 1px solid #aaa; width: 100%; height: 250px; overflow: scroll; white-space:pre;"></div>
         </div>
     </div>
     <br>

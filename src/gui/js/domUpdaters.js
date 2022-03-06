@@ -42,6 +42,10 @@ Events.log$.subscribe((text) => {
     }
 })
 
+Events.clearLog$.subscribe(() => {
+    Elements.logsWindow.innerHTML = ''
+})
+
 Events.messageDelivered$.subscribe((message) => {
     switch (message) {
         case 'StreamEnd':

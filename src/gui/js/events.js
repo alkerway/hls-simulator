@@ -16,5 +16,6 @@ const Events = {
     inputUrlUpdated$: new Event(),
     dvrWindowUpdated$: new Event(),
     messageDelivered$: new Event(),
-    log$: new Event()
+    log$: new Event(),
+    clearLog$: new Event()
 }

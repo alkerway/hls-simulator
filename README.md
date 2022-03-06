@@ -32,9 +32,9 @@ Clicking `Reset Timer` will keep the session but reset the timer.
 
 ## Step 2: Constructing a live stream url
 
-Currently the app only works with level manifests only, no masters. 
+The app will work with both master and level urls. For live remote manifests, the session timer and dvr length are ignored and the app will function as a proxy that can still simulate events.
 
-To get a simulated live manifest url, input a vod level manifest into the url input. The generated live manifest url will be in the Generated Url field, and can be played in video players.
+To get a simulated live manifest url, input a manifest url into the url input. The generated manifest url will be in the Generated Url field, and can be played in video players.
 
 > Curl equivalent: build the live stream url in the following manner:
 >
@@ -49,7 +49,7 @@ To get a simulated live manifest url, input a vod level manifest into the url in
 
 ### Rolling Dvr
 
-The Rolling Dvr Length option tells the server to start returning a rolling dvr level manifest once the vod-to-live manifest timer exceeds the specified number of seconds. A dvr length of 60 means the level returned will contain the minimum number of fragments that exceed 60 seconds of duration. If this parameter is not specified or not positive, the app will return a event-style playlist.
+The Rolling Dvr Length option tells the server to start returning a rolling dvr level manifest once the vod-to-live manifest timer exceeds the specified number of seconds. A dvr length of 60 means the level returned will contain the minimum number of fragments that exceed 60 seconds of duration. If this parameter is not specified or not positive, the app will return a event-style playlist. This option will only take effect for vod remote manifests that are turned into live manifests by the app.
 
 > Curl equivalent: append `&dvrWindowSeconds=60` to the generated live stream url
 
