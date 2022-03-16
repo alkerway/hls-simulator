@@ -1,15 +1,8 @@
+import { getExtInfDuration } from "../utils/hls-string"
 import { possiblePlaylistTags } from "../utils/HlsTags"
 
-const getExtInfDuration = (infLine: string): number => {
-    const durationRegex = /EXTINF\:(.+),/
-    const match = durationRegex.exec(infLine)
-    if (match && match[1]) {
-        return Number(match[1])
-    }
-    return 0
-}
 
-export const vodToLive = (vodManifest: string, time: number, remoteLevelUrl: string, dvrWindowSeconds: number, sessionId: string) => {
+export const vodToLive = (vodManifest: string, time: number, remoteLevelUrl: string, sessionId: string) => {
     const liveLines = []
     const lines = vodManifest.split('\n')
     let pastManifestTime = 0
@@ -35,6 +28,11 @@ export const vodToLive = (vodManifest: string, time: number, remoteLevelUrl: str
                         const duration = getExtInfDuration(line)
                         pastManifestTime += duration
                         if (pastManifestTime > time) {
+                            // remove lines until we get to the last frag, then stop
+                            let lastLine = liveLines[liveLines.length - 1]
+                            while (lastLine?.startsWith('#') || lastLine?.trim() === '') {
+                                lastLine = liveLines.pop()
+                            }
                             break
                         }
                     }
@@ -66,37 +64,6 @@ export const vodToLive = (vodManifest: string, time: number, remoteLevelUrl: str
             liveLines.push('#EXT-X-DISCONTINUITY ')
             stopAddingHeaderTags = true
         }
-    }
-    if (typeof dvrWindowSeconds ==='number' && dvrWindowSeconds > 0) {
-        let secondsIntoWindowSoFar = 0
-        let numFragsRemoved = 0
-        let foundMediaSequenceValue = 0
-        const dvrLines = liveLines.slice().reverse().filter((line) => {
-            const isHeaderTag = possiblePlaylistTags.find(tag => line.startsWith(tag))
-            if (isHeaderTag) {
-                if (line.startsWith('#EXT-X-MEDIA-SEQUENCE')) {
-                    foundMediaSequenceValue = Number(line.slice('#EXT-X-MEDIA-SEQUENCE:'.length)) || 0
-                    // add modified media sequence back later
-                    return false
-                }
-                return true
-            }
-            if (secondsIntoWindowSoFar > dvrWindowSeconds) {
-                if (line.trim() && !line.startsWith('#')) {
-                    numFragsRemoved += 1
-                }
-                return false
-            }
-            if (line.startsWith('#EXTINF:')) {
-                const duration = getExtInfDuration(line)
-                secondsIntoWindowSoFar += duration
-            }
-            return true
-        })
-        dvrLines.reverse()
-        const newMediaSequence = `#EXT-X-MEDIA-SEQUENCE:${foundMediaSequenceValue + numFragsRemoved}`
-        dvrLines.splice(2, 0, newMediaSequence)
-        return dvrLines.join('\n') + '\n'
     }
     return liveLines.join('\n') + '\n'
 }

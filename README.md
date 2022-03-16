@@ -49,7 +49,9 @@ To get a simulated live manifest url, enter a manifest url into the url input. T
 
 ### Rolling Dvr
 
-The Rolling Dvr Length option tells the server to start returning a rolling dvr level manifest once the vod-to-live manifest timer exceeds the specified number of seconds. A dvr length of 60 means the level returned will contain the minimum number of fragments that exceed 60 seconds of duration. If this parameter is not specified or not positive, the app will return a event-style playlist. This option will only take effect for vod remote manifests that are turned into live manifests by the app.
+For vod, the Rolling Dvr Length option tells the server to start returning a rolling dvr level manifest once the vod-to-live manifest timer exceeds the specified number of seconds. A dvr length of 60 means the level returned will contain the minimum number of fragments that exceed 60 seconds of duration. If this parameter is not specified or not positive, the app will return a event-style playlist.
+
+For live, the Rolling Dvr Length option tells the server to trim the live manifest to match the dvr window, if its length exceeds the specified window length.
 
 > Curl equivalent: append `&dvrWindowSeconds=60` to the generated manifest url
 

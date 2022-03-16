@@ -1,10 +1,15 @@
 import { Messages } from "./messages"
 
 type MessageState = {[key in Messages]?: boolean}
+type CustomText = {
+    startTime: number
+    customLines: string[]
+}
 
 type SessionStore = Record<string, {
     startTimeSeconds: number
     messageState: MessageState
+    injections: CustomText[]
 }>
 
 class SessionState {
@@ -59,7 +64,8 @@ class SessionState {
         } else {
             this.sessions[sessionId] = {
                 startTimeSeconds: sessionStartTime,
-                messageState: Object.assign({}, this.originalMessages)
+                messageState: Object.assign({}, this.originalMessages),
+                injections: []
             }
         }
         return {sessionStartTime, sessionId}
@@ -83,7 +89,6 @@ class SessionState {
 
     private generateSessionId = (): string => {
         const letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
-        const idLength = 3
         let id = ''
         for (const key of Array(3)) {
             id += letters[Math.floor(Math.random() * letters.length)]
