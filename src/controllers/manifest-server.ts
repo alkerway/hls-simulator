@@ -1,6 +1,6 @@
 import { boundToDvr } from '../parsers/bound-to-dvr'
 import { replaceManifestUrls } from '../parsers/replace-lines'
-import { vodToLive } from '../parsers/vodlevel'
+import { vodToLive } from '../parsers/vod-to-live'
 import SessionState  from '../sessions/session-state'
 
 class ManifestServer {

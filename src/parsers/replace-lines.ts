@@ -5,7 +5,7 @@ export const replaceManifestUrls = (originalManifest: string,
     dvrWindowSeconds: number,
     keepVod: boolean): string => {
 
-    let urlCounter = 1
+    let urlCounter = 0
     const originalLines = originalManifest.split('\n')
     const newLines = originalLines.map((line) => {
         if (!line.startsWith('#') && line.length) {
