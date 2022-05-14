@@ -5,11 +5,14 @@ import SessionState from '../sessions/session-state'
 
 export const addInjectedText = async (req: Request, res: Response) => {
   const sessionId = req.query.sessionId && String(req.query.sessionId)
-  const startTimeFromQuery = Number(req.query.startAfter)
-  const injectedTextStart = isNaN(startTimeFromQuery) ? SessionState.getSessionTime(sessionId) : startTimeFromQuery
+  const startPositionFromQuery = Number(req.query.startAfter)
 
-  if (!SessionState.sessionExists(sessionId) || injectedTextStart < 0) {
+  if (!SessionState.sessionExists(sessionId)) {
     return res.status(400).send('No session found for id ' + sessionId + '  \n')
+  }
+
+  if (startPositionFromQuery < 0) {
+    return res.status(400).send('Invalid start time ' + sessionId + '  \n')
   }
 
   let errorMessage = ''
@@ -37,6 +40,6 @@ export const addInjectedText = async (req: Request, res: Response) => {
     return res.status(400).send('Error trying to parse custom text')
   }
 
-  SessionState.addInjectedManifest(sessionId, customManifest, injectedTextStart)
+  SessionState.addInjectedManifest(sessionId, customManifest, startPositionFromQuery)
   return res.status(200).send('ok\n')
 }

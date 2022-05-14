@@ -28,9 +28,16 @@ export const proxyMaster = (originalManifest: string, simulatorOptions: Simulato
 
 export const proxyLevel = (manifest: LevelManifest, simulatorOptions: SimulatorOptions): LevelManifest => {
   const { remoteUrl, sessionId } = simulatorOptions
+  const mediaSequenceTag = manifest.headerTagLines.find((tag) => tag.startsWith('#EXT-X-MEDIA-SEQUENCE:'))
+  let mediaSequenceOffset = 0
+  if (mediaSequenceTag) {
+    mediaSequenceOffset = Number(mediaSequenceTag.slice('#EXT-X-MEDIA-SEQUENCE:'.length)) || 0
+  }
   manifest.frags = manifest.frags.map((frag, fragIndex) => {
     const fullFragurl = getFullUrl(frag.url, remoteUrl)
-    const proxyUrl = `frag_${fragIndex}?sessionId=${sessionId}&url=${fullFragurl}`
+    const proxyUrl = `frag_${fragIndex + mediaSequenceOffset}?sessionId=${sessionId}&url=${encodeURIComponent(
+      fullFragurl
+    )}`
     return {
       ...frag,
       url: proxyUrl,

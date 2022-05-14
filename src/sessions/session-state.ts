@@ -4,7 +4,8 @@ import { Messages } from './messages'
 type MessageState = { [key in Messages]?: boolean }
 
 export type CustomManifest = {
-  startTime: number
+  startTimeOrMediaSequence: number
+  fallbackStartTime: number
   manifest: LevelManifest
 }
 
@@ -87,10 +88,11 @@ class SessionState {
     }
   }
 
-  public addInjectedManifest = (sessionId: string, manifest: LevelManifest, injectStartTime: number) => {
+  public addInjectedManifest = (sessionId: string, manifest: LevelManifest, startPositionFromQuery: number) => {
     if (this.sessions[sessionId]) {
       this.sessions[sessionId].injections.push({
-        startTime: injectStartTime,
+        startTimeOrMediaSequence: isNaN(startPositionFromQuery) ? null : startPositionFromQuery,
+        fallbackStartTime: this.getSessionTime(sessionId),
         manifest,
       })
     }

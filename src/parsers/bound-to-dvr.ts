@@ -1,5 +1,3 @@
-import { getExtInfDuration } from '../utils/hls-string'
-import { possiblePlaylistTags } from '../utils/HlsTags'
 import { LevelManifest } from './text-manifest-to-typescript'
 
 export const boundToDvr = (manifest: LevelManifest, dvrWindowSeconds: number): LevelManifest => {
@@ -12,7 +10,7 @@ export const boundToDvr = (manifest: LevelManifest, dvrWindowSeconds: number): L
     .slice()
     .reverse()
     .filter((frag) => {
-      if (secondsIntoWindowSoFar >= dvrWindowSeconds) {
+      if (secondsIntoWindowSoFar + frag.duration > dvrWindowSeconds) {
         numFragsRemoved += 1
         return false
       } else {

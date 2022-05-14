@@ -1,15 +1,57 @@
 import { CustomManifest } from '../sessions/session-state'
 import { Frag, LevelManifest } from './text-manifest-to-typescript'
 
+const injectTextLiveToLive = (originalManifest: LevelManifest, newText: CustomManifest): LevelManifest => {
+  const customFrags = newText.manifest.frags.map((frag) => ({ ...frag, tagLines: [...frag.tagLines] }))
+
+  const customFragMsMap: Record<number, Frag> = {}
+
+  customFrags.forEach((frag, index) => {
+    customFragMsMap[newText.startTimeOrMediaSequence + index] = frag
+  })
+
+  const mediaSequenceTag = originalManifest.headerTagLines.find((tag) => tag.startsWith('#EXT-X-MEDIA-SEQUENCE:'))
+  const initialMediaSequence = Number(mediaSequenceTag.slice('#EXT-X-MEDIA-SEQUENCE:'.length)) || 0
+
+  originalManifest.frags = originalManifest.frags.map((frag, fragIndex) => {
+    const currentMediaSequence = initialMediaSequence + fragIndex
+    const customFragSub = customFragMsMap[currentMediaSequence]
+    const manifestFrag = customFragMsMap[currentMediaSequence] || frag
+    if (
+      currentMediaSequence === newText.startTimeOrMediaSequence ||
+      currentMediaSequence === newText.startTimeOrMediaSequence + newText.manifest.frags.length
+    ) {
+      manifestFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')
+    }
+    return manifestFrag
+  })
+
+  return originalManifest
+}
+
 const injectText = (
   originalManifest: LevelManifest,
   newText: CustomManifest,
-  maxManifestDuration: number
+  sessionTime: number,
+  isLiveToLive?: boolean
 ): LevelManifest => {
-  const { startTime: customManifestStartTime, manifest } = newText
+  const { fallbackStartTime, startTimeOrMediaSequence, manifest } = newText
+  const customManifestStartTime = startTimeOrMediaSequence ?? fallbackStartTime
+
+  // set a media sequence to keep track if one isn't set
+  if (isLiveToLive) {
+    if (!startTimeOrMediaSequence) {
+      const mediaSequenceTag = originalManifest.headerTagLines.find((tag) => tag.startsWith('#EXT-X-MEDIA-SEQUENCE:'))
+      const startingMediaSequenceValue = Number(mediaSequenceTag.slice('#EXT-X-MEDIA-SEQUENCE:'.length)) || 0
+      newText.startTimeOrMediaSequence = startingMediaSequenceValue + originalManifest.frags.length
+    }
+    return injectTextLiveToLive(originalManifest, newText)
+  }
+
   const customFrags = manifest.frags.map((frag) => ({ ...frag, tagLines: [...frag.tagLines] }))
 
   const newFrags: Frag[] = []
+  const oldManifestDuration = originalManifest.frags.reduce((dur, frag) => frag.duration + dur, 0)
 
   let amountInjectedTextIsAhead = 0
   let appendingcustomManifest = false
@@ -24,7 +66,7 @@ const injectText = (
   }
   let currentParseTime = currentFrag.duration
 
-  while (currentFrag && currentParseTime <= maxManifestDuration) {
+  while (currentFrag && currentParseTime <= Math.min(oldManifestDuration, sessionTime)) {
     newFrags.push(currentFrag)
 
     if (appendingcustomManifest) {
@@ -67,10 +109,11 @@ const injectText = (
 export const addCustomManifests = (
   manifest: LevelManifest,
   allCustomManifests: CustomManifest[],
-  maxManifestDuration: number
+  maxManifestDuration: number,
+  isLiveToLive?: boolean
 ) => {
   return allCustomManifests.reduce(
-    (currentManifest, injection) => injectText(currentManifest, injection, maxManifestDuration),
+    (currentManifest, injection) => injectText(currentManifest, injection, maxManifestDuration, isLiveToLive),
     manifest
   )
 }
