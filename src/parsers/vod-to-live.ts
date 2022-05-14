@@ -20,10 +20,6 @@ export const vodToLive = (manifest: LevelManifest, maxLevelDuration: number): Le
     currentFrag = structuredClone(manifest.frags[currentFragIdx])
     totalLevelDuration += currentFrag.duration
     fragCounter += 1
-    if (fragCounter > 600_000) {
-      console.log('break loop')
-      break
-    }
   }
   manifest.frags = newFrags
   manifest.isLive = true

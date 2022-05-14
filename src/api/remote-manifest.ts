@@ -49,9 +49,8 @@ export const remoteManifest = async (req: Request, res: Response) => {
               manifestType = whatIsThisManifest(decodedResponse)
               manifestText = decodedResponse
             }
-          } catch (err) {
-            console.log(err)
-          }
+            /* tslint:disable:no-empty */
+          } catch (err) {}
         }
         const simulatorOptions: SimulatorOptions = {
           keepVod: req.query.keepVod === 'true',
