@@ -91,3 +91,20 @@ Events.insertTextStartUpdated$.subscribe((value) => {
 Events.insertTextInputUpdated$.subscribe((value) => {
   AppState.insertTextValue = value
 })
+
+Elements.insertTextInput.placeholder = `
+Paste ad text here, e.g.
+
+#EXTM3U
+#EXT-X-VERSION:3
+#EXT-X-PLAYLIST-TYPE:VOD
+#EXT-X-MEDIA-SEQUENCE:0
+#EXTINF:10.8800,
+https://maitv-vod.lab.eyevinn.technology/VINN.mp4/2000/2000-00000.ts
+#EXTINF:7.2000,
+https://maitv-vod.lab.eyevinn.technology/VINN.mp4/2000/2000-00001.ts
+#EXTINF:7.2000,
+https://maitv-vod.lab.eyevinn.technology/VINN.mp4/2000/2000-00002.ts
+#EXT-X-ENDLIST
+
+`
