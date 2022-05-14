@@ -2,6 +2,25 @@ import { getFullUrl } from '../utils/url-converter'
 import { SimulatorOptions } from '../api/request-options'
 import { LevelManifest } from './text-manifest-to-typescript'
 
+const replaceTagUris = (tag: string, remoteUrl: string) => {
+  if (!tag || tag.startsWith('##')) return tag
+  const tagName = tag.slice(0, tag.indexOf(':') + 1)
+  const tagAttributes = tag.slice(tagName.length).match(/("[^"]*")|[^,]+/g)
+  const uriAttribute = tagAttributes.find((attribute) => attribute.startsWith('URI='))
+  if (uriAttribute) {
+    const fullUri = getFullUrl(uriAttribute.slice(5, -1), remoteUrl)
+    return (
+      tagName +
+      tagAttributes
+        .map((attribute) => {
+          return attribute.startsWith('URI') ? `URI="${fullUri}"` : attribute
+        })
+        .join(',')
+    )
+  }
+  return tag
+}
+
 export const proxyMaster = (originalManifest: string, simulatorOptions: SimulatorOptions): string => {
   const { sessionId, remoteUrl, dvrWindowSeconds = -1, keepVod = false } = simulatorOptions
 
@@ -21,7 +40,7 @@ export const proxyMaster = (originalManifest: string, simulatorOptions: Simulato
       urlCounter = urlCounter + 1
       return urlLine
     }
-    return line
+    return replaceTagUris(line, remoteUrl)
   })
   return newLines.join('\n')
 }
@@ -33,6 +52,7 @@ export const proxyLevel = (manifest: LevelManifest, simulatorOptions: SimulatorO
   if (mediaSequenceTag) {
     mediaSequenceOffset = Number(mediaSequenceTag.slice('#EXT-X-MEDIA-SEQUENCE:'.length)) || 0
   }
+  manifest.headerTagLines = manifest.headerTagLines.map((headerTag) => replaceTagUris(headerTag, remoteUrl))
   manifest.frags = manifest.frags.map((frag, fragIndex) => {
     const fullFragurl = getFullUrl(frag.url, remoteUrl)
     const proxyUrl = `frag_${fragIndex + mediaSequenceOffset}?sessionId=${sessionId}&url=${encodeURIComponent(
@@ -40,6 +60,7 @@ export const proxyLevel = (manifest: LevelManifest, simulatorOptions: SimulatorO
     )}`
     return {
       ...frag,
+      tagLines: frag.tagLines.map((fragTag) => replaceTagUris(fragTag, remoteUrl)),
       url: proxyUrl,
     }
   })

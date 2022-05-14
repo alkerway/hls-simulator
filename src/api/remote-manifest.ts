@@ -15,7 +15,7 @@ export const remoteManifest = async (req: Request, res: Response) => {
   }
 
   const extension = path.extname(remoteUrl)
-  const reqIsFrag = extension.toLowerCase() === '.ts'
+  const reqIsFrag = ['.ts', '.mp4', '.fmp4'].includes(extension.toLowerCase())
   const reqIsManifest = extension.toLowerCase() === '.m3u8'
 
   const sessionId = String(req.query.sessionId)
