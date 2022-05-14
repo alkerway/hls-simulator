@@ -97,7 +97,10 @@ const injectText = (
         }
         currentParseTime += currentFrag.duration
         // transition to original content
-        if (currentFrag.keyLine || newFrags[newFrags.length - 1]?.keyLine) {
+        if (
+          (currentFrag.keyLine || newFrags[newFrags.length - 1]?.keyLine) &&
+          !currentFrag.tagLines.find((line) => line.startsWith('#EXT-X-KEY'))
+        ) {
           currentFrag.tagLines.unshift(currentFrag.keyLine || '#EXT-X-KEY:METHOD=NONE')
         }
         if (!currentFrag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
