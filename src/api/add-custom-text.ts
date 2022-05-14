@@ -5,10 +5,11 @@ import SessionState from '../sessions/session-state'
 
 export const addInjectedText = async (req: Request, res: Response) => {
   const sessionId = req.query.sessionId && String(req.query.sessionId)
-  const injectedTextStart = SessionState.getSessionTime(sessionId)
+  const startTimeFromQuery = Number(req.query.startAfter)
+  const injectedTextStart = isNaN(startTimeFromQuery) ? SessionState.getSessionTime(sessionId) : startTimeFromQuery
 
   if (!SessionState.sessionExists(sessionId) || injectedTextStart < 0) {
-    return res.status(400).send('No session found for id ' + sessionId + ' \n')
+    return res.status(400).send('No session found for id ' + sessionId + '  \n')
   }
 
   let errorMessage = ''

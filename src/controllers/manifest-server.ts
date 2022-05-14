@@ -21,7 +21,7 @@ class ManifestServer {
       manifestObject = boundToDvr(manifestObject, dvrWindowSeconds)
     } else if (keepVod) {
       // vod to vod
-      // levelResponse = replaceManifestUrls(remoteText, remoteUrl, false, sessionId, 0, false)
+      manifestObject = addCustomManifests(manifestObject, SessionState.getInjections(sessionId), Infinity)
     } else {
       // vod to live
       const liveManifestMaxLength = SessionState.getSessionTime(sessionId)
