@@ -2,10 +2,11 @@
 
 With this tool one can:
 
-1. Create common failures (timeouts, stalls, etc) in frag or level requests
+1. Create common failures (timeouts, stalls, etc) in frag or level requests [jump to section](#http-incidents)
 1. Serve VOD manifests as live manifests
+1. Inject any text (ads) whenever [jump to section](#inject-custom-text)
 
-## Demo
+## Demo (outdated)
 
 ![GUI gif](./demo.gif)
 
@@ -113,13 +114,13 @@ Any issues created by the above requests will go away. For example, if `AllFrag4
 
 ### Inject Custom Text
 
-Custom text can be injected into manifests to simulate ad breaks and content changes. This application cannot split up the actual fragments, so any text injected may alter the timings of the returned manifest. It is assumed that any custom text sent is in HLS level manifest form. Things could break if it isn't.
+Custom text can be injected into manifests to simulate ad breaks and content changes. This application cannot split up the actual fragments, so any text injected may alter the timings of the returned manifest. It is assumed that any custom text sent is in HLS level manifest form.
 
 Inject a manifest by pasting text into the text area and clicking Send. See the sections below for more details on where the injected text will appear in relation to the original manifest.
 
 > Curl equivalent:
 >
-> curl -X POST -H "Content-Type: text/plain" --data-binary "@/home/aw/Documents/w/ts/ad.m3u8" "http://<hls-simulator-server>/inject?sessionId=gmh&startAfter=30"
+> curl -X POST -H "Content-Type: text/plain" --data-binary "@/path/to/ad.m3u8" "http://<hls-simulator-server>/inject?sessionId=gmh&startAfter=30"
 > The startAfter parameter maps to the time in the manifest for Vod to Vod and Vod to Live, and to the media sequence for Live to Live
 
 To clear all injected texts, click the Clear button below the text area.
@@ -140,4 +141,8 @@ Live to live means the remote manifest is live.
 
 For live to live, timing of injected text is based on media sequence and not time. If no positive value is provided in the input above the text area, the next level request will set the media sequence on the injected text to be one greater than the greatest media sequence in the manifest. If a positive value is provided in the input above the text area, the first injected fragment will replace the original fragment at the provided media sequence.
 
-For live to live, instead of trying to get the timing of the original and modified manifests to match each other, the original fragments are simply replaced one for one with the injected fragments. This may also affect the timing of the manifest - if the original manifest is a rolling dvr window of 6 fragments at 10 seconds each, and the injected text is three fragments at eight seconds each, when one fragment is replaced the manifest will be shorter by two seconds, when two fragments are replaced the manifest will be shorter by four seconds, etc.
+For live to live, instead of trying to get the timing of the original and modified manifests to match each other, the original fragments are simply replaced one for one with the injected fragments. This may also affect the timing of the manifest - if the original manifest is a rolling dvr window of 6 fragments at 10 seconds each, and the injected text is 3 fragments at 8 seconds each, when one fragment is replaced the manifest will be shorter by 2 seconds, when two fragments are replaced the manifest will be shorter by 4 seconds, etc.
+  
+  ---
+  
+  Still TODO: proxy URI attributes in manifest tags, support key file switching for injected text
