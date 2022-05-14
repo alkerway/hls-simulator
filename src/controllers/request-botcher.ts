@@ -4,7 +4,7 @@ import { Messages } from '../sessions/messages'
 import SessionState from '../sessions/session-state'
 
 class Botcher {
-    public botchLevel = (req: Request, res: Response, sessionId: string, lastLiveLevel: string): boolean => {
+    public botchLevel = (req: Request, res: Response, sessionId: string): boolean => {
         if (SessionState.isMessageActive(sessionId, Messages.ALL_LEVEL_403)) {
             res.status(403).send(html403)
             return false
@@ -19,11 +19,11 @@ class Botcher {
             return false
         }
         if (SessionState.isMessageActive(sessionId, Messages.LEVEL_STALL)) {
-            res.status(200).send(lastLiveLevel)
+            res.status(200).send(SessionState.getLastLevel(sessionId))
             return false
         }
         if (SessionState.isMessageActive(sessionId, Messages.STREAM_END)) {
-            res.status(200).send(lastLiveLevel + '#EXT-X-ENDLIST\n')
+            res.status(200).send(SessionState.getLastLevel(sessionId) + '#EXT-X-ENDLIST\n')
             return false
         }
         return true

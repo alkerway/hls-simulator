@@ -11,6 +11,7 @@ app.use((req, res, next) => {
     next()
 });
 
+app.use(express.text())
 app.use(express.json())
 
 process.on("unhandledRejection", (reason, p) => {

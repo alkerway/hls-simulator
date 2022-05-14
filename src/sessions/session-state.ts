@@ -1,16 +1,20 @@
 import { Messages } from "./messages"
 
 type MessageState = {[key in Messages]?: boolean}
-type CustomText = {
+
+export type CustomText = {
     startTime: number
-    customLines: string[]
+    text: string
 }
 
-type SessionStore = Record<string, {
+export type Session = {
     startTimeSeconds: number
     messageState: MessageState
     injections: CustomText[]
-}>
+    lastLevel: string
+}
+
+type SessionStore = Record<string, Session>
 
 class SessionState {
     private originalMessages: MessageState = {
@@ -65,7 +69,8 @@ class SessionState {
             this.sessions[sessionId] = {
                 startTimeSeconds: sessionStartTime,
                 messageState: Object.assign({}, this.originalMessages),
-                injections: []
+                injections: [],
+                lastLevel: ''
             }
         }
         return {sessionStartTime, sessionId}
@@ -79,6 +84,29 @@ class SessionState {
        if (this.sessions[sessionId]) {
             this.sessions[sessionId].messageState[messageKey] = messageVal
         }
+    }
+
+    public addInjectedText = (sessionId: string, text: string, injectStartTime: number) => {
+        if (this.sessions[sessionId]) {
+            this.sessions[sessionId].injections.push({
+                startTime: injectStartTime,
+                text
+            })
+        }
+    }
+
+    public setLastLevel = (sessionId: string, level: string) => {
+        if (this.sessions[sessionId]) {
+            this.sessions[sessionId].lastLevel = level
+        }
+    }
+
+    public getLastLevel = (sessionId: string) => {
+        return this.sessions[sessionId]?.lastLevel || ''
+    }
+
+    public getInjections = (sessionId: string): CustomText[] => {
+        return this.sessions[sessionId].injections
     }
 
     public reset = (sessionId: string) => {

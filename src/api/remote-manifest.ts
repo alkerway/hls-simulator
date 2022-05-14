@@ -6,9 +6,9 @@ import { whatIsThisManifest } from '../parsers/manifestclassifier'
 import ManifestServer from '../controllers/manifest-server'
 import Botcher from '../controllers/request-botcher'
 import SessionState from '../sessions/session-state'
-import { replaceManifestUrls } from '../parsers/replace-lines'
+import { SimulatorOptions } from './request-options'
 
-export const remoteManifest = async(req: Request, res: Response) => {
+export const remoteManifest = async (req: Request, res: Response) => {
     const remoteUrl = String(req.query.url)
     if (!remoteUrl || remoteUrl.indexOf('http') !== 0) {
         return res.status(400).send('Invalid or missing remote level url in query parameters\n')
@@ -19,6 +19,7 @@ export const remoteManifest = async(req: Request, res: Response) => {
     const reqIsManifest = extension.toLowerCase() === '.m3u8'
 
     const sessionId = String(req.query.sessionId)
+
     if (!SessionState.sessionExists(sessionId)) {
         return res.status(400).send('No session found for id ' + sessionId)
     }
@@ -40,27 +41,28 @@ export const remoteManifest = async(req: Request, res: Response) => {
                 responseBody = body
             } else {
                 const manifestType = whatIsThisManifest(body)
-                const dvrWindowSeconds = Number(req.query.dvrWindowSeconds) ?? 0
-                const keepVod = req.query.keepVod === 'true'
-                switch(manifestType) {
+                const simulatorOptions: SimulatorOptions = {
+                    keepVod: req.query.keepVod === 'true',
+                    dvrWindowSeconds: Number(req.query.dvrWindowSeconds) ?? 0,
+                    remoteUrl,
+                    sessionId
+                }
+                switch (manifestType) {
                     case 'master':
                         responseStatus = 200
-                        responseBody = replaceManifestUrls(body, remoteUrl, true, sessionId, dvrWindowSeconds, keepVod)
+                        responseBody = ManifestServer.getMaster(body, simulatorOptions)
                         break
                     case 'vodlevel':
                     case 'livelevel':
-                        const isSafe = Botcher.botchLevel(req, res, sessionId, ManifestServer.lastLevelResponse)
+                        const isSafe = Botcher.botchLevel(req, res, sessionId)
                         if (isSafe) {
                             const remoteManifestText = body
-                            const liveText = ManifestServer.getLevel(sessionId,
-                                remoteManifestText,
-                                remoteUrl,
-                                manifestType === 'livelevel',
-                                dvrWindowSeconds,
-                                keepVod)
-
                             responseStatus = 200
-                            responseBody = liveText
+                            responseBody = ManifestServer.getLevel(
+                                remoteManifestText,
+                                manifestType === 'livelevel',
+                                simulatorOptions
+                            )
                         } else {
                             shouldSendResponse = false
                         }

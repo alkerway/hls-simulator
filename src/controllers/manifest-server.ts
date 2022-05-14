@@ -1,30 +1,42 @@
+import { injectText } from '../parsers/inject-text'
 import { boundToDvr } from '../parsers/bound-to-dvr'
-import { replaceManifestUrls } from '../parsers/replace-lines'
 import { vodToLive } from '../parsers/vod-to-live'
-import SessionState  from '../sessions/session-state'
+import SessionState from '../sessions/session-state'
+import { SimulatorOptions } from '../api/request-options'
+import { proxyMaster } from '../parsers/proxy-master'
+import { textToTypescript } from '../parsers/text-manifest-to-typescript'
+import { typescriptToText } from '../parsers/typescript-manifest-to-text'
+import { proxyLevel } from '../parsers/proxy-level'
 
 class ManifestServer {
-    public lastLevelResponse = ''
+    public getMaster = (remoteText: string, requestOptions: SimulatorOptions) => {
+        return proxyMaster(remoteText, requestOptions)
+    }
 
-    public getLevel = (sessionId: string, vodLevel: string, remoteLevelUrl: string, remoteIsLive: boolean, dvrWindowSeconds: number, keepVod: boolean) => {
+    public getLevel = (remoteText: string, remoteIsLive: boolean, simulatorOptions: SimulatorOptions) => {
+        const { sessionId, remoteUrl, dvrWindowSeconds = -1, keepVod = false } = simulatorOptions
+        let manifestObject = textToTypescript(remoteText)
+        manifestObject = proxyLevel(manifestObject, simulatorOptions)
         if (remoteIsLive) {
-            this.lastLevelResponse = replaceManifestUrls(vodLevel, remoteLevelUrl, false, sessionId, 0, false)
-            if (typeof dvrWindowSeconds ==='number' && dvrWindowSeconds > 0) {
-                this.lastLevelResponse = boundToDvr(this.lastLevelResponse, dvrWindowSeconds)
-            }
+            // live to live
+            manifestObject = boundToDvr(manifestObject, dvrWindowSeconds)
         } else if (keepVod) {
-            this.lastLevelResponse = replaceManifestUrls(vodLevel, remoteLevelUrl, false, sessionId, 0, false)
+            // vod to vod
+            // levelResponse = replaceManifestUrls(remoteText, remoteUrl, false, sessionId, 0, false)
         } else {
-            const curTime = SessionState.getSessionTime(sessionId)
-            if (curTime < 0) {
-                return vodLevel
-            }
-            this.lastLevelResponse = vodToLive(vodLevel, curTime, remoteLevelUrl, sessionId)
-            if (typeof dvrWindowSeconds ==='number' && dvrWindowSeconds > 0) {
-                this.lastLevelResponse = boundToDvr(this.lastLevelResponse, dvrWindowSeconds)
-            }
+            // vod to live
+            const liveManifestMaxLength = SessionState.getSessionTime(sessionId)
+            manifestObject = vodToLive(manifestObject, liveManifestMaxLength)
+            manifestObject = boundToDvr(manifestObject, dvrWindowSeconds)
+            // levelResponse = remoteText
+            // const injections = SessionState.getInjections(sessionId)
+            // injections.forEach((injection) => {
+            //     levelResponse = injectText(levelResponse, injection)
+            // })
         }
-        return this.lastLevelResponse
+        const levelResponse = typescriptToText(manifestObject)
+        SessionState.setLastLevel(sessionId, levelResponse)
+        return levelResponse
     }
 }
 

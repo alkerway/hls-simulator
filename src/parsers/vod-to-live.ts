@@ -1,69 +1,37 @@
-import { getExtInfDuration } from "../utils/hls-string"
-import { possiblePlaylistTags } from "../utils/HlsTags"
+import { Frag, LevelManifest } from "./text-manifest-to-typescript";
 
+export const vodToLive = (manifest: LevelManifest, maxLevelDuration: number): LevelManifest => {
+    if (maxLevelDuration <= 0) return manifest
 
-export const vodToLive = (vodManifest: string, time: number, remoteLevelUrl: string, sessionId: string) => {
-    const liveLines = []
-    const lines = vodManifest.split('\n')
-    let pastManifestTime = 0
+    const newFrags: Frag[] = []
 
+    let currentFragIdx = 0
+    let currentFrag = manifest.frags[currentFragIdx]
+    let totalLevelDuration = currentFrag.duration
     let fragCounter = 0
-    let lineIdx = 0
-    let stopAddingHeaderTags = false
-    while (true) {
-        const line = lines[lineIdx]
-        if (line.startsWith('##')) {
-            // line is comment
-            liveLines.push(line)
-        } else if (line.startsWith('#')) {
-            const isEndlist = line.startsWith('#EXT-X-ENDLIST')
-            const isHeaderTag = possiblePlaylistTags.find(tag => line.startsWith(tag))
-            if (!isEndlist) {
-                if (isHeaderTag) {
-                    if (!stopAddingHeaderTags) {
-                        liveLines.push(line)
-                    }
-                } else {
-                    if (line.startsWith('#EXTINF:')) {
-                        const duration = getExtInfDuration(line)
-                        pastManifestTime += duration
-                        if (pastManifestTime > time) {
-                            // remove lines until we get to the last frag, then stop
-                            let lastLine = liveLines[liveLines.length - 1]
-                            while (lastLine?.startsWith('#') || lastLine?.trim() === '') {
-                                lastLine = liveLines.pop()
-                            }
-                            break
-                        }
-                    }
-                    liveLines.push(line)
-                }
-            }
-        } else if (line.trim()) {
-            if (remoteLevelUrl) {
-                const lineBase = `frag_${fragCounter}.ts?sessionId=${sessionId}`
-                fragCounter++
-                // convert to full url
-                if (line.startsWith('http')) {
-                    liveLines.push(`${lineBase}&url=${line}`)
-                } else {
-                    const pathParts = remoteLevelUrl
-                        .split('?')[0]
-                        .split('/')
-                        .slice(0, line.startsWith('/') ? 3 : -1)
-                        .join('/')
-                    const fullFragUrl = `${pathParts}/${line}`
-                    liveLines.push(`${lineBase}&url=${fullFragUrl}`)
-                }
-            } else {
-                liveLines.push(line)
-            }
+    while (totalLevelDuration < maxLevelDuration) {
+        if (currentFragIdx === 0 && fragCounter !== 0) {
+            currentFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')
         }
-        lineIdx = (lineIdx + 1) % lines.length
-        if (lineIdx === 0 && fragCounter !== 0) {
-            liveLines.push('#EXT-X-DISCONTINUITY ')
-            stopAddingHeaderTags = true
+        newFrags.push(currentFrag)
+
+        // reassign before check not after
+        currentFragIdx = (currentFragIdx + 1) % manifest.frags.length
+        currentFrag = manifest.frags[currentFragIdx]
+        totalLevelDuration += currentFrag.duration
+        fragCounter += 1
+        if (fragCounter > 600_000) {
+            console.log('break loop')
+            break
         }
     }
-    return liveLines.join('\n') + '\n'
+    manifest.frags = newFrags
+    manifest.isLive = true
+    manifest.headerTagLines = manifest.headerTagLines.map((line) => {
+        if (line.startsWith('#EXT-X-PLAYLIST-TYPE')) {
+            return '#EXT-X-PLAYLIST-TYPE:EVENT'
+        }
+        return line
+    })
+    return manifest
 }

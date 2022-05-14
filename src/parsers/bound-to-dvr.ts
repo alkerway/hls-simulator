@@ -1,37 +1,38 @@
 import { getExtInfDuration } from "../utils/hls-string"
 import { possiblePlaylistTags } from "../utils/HlsTags"
+import { LevelManifest } from "./text-manifest-to-typescript"
 
-export const boundToDvr = (manifestText: string, dvrWindowSeconds: number): string => {
-    if (dvrWindowSeconds < 1) return manifestText
+export const boundToDvr = (manifest: LevelManifest, dvrWindowSeconds: number): LevelManifest => {
+    if (dvrWindowSeconds < 1) return manifest
 
-    const manifestLines = manifestText.split('\n')
     let secondsIntoWindowSoFar = 0
     let numFragsRemoved = 0
-    let foundMediaSequenceValue = 0
-    const dvrLines = manifestLines.slice().reverse().filter((line) => {
-        const isHeaderTag = possiblePlaylistTags.find(tag => line.startsWith(tag))
-        if (isHeaderTag) {
-            if (line.startsWith('#EXT-X-MEDIA-SEQUENCE')) {
-                foundMediaSequenceValue = Number(line.slice('#EXT-X-MEDIA-SEQUENCE:'.length)) || 0
-                // add modified media sequence back later
-                return false
-            }
+
+    manifest.frags = manifest.frags.slice().reverse().filter((frag) => {
+        if (secondsIntoWindowSoFar >= dvrWindowSeconds) {
+            numFragsRemoved += 1
+            return false
+        } else {
+            secondsIntoWindowSoFar += frag.duration
             return true
         }
-        if (secondsIntoWindowSoFar >= dvrWindowSeconds) {
-            if (line.trim() && !line.startsWith('#')) {
-                numFragsRemoved += 1
-            }
-            return false
+    }).reverse()
+
+    // update media sequence and remove playlist type header, if they exist
+    manifest.headerTagLines = manifest.headerTagLines.map((line) => {
+        if (line.startsWith('#EXT-X-PLAYLIST-TYPE')) {
+            return ''
+        } else if (line.startsWith('#EXT-X-MEDIA-SEQUENCE')) {
+            const foundMediaSequenceValue = Number(line.slice('#EXT-X-MEDIA-SEQUENCE:'.length)) || 0
+            // add it back later
+            return `#EXT-X-MEDIA-SEQUENCE:${foundMediaSequenceValue + numFragsRemoved}`
         }
-        if (line.startsWith('#EXTINF:')) {
-            const duration = getExtInfDuration(line)
-            secondsIntoWindowSoFar += duration
-        }
-        return true
-    })
-    dvrLines.reverse()
-    const newMediaSequence = `#EXT-X-MEDIA-SEQUENCE:${foundMediaSequenceValue + numFragsRemoved}`
-    dvrLines.splice(2, 0, newMediaSequence)
-    return dvrLines.join('\n') + '\n'
+        return line
+    }).filter(line => line)
+
+    // add media sequence if it doesn't exist
+    if (!manifest.headerTagLines.find((line) => line.startsWith('#EXT-X-MEDIA-SEQUENCE'))) {
+        manifest.headerTagLines.splice(2, 0, `#EXT-X-MEDIA-SEQUENCE:${numFragsRemoved}`)
+    }
+    return manifest
 }
