@@ -20,6 +20,12 @@ export const boundToDvr = (manifest: LevelManifest, dvrWindowSeconds: number): L
     })
     .reverse()
 
+  // add back key if we removed it
+  const firstFrag = manifest.frags[0]
+  if (firstFrag && firstFrag.keyLine && !firstFrag.tagLines.find((tag) => tag.startsWith('#EXT-X-KEY'))) {
+    firstFrag.tagLines.unshift(firstFrag.keyLine)
+  }
+
   // update media sequence and remove playlist type header, if they exist
   manifest.headerTagLines = manifest.headerTagLines
     .map((line) => {

@@ -4,6 +4,7 @@ import { possiblePlaylistTags } from '../utils/HlsTags'
 export type Frag = {
   tagLines: string[]
   url: string
+  keyLine: string | null
   duration: number
 }
 
@@ -19,6 +20,7 @@ export const textToTypescript = (levelManifest: string): LevelManifest => {
   let currentFragHeaderTags: string[] = []
   let currentFragDuration = -1
   let isLive = true
+  let currentKeyLine: string | null = null // '#EXT-X-KEY:METHOD=NONE'
   levelManifest.split('\n').forEach((line) => {
     if (line.startsWith('##') || !line) {
       // line is comment or blank
@@ -38,6 +40,8 @@ export const textToTypescript = (levelManifest: string): LevelManifest => {
       } else {
         if (line.startsWith('#EXTINF:')) {
           currentFragDuration = getExtInfDuration(line)
+        } else if (line.startsWith('#EXT-X-KEY:')) {
+          currentKeyLine = line
         }
         currentFragHeaderTags.push(line)
       }
@@ -46,6 +50,7 @@ export const textToTypescript = (levelManifest: string): LevelManifest => {
       frags.push({
         tagLines: currentFragHeaderTags,
         url: line,
+        keyLine: currentKeyLine,
         duration: currentFragDuration,
       })
       currentFragDuration = -1

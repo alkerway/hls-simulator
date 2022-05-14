@@ -2,7 +2,7 @@ import { CustomManifest } from '../sessions/session-state'
 import { Frag, LevelManifest } from './text-manifest-to-typescript'
 
 const injectTextLiveToLive = (originalManifest: LevelManifest, newText: CustomManifest): LevelManifest => {
-  const customFrags = newText.manifest.frags.map((frag) => ({ ...frag, tagLines: [...frag.tagLines] }))
+  const customFrags = structuredClone(newText.manifest.frags)
 
   const customFragMsMap: Record<number, Frag> = {}
 
@@ -15,13 +15,26 @@ const injectTextLiveToLive = (originalManifest: LevelManifest, newText: CustomMa
 
   originalManifest.frags = originalManifest.frags.map((frag, fragIndex) => {
     const currentMediaSequence = initialMediaSequence + fragIndex
-    const customFragSub = customFragMsMap[currentMediaSequence]
     const manifestFrag = customFragMsMap[currentMediaSequence] || frag
-    if (
-      currentMediaSequence === newText.startTimeOrMediaSequence ||
-      currentMediaSequence === newText.startTimeOrMediaSequence + newText.manifest.frags.length
-    ) {
-      manifestFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')
+    if (currentMediaSequence === newText.startTimeOrMediaSequence) {
+      // start inject
+      const lastFragHadKey = originalManifest.frags[fragIndex - 1]?.keyLine
+      if (lastFragHadKey) {
+        manifestFrag.tagLines.unshift(manifestFrag.keyLine || '#EXT-X-KEY:METHOD=NONE')
+      }
+      if (!manifestFrag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
+        manifestFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')
+      }
+    } else if (currentMediaSequence === newText.startTimeOrMediaSequence + newText.manifest.frags.length) {
+      // stop inject
+      const lastFragHadKey = originalManifest.frags[fragIndex - 1]?.keyLine
+      if (lastFragHadKey || manifestFrag.keyLine) {
+        // always set key file on content if exists
+        manifestFrag.tagLines.unshift(manifestFrag.keyLine || '#EXT-X-KEY:METHOD=NONE')
+      }
+      if (!manifestFrag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
+        manifestFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')
+      }
     }
     return manifestFrag
   })
@@ -48,10 +61,8 @@ const injectText = (
     return injectTextLiveToLive(originalManifest, newText)
   }
 
-  const customFrags = manifest.frags.map((frag) => ({ ...frag, tagLines: [...frag.tagLines] }))
-
+  const customFrags = structuredClone(manifest.frags)
   const newFrags: Frag[] = []
-  const oldManifestDuration = originalManifest.frags.reduce((dur, frag) => frag.duration + dur, 0)
 
   let amountInjectedTextIsAhead = 0
   let appendingcustomManifest = false
@@ -85,13 +96,22 @@ const injectText = (
           currentFrag = originalManifest.frags.shift()
         }
         currentParseTime += currentFrag.duration
+        // transition to original content
+        if (currentFrag.keyLine || newFrags[newFrags.length - 1]?.keyLine) {
+          currentFrag.tagLines.unshift(currentFrag.keyLine || '#EXT-X-KEY:METHOD=NONE')
+        }
         if (!currentFrag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
           currentFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')
         }
       }
     } else {
       if (currentParseTime >= customManifestStartTime && customFrags.length) {
+        const hadKeyLine = currentFrag.keyLine
+        // transition to injected content
         currentFrag = customFrags.shift()
+        if (hadKeyLine) {
+          currentFrag.tagLines.unshift(currentFrag.keyLine || '#EXT-X-KEY:METHOD=NONE')
+        }
         if (!currentFrag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
           currentFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')
         }

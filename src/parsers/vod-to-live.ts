@@ -6,7 +6,7 @@ export const vodToLive = (manifest: LevelManifest, maxLevelDuration: number): Le
   const newFrags: Frag[] = []
 
   let currentFragIdx = 0
-  let currentFrag = manifest.frags[currentFragIdx]
+  let currentFrag = structuredClone(manifest.frags[currentFragIdx])
   let totalLevelDuration = currentFrag.duration
   let fragCounter = 0
   while (totalLevelDuration < maxLevelDuration) {
@@ -17,7 +17,7 @@ export const vodToLive = (manifest: LevelManifest, maxLevelDuration: number): Le
 
     // reassign before check not after
     currentFragIdx = (currentFragIdx + 1) % manifest.frags.length
-    currentFrag = manifest.frags[currentFragIdx]
+    currentFrag = structuredClone(manifest.frags[currentFragIdx])
     totalLevelDuration += currentFrag.duration
     fragCounter += 1
     if (fragCounter > 600_000) {

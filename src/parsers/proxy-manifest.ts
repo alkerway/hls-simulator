@@ -27,7 +27,7 @@ export const proxyMaster = (originalManifest: string, simulatorOptions: Simulato
   let urlCounter = 0
   const originalLines = originalManifest.split('\n')
   const newLines = originalLines.map((line) => {
-    if (!line.startsWith('#') && line.length) {
+    if (!line.startsWith('#') && line.trim().length) {
       let urlLine = `level_${urlCounter}?sessionId=${sessionId}`
       if (dvrWindowSeconds > 0) {
         urlLine += `&dvrWindowSeconds=${dvrWindowSeconds}`
@@ -61,6 +61,7 @@ export const proxyLevel = (manifest: LevelManifest, simulatorOptions: SimulatorO
     return {
       ...frag,
       tagLines: frag.tagLines.map((fragTag) => replaceTagUris(fragTag, remoteUrl)),
+      keyLine: replaceTagUris(frag.keyLine, remoteUrl),
       url: proxyUrl,
     }
   })

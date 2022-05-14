@@ -144,5 +144,3 @@ For live to live, timing of injected text is based on media sequence and not tim
 For live to live, instead of trying to get the timing of the original and modified manifests to match each other, the original fragments are simply replaced one for one with the injected fragments. This may also affect the timing of the manifest - if the original manifest is a rolling dvr window of 6 fragments at 10 seconds each, and the injected text is 3 fragments at 8 seconds each, when one fragment is replaced the manifest will be shorter by 2 seconds, when two fragments are replaced the manifest will be shorter by 4 seconds, etc.
 
 ---
-
-Still TODO: support key file switching for injected text
