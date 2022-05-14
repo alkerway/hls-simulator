@@ -1,109 +1,76 @@
-import { getExtInfDuration } from '../utils/hls-string'
-import { CustomText } from '../sessions/session-state'
-import { possibleFragTags } from '../utils/HlsTags'
+import { CustomManifest } from '../sessions/session-state'
+import { Frag, LevelManifest } from './text-manifest-to-typescript'
 
-const getEmptyInfo = (): { tags: string[]; duration: number; url: string; startTime: number } => {
-  return Object.assign(
-    {},
-    {
-      tags: [],
-      duration: 0,
-      url: '',
-      startTime: 0,
-    }
-  )
-}
+const injectText = (
+  originalManifest: LevelManifest,
+  newText: CustomManifest,
+  maxManifestDuration: number
+): LevelManifest => {
+  const { startTime: customManifestStartTime, manifest } = newText
+  const customFrags = manifest.frags.map((frag) => ({ ...frag, tagLines: [...frag.tagLines] }))
 
-export const injectText = (manifestText: string, newText: CustomText): string => {
-  let currentManifestTime = 0
+  const newFrags: Frag[] = []
+
   let amountInjectedTextIsAhead = 0
-  let idx = 0
+  let appendingcustomManifest = false
 
-  const unmodManifestLines = manifestText.split('\n')
-  const modManifestLines: string[] = []
-  const injectLines = newText.text.split('\n')
-  const injectStartMin = newText.startTime
-  let hasInjected = false
+  let currentFrag
+  if (customManifestStartTime === 0 && customFrags.length) {
+    currentFrag = customFrags.shift()
+    appendingcustomManifest = true
+    amountInjectedTextIsAhead = currentFrag.duration
+  } else {
+    currentFrag = originalManifest.frags.shift()
+  }
+  let currentParseTime = currentFrag.duration
 
-  let curFragInfo = getEmptyInfo()
+  while (currentFrag && currentParseTime <= maxManifestDuration) {
+    newFrags.push(currentFrag)
 
-  while (true) {
-    const line = unmodManifestLines[idx]
-    if (line === undefined) break
-
-    if (line.startsWith('##') || !line.trim()) {
-      curFragInfo.tags.push(line)
-    } else if (line.startsWith('#')) {
-      if (possibleFragTags.find((tag) => line.startsWith(tag))) {
-        if (line.startsWith('#EXTINF')) {
-          const fragDuration = getExtInfDuration(line)
-          curFragInfo.duration = fragDuration
-          curFragInfo.startTime = currentManifestTime
-          currentManifestTime += fragDuration
-        }
-        curFragInfo.tags.push(line)
+    if (appendingcustomManifest) {
+      // add custom frags until we're out of custom frags or
+      // while loop stops cause we went overtime
+      currentFrag = customFrags.shift()
+      if (currentFrag) {
+        amountInjectedTextIsAhead += currentFrag.duration
+        currentParseTime += currentFrag.duration
       } else {
-        // header tag
-        modManifestLines.push(line)
+        appendingcustomManifest = false
+        currentFrag = originalManifest.frags.shift()
+        // no more left to add, remove appropriate
+        while (currentFrag && amountInjectedTextIsAhead > currentFrag.duration) {
+          amountInjectedTextIsAhead -= currentFrag.duration
+          currentFrag = originalManifest.frags.shift()
+        }
+        currentParseTime += currentFrag.duration
+        if (!currentFrag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
+          currentFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')
+        }
       }
     } else {
-      curFragInfo.url = line
-
-      console.log('should insert frag', amountInjectedTextIsAhead, curFragInfo.duration)
-      if (amountInjectedTextIsAhead > curFragInfo.duration) {
-        // skip the frag, adjust text is ahead time
-        amountInjectedTextIsAhead -= curFragInfo.duration
+      if (currentParseTime >= customManifestStartTime && customFrags.length) {
+        currentFrag = customFrags.shift()
+        if (!currentFrag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
+          currentFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')
+        }
+        appendingcustomManifest = true
       } else {
-        if (amountInjectedTextIsAhead > 0) {
-          modManifestLines.push('#EXT-X-DISCONTINUITY')
-        }
-        // insert original manifest frag
-        curFragInfo.tags.forEach((tag) => modManifestLines.push(tag))
-        modManifestLines.push(curFragInfo.url)
-
-        amountInjectedTextIsAhead = 0
+        currentFrag = originalManifest.frags.shift()
       }
-
-      console.log('parsing url line', line)
-      if (currentManifestTime >= injectStartMin && !hasInjected) {
-        let injectFragInfo = getEmptyInfo()
-        for (const injectLine of injectLines) {
-          if (injectLine.startsWith('##') || !injectLine.trim()) {
-            if (!injectLine.trim()) {
-              injectFragInfo.tags.push(injectLine)
-            }
-          } else if (injectLine.startsWith('#')) {
-            if (possibleFragTags.find((tag) => injectLine.startsWith(tag))) {
-              if (injectLine.startsWith('#EXTINF')) {
-                const fragDuration = getExtInfDuration(injectLine)
-                injectFragInfo.startTime = currentManifestTime + amountInjectedTextIsAhead
-                amountInjectedTextIsAhead += fragDuration
-              }
-              injectFragInfo.tags.push(injectLine)
-            }
-          } else {
-            injectFragInfo.url = injectLine
-            // frag url
-            console.log('pushing tags', injectFragInfo.tags)
-            if (!hasInjected) {
-              modManifestLines.push('#EXT-X-DISCONTINUITY')
-            }
-            injectFragInfo.tags.forEach((tag) => modManifestLines.push(tag))
-            modManifestLines.push(injectFragInfo.url)
-            hasInjected = true
-
-            injectFragInfo = getEmptyInfo()
-          }
-        }
-      }
-
-      curFragInfo = getEmptyInfo()
-      // fragment, if og duration is > start time
-      // start injecting until injectDuration is max but less than next frag duration + og duration
-      // if live request, store media sequence on next live manifest request and use that.
+      currentParseTime += currentFrag?.duration || 0
     }
-
-    idx += 1
   }
-  return modManifestLines.join('\n') + '\n'
+  originalManifest.frags = newFrags
+  return originalManifest
+}
+
+export const addCustomManifests = (
+  manifest: LevelManifest,
+  allCustomManifests: CustomManifest[],
+  maxManifestDuration: number
+) => {
+  return allCustomManifests.reduce(
+    (currentManifest, injection) => injectText(currentManifest, injection, maxManifestDuration),
+    manifest
+  )
 }

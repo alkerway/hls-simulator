@@ -1,12 +1,11 @@
-import { injectText } from '../parsers/inject-text'
+import { addCustomManifests } from '../parsers/inject-text'
 import { boundToDvr } from '../parsers/bound-to-dvr'
 import { vodToLive } from '../parsers/vod-to-live'
 import SessionState from '../sessions/session-state'
 import { SimulatorOptions } from '../api/request-options'
-import { proxyMaster } from '../parsers/proxy-master'
+import { proxyMaster, proxyLevel } from '../parsers/proxy-manifest'
 import { textToTypescript } from '../parsers/text-manifest-to-typescript'
 import { typescriptToText } from '../parsers/typescript-manifest-to-text'
-import { proxyLevel } from '../parsers/proxy-level'
 
 class ManifestServer {
   public getMaster = (remoteText: string, requestOptions: SimulatorOptions) => {
@@ -27,12 +26,8 @@ class ManifestServer {
       // vod to live
       const liveManifestMaxLength = SessionState.getSessionTime(sessionId)
       manifestObject = vodToLive(manifestObject, liveManifestMaxLength)
+      manifestObject = addCustomManifests(manifestObject, SessionState.getInjections(sessionId), liveManifestMaxLength)
       manifestObject = boundToDvr(manifestObject, dvrWindowSeconds)
-      // levelResponse = remoteText
-      // const injections = SessionState.getInjections(sessionId)
-      // injections.forEach((injection) => {
-      //     levelResponse = injectText(levelResponse, injection)
-      // })
     }
     const levelResponse = typescriptToText(manifestObject)
     SessionState.setLastLevel(sessionId, levelResponse)

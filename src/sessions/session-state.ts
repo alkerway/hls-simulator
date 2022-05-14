@@ -1,16 +1,17 @@
+import { LevelManifest } from '../parsers/text-manifest-to-typescript'
 import { Messages } from './messages'
 
 type MessageState = { [key in Messages]?: boolean }
 
-export type CustomText = {
+export type CustomManifest = {
   startTime: number
-  text: string
+  manifest: LevelManifest
 }
 
 export type Session = {
   startTimeSeconds: number
   messageState: MessageState
-  injections: CustomText[]
+  injections: CustomManifest[]
   lastLevel: string
 }
 
@@ -61,7 +62,7 @@ class SessionState {
 
   public startSession = (sessionId?: string): { sessionStartTime: number; sessionId: string } => {
     if (!sessionId) sessionId = this.generateSessionId()
-    const sessionStartTime = Math.floor(Date.now() / 1000)
+    const sessionStartTime = Math.floor(Date.now() / 1000 - 30)
     if (this.sessions[sessionId]) {
       // restart but do not reset
       this.sessions[sessionId].startTimeSeconds = sessionStartTime
@@ -86,11 +87,11 @@ class SessionState {
     }
   }
 
-  public addInjectedText = (sessionId: string, text: string, injectStartTime: number) => {
+  public addInjectedManifest = (sessionId: string, manifest: LevelManifest, injectStartTime: number) => {
     if (this.sessions[sessionId]) {
       this.sessions[sessionId].injections.push({
         startTime: injectStartTime,
-        text,
+        manifest,
       })
     }
   }
@@ -105,7 +106,7 @@ class SessionState {
     return this.sessions[sessionId]?.lastLevel || ''
   }
 
-  public getInjections = (sessionId: string): CustomText[] => {
+  public getInjections = (sessionId: string): CustomManifest[] => {
     return this.sessions[sessionId].injections
   }
 

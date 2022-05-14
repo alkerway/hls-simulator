@@ -1,5 +1,6 @@
 import { getFullUrl } from '../utils/url-converter'
 import { SimulatorOptions } from '../api/request-options'
+import { LevelManifest } from './text-manifest-to-typescript'
 
 export const proxyMaster = (originalManifest: string, simulatorOptions: SimulatorOptions): string => {
   const { sessionId, remoteUrl, dvrWindowSeconds = -1, keepVod = false } = simulatorOptions
@@ -24,3 +25,24 @@ export const proxyMaster = (originalManifest: string, simulatorOptions: Simulato
   })
   return newLines.join('\n')
 }
+
+export const proxyLevel = (manifest: LevelManifest, simulatorOptions: SimulatorOptions): LevelManifest => {
+  const { remoteUrl, sessionId } = simulatorOptions
+  manifest.frags = manifest.frags.map((frag, fragIndex) => {
+    const fullFragurl = getFullUrl(frag.url, remoteUrl)
+    const proxyUrl = `frag_${fragIndex}?sessionId=${sessionId}&url=${fullFragurl}`
+    return {
+      ...frag,
+      url: proxyUrl,
+    }
+  })
+  return manifest
+}
+
+export const proxycustomManifest = (manifest: LevelManifest, sessionId: string): LevelManifest => ({
+  ...manifest,
+  frags: manifest.frags.map((frag, fragIndex) => ({
+    ...frag,
+    url: `custom_frag_${fragIndex}?sessionId=${sessionId}&url=${frag.url}`,
+  })),
+})

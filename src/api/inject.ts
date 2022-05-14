@@ -1,4 +1,6 @@
 import { Request, Response } from 'express'
+import { proxycustomManifest } from '../parsers/proxy-manifest'
+import { textToTypescript } from '../parsers/text-manifest-to-typescript'
 import SessionState from '../sessions/session-state'
 
 export const addInjectedText = async (req: Request, res: Response) => {
@@ -26,6 +28,14 @@ export const addInjectedText = async (req: Request, res: Response) => {
     return res.status(400).send(errorMessage + '\n')
   }
 
-  SessionState.addInjectedText(sessionId, req.body, injectedTextStart)
+  let customManifest
+  try {
+    customManifest = textToTypescript(req.body)
+    customManifest = proxycustomManifest(customManifest, sessionId)
+  } catch (err) {
+    return res.status(400).send('Error trying to parse custom text')
+  }
+
+  SessionState.addInjectedManifest(sessionId, customManifest, injectedTextStart)
   return res.status(200).send('ok\n')
 }
