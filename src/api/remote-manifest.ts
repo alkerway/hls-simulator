@@ -14,7 +14,7 @@ export const remoteManifest = async (req: Request, res: Response) => {
     return res.status(400).send('Invalid or missing remote level url in query parameters\n')
   }
 
-  const extension = path.extname(remoteUrl)
+  const extension = path.extname(remoteUrl).split('?')[0]
   const reqIsFrag = ['.ts', '.mp4', '.fmp4'].includes(extension.toLowerCase())
   const reqIsManifest = extension.toLowerCase() === '.m3u8'
 
@@ -40,7 +40,19 @@ export const remoteManifest = async (req: Request, res: Response) => {
         responseStatus = remoteResponse.statusCode
         responseBody = body
       } else {
-        const manifestType = whatIsThisManifest(body)
+        let manifestText = body
+        let manifestType = whatIsThisManifest(body)
+        if (manifestType === 'notamanifest') {
+          try {
+            const decodedResponse = Buffer.from(body, 'base64').toString()
+            if (whatIsThisManifest(decodedResponse) !== 'notamanifest') {
+              manifestType = whatIsThisManifest(decodedResponse)
+              manifestText = decodedResponse
+            }
+          } catch (err) {
+            console.log(err)
+          }
+        }
         const simulatorOptions: SimulatorOptions = {
           keepVod: req.query.keepVod === 'true',
           dvrWindowSeconds: Number(req.query.dvrWindowSeconds) ?? 0,
@@ -50,13 +62,13 @@ export const remoteManifest = async (req: Request, res: Response) => {
         switch (manifestType) {
           case 'master':
             responseStatus = 200
-            responseBody = ManifestServer.getMaster(body, simulatorOptions)
+            responseBody = ManifestServer.getMaster(manifestText, simulatorOptions)
             break
           case 'vodlevel':
           case 'livelevel':
             const isSafe = Botcher.botchLevel(req, res, sessionId)
             if (isSafe) {
-              const remoteManifestText = body
+              const remoteManifestText = manifestText
               responseStatus = 200
               responseBody = ManifestServer.getLevel(remoteManifestText, manifestType === 'livelevel', simulatorOptions)
             } else {
