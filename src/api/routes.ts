@@ -7,4 +7,5 @@ export const register = (app: express.Application) => {
   app.get('/deliver', Api.deliver)
   app.get('/listMessages', Api.listMessages)
   app.post('/inject', Api.addInjectedText)
+  app.get('/clearInjections', Api.clearInjectText)
 }

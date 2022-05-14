@@ -14,6 +14,7 @@ export type Session = {
   messageState: MessageState
   injections: CustomManifest[]
   lastLevel: string
+  deleteTimer: NodeJS.Timeout
 }
 
 type SessionStore = Record<string, Session>
@@ -34,20 +35,6 @@ class SessionState {
   }
 
   private sessions: SessionStore = {}
-
-  constructor() {
-    // clear two day old sessions every two days so
-    // things don't get out of hand
-    const twoDaysInSeconds = 60 * 60 * 24 * 2
-    setInterval(() => {
-      const currentTime = Date.now() / 1000
-      Object.keys(this.sessions).forEach((sessionId) => {
-        if (currentTime - this.sessions[sessionId].startTimeSeconds > twoDaysInSeconds) {
-          delete this.sessions[sessionId]
-        }
-      })
-    }, twoDaysInSeconds * 1000)
-  }
 
   public isValidMessage = (message: Messages) => {
     return message in this.originalMessages
@@ -73,8 +60,10 @@ class SessionState {
         messageState: Object.assign({}, this.originalMessages),
         injections: [],
         lastLevel: '',
+        deleteTimer: null,
       }
     }
+    this.setupSessionClear(sessionId)
     return { sessionStartTime, sessionId }
   }
 
@@ -98,6 +87,12 @@ class SessionState {
     }
   }
 
+  public clearInjectedManifests = (sessionId: string) => {
+    if (this.sessions[sessionId]) {
+      this.sessions[sessionId].injections = []
+    }
+  }
+
   public setLastLevel = (sessionId: string, level: string) => {
     if (this.sessions[sessionId]) {
       this.sessions[sessionId].lastLevel = level
@@ -115,6 +110,18 @@ class SessionState {
   public reset = (sessionId: string) => {
     if (this.sessions[sessionId]) {
       this.sessions[sessionId].messageState = Object.assign({}, this.originalMessages)
+    }
+  }
+
+  public setupSessionClear = (sessionId: string) => {
+    if (this.sessions[sessionId]) {
+      if (this.sessions[sessionId].deleteTimer) {
+        clearTimeout(this.sessions[sessionId].deleteTimer)
+      }
+      this.sessions[sessionId].deleteTimer = setTimeout(() => {
+        // clear session after a day
+        delete this.sessions[sessionId]
+      }, 24 * 60 * 60 * 1000)
     }
   }
 

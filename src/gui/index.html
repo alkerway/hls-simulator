@@ -1,72 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HLS Simulator</title>
-    <link rel="stylesheet" href="skeleton.css">
+    <link rel="stylesheet" href="skeleton.css" />
     <script src="js/appstate.js"></script>
     <script src="js/events.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <div class="row">
-        <div class="four columns">
-            <h4>Step 1: Start a Session</h4>
-            <button id="startSessionButton" class="button-primary">Start Session</button>
-            <div>Session Id: <span id="sessionIdDisplay"></span></div>
-            <div>Manifest Timer: <span id="sessionStartTimeDisplay">0.0</span></div>
-            <button id="resetTimerButton">Reset Timer</button>
+      <div class="four columns">
+        <h4>Step 1: Start a Session</h4>
+        <button id="startSessionButton" class="button-primary">Start Session</button>
+        <div>Session Id: <span id="sessionIdDisplay"></span></div>
+        <div>Manifest Timer: <span id="sessionStartTimeDisplay">0.0</span></div>
+        <button id="resetTimerButton">Reset Timer</button>
+      </div>
+      <div class="eight columns">
+        <h4>Step 2: Enter Manifest Url</h4>
+        <input style="width: 100%" type="text" id="inputUrl" placeholder="Manifest Url Here" />
+        <div>
+          Rolling Dvr Length (in seconds):
+          <input style="width: 80px" type="number" id="rollingDvrInput" value="-1" /> Return vod response (vod only,
+          default false): <input type="checkbox" id="keepVodInput" />
         </div>
-        <div class="eight columns">
-            <h4>Step 2: Enter Manifest Url</h4>
-            <input style="width: 100%" type="text" id="inputUrl" placeholder="Manifest Url Here">
-            <div>
-                Rolling Dvr Length (in seconds): <input style="width: 80px" type="number" id="rollingDvrInput" value="-1">
-                Return vod response (vod only, default false): <input type="checkbox" id="keepVodInput">
-            </div>
-            <h5>Generated Url
-                <button id="copyGeneratedUrlButton">Copy Generated Url</button>
-                <button id="logRemoteManifestButton">Log Remote Manifest</button>
-            </h5>
-            <div>
-                <textarea style="width: 100%" id="generatedUrlDisplay"></textarea>
-            </div>
+        <h5>
+          Generated Url
+          <button id="copyGeneratedUrlButton">Copy Generated Url</button>
+          <button id="logRemoteManifestButton">Log Remote Manifest</button>
+        </h5>
+        <div>
+          <textarea style="width: 100%" id="generatedUrlDisplay"></textarea>
         </div>
+      </div>
     </div>
     <div class="row">
-        <div class="seven columns">
-            <h4>Step 3: Simulate Things</h4>
+      <div class="seven columns">
+        <h4>Step 3: Simulate Things</h4>
+        <div class="row">
+          <div class="five columns">
+            <h5>API errors</h5>
             <div>
-                <button class="optionButton" id="NextFrag403Button">Next Frag 403</button>
-                <button class="optionButton" id="NextLevel403Button">Next Level 403</button>
-                <button class="optionButton" id="NextFragTimeoutButton">Next Frag Timeout</button>
-                <button class="optionButton" id="NextLevelTimeoutButton">Next Level Timeout</button>
+              <button class="optionButton" id="NextFrag403Button">Next Frag 403</button>
+              <button class="optionButton" id="NextLevel403Button">Next Level 403</button>
+              <button class="optionButton" id="NextFragTimeoutButton">Next Frag Timeout</button>
+              <button class="optionButton" id="NextLevelTimeoutButton">Next Level Timeout</button>
             </div>
             <div>
-                <button class="optionButton" id="AllFrag403Button">All Frag 403</button>
-                <button class="optionButton" id="AllLevel403Button">All Level 403</button>
-                <button class="optionButton" id="AllFragDelayButton">All Frag Delay</button>
-
+              <button class="optionButton" id="AllFrag403Button">All Frag 403</button>
+              <button class="optionButton" id="AllLevel403Button">All Level 403</button>
+              <button class="optionButton" id="AllFragDelayButton">All Frag Delay</button>
             </div>
             <div>
-                <button class="optionButton" id="LevelStallButton">Level Stall</button>
-                <button class="optionButton" id="StreamEndButton">Stream End</button>
+              <button class="optionButton" id="LevelStallButton">Level Stall</button>
+              <button class="optionButton" id="StreamEndButton">Stream End</button>
             </div>
             <button class="optionButton" id="ResetButton">Reset</button>
+          </div>
+          <div class="seven columns">
+            <h5>Insert Text</h5>
+            <div>Position will be after manifest timer (default)</div>
+            <div>
+              Or enter a time (vod to vod, vod to live) or media sequence (live to live):
+              <input style="width: 80px" type="number" id="insertTextStartInput" value="-1" />
+            </div>
+            <textarea style="width: 100%; min-height: 250px" id="insertTextInput"></textarea>
+            <button id="sendInsertTextButton">Send</button>
+            <button style="float: right" id="clearInsertTextButton">Clear Records for Session</button>
+          </div>
         </div>
-        <div class="five columns">
-            <h4>Logs <button id="clearLogsButton">Clear</button></h4>
-            <div id="logsWindow" style="border: 1px solid #aaa; width: 100%; height: 250px; overflow: scroll; white-space:pre;"></div>
+      </div>
+      <div class="five columns">
+        <h4>Logs <button id="clearLogsButton">Clear</button></h4>
+        <div
+          id="logsWindow"
+          style="border: 1px solid #aaa; width: 100%; height: 350px; overflow: scroll; white-space: pre"
+        ></div>
+        <br />
+        <br />
+        <div style="text-align: right">
+          Github repo + docs:
+          <a target="_blank" href="https://github.com/alkerway/hls-simulator/"
+            >https://github.com/alkerway/hls-simulator/</a
+          >
         </div>
-    </div>
-    <br>
-    <br>
-    <div>
-        Github repo + docs: <a target="_blank" href="https://github.com/alkerway/hls-simulator/">https://github.com/alkerway/hls-simulator/</a>
+      </div>
     </div>
     <script src="js/elements.js"></script>
     <script src="js/domUpdaters.js"></script>
     <script src="js/domListeners.js"></script>
-</body>
+  </body>
 </html>

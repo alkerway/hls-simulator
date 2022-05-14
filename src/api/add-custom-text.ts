@@ -43,3 +43,14 @@ export const addInjectedText = async (req: Request, res: Response) => {
   SessionState.addInjectedManifest(sessionId, customManifest, startPositionFromQuery)
   return res.status(200).send('ok\n')
 }
+
+export const clearInjectText = async (req: Request, res: Response) => {
+  const sessionId = req.query.sessionId && String(req.query.sessionId)
+
+  if (!SessionState.sessionExists(sessionId)) {
+    return res.status(400).send('No session found for id ' + sessionId + '  \n')
+  }
+
+  SessionState.clearInjectedManifests(sessionId)
+  return res.status(200).send('ok\n')
+}
