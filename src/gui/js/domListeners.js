@@ -115,6 +115,7 @@ Elements.sendInsertTextButton.addEventListener('click', () => {
   if (AppState.insertTextStartTime > -1) {
     url += `&startAfter=${AppState.insertTextStartTime}`
   }
+  Events.log$.next('Sending custom insert manifest request')
   return fetch(url, requestInit).then(async (res) => {
     if (res.ok) {
       Events.log$.next('Request success')
@@ -126,5 +127,6 @@ Elements.sendInsertTextButton.addEventListener('click', () => {
 })
 
 Elements.clearInsertTextButton.addEventListener('click', () => {
+  Events.log$.next('Sending clear custom manifests request')
   makeRequest(`/clearInjections?sessionId=${AppState.sessionId}`).catch((err) => Events.log$.next(err))
 })

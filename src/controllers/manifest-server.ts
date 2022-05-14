@@ -20,11 +20,11 @@ class ManifestServer {
     manifestObject = proxyLevel(manifestObject, simulatorOptions)
     if (remoteIsLive) {
       // live to live
-      manifestObject = addCustomManifests(manifestObject, injections, Infinity, true)
+      manifestObject = addCustomManifests(manifestObject, injections, -1, true)
       manifestObject = boundToDvr(manifestObject, dvrWindowSeconds)
     } else if (keepVod) {
       // vod to vod
-      manifestObject = addCustomManifests(manifestObject, injections, Infinity)
+      manifestObject = addCustomManifests(manifestObject, injections, -1)
     } else {
       // vod to live
       const liveManifestMaxLength = SessionState.getSessionTime(sessionId)

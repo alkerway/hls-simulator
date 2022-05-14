@@ -66,7 +66,7 @@ const injectText = (
   }
   let currentParseTime = currentFrag.duration
 
-  while (currentFrag && currentParseTime <= Math.min(oldManifestDuration, sessionTime)) {
+  while (currentFrag && (currentParseTime <= sessionTime || sessionTime < 0)) {
     newFrags.push(currentFrag)
 
     if (appendingcustomManifest) {
