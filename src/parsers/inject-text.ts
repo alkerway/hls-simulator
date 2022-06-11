@@ -18,19 +18,19 @@ const injectTextLiveToLive = (originalManifest: LevelManifest, newText: CustomMa
     const manifestFrag = customFragMsMap[currentMediaSequence] || frag
     if (currentMediaSequence === newText.startTimeOrMediaSequence) {
       // start inject
-      const lastFragHadKey = originalManifest.frags[fragIndex - 1]?.keyLine
+      const lastFragHadKey = originalManifest.frags[fragIndex - 1]?.impliedKeyLine
       if (lastFragHadKey) {
-        manifestFrag.tagLines.unshift(manifestFrag.keyLine || '#EXT-X-KEY:METHOD=NONE')
+        manifestFrag.tagLines.unshift(manifestFrag.impliedKeyLine || '#EXT-X-KEY:METHOD=NONE')
       }
       if (!manifestFrag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
         manifestFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')
       }
     } else if (currentMediaSequence === newText.startTimeOrMediaSequence + newText.manifest.frags.length) {
       // stop inject
-      const lastFragHadKey = originalManifest.frags[fragIndex - 1]?.keyLine
-      if (lastFragHadKey || manifestFrag.keyLine) {
+      const lastFragHadKey = originalManifest.frags[fragIndex - 1]?.impliedKeyLine
+      if (lastFragHadKey || manifestFrag.impliedKeyLine) {
         // always set key file on content if exists
-        manifestFrag.tagLines.unshift(manifestFrag.keyLine || '#EXT-X-KEY:METHOD=NONE')
+        manifestFrag.tagLines.unshift(manifestFrag.impliedKeyLine || '#EXT-X-KEY:METHOD=NONE')
       }
       if (!manifestFrag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
         manifestFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')
@@ -51,9 +51,9 @@ const injectText = (
   const { fallbackStartTime, startTimeOrMediaSequence, manifest } = newText
   const customManifestStartTime = startTimeOrMediaSequence ?? fallbackStartTime
 
-  // set a media sequence to keep track if one isn't set
   if (isLiveToLive) {
     if (!startTimeOrMediaSequence) {
+      // set a media sequence to keep track if one isn't set
       const mediaSequenceTag = originalManifest.headerTagLines.find((tag) => tag.startsWith('#EXT-X-MEDIA-SEQUENCE:'))
       const startingMediaSequenceValue = Number(mediaSequenceTag.slice('#EXT-X-MEDIA-SEQUENCE:'.length)) || 0
       newText.startTimeOrMediaSequence = startingMediaSequenceValue + originalManifest.frags.length
@@ -88,9 +88,9 @@ const injectText = (
         amountInjectedTextIsAhead += currentFrag.duration
         currentParseTime += currentFrag.duration
       } else {
+        // no more left to add, skip over appropriate number of content frags
         appendingcustomManifest = false
         currentFrag = originalManifest.frags.shift()
-        // no more left to add, remove appropriate
         while (currentFrag && amountInjectedTextIsAhead > currentFrag.duration) {
           amountInjectedTextIsAhead -= currentFrag.duration
           currentFrag = originalManifest.frags.shift()
@@ -98,10 +98,10 @@ const injectText = (
         currentParseTime += currentFrag.duration
         // transition to original content
         if (
-          (currentFrag.keyLine || newFrags[newFrags.length - 1]?.keyLine) &&
+          (currentFrag.impliedKeyLine || newFrags[newFrags.length - 1]?.impliedKeyLine) &&
           !currentFrag.tagLines.find((line) => line.startsWith('#EXT-X-KEY'))
         ) {
-          currentFrag.tagLines.unshift(currentFrag.keyLine || '#EXT-X-KEY:METHOD=NONE')
+          currentFrag.tagLines.unshift(currentFrag.impliedKeyLine || '#EXT-X-KEY:METHOD=NONE')
         }
         if (!currentFrag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
           currentFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')
@@ -109,11 +109,11 @@ const injectText = (
       }
     } else {
       if (currentParseTime >= customManifestStartTime && customFrags.length) {
-        const hadKeyLine = currentFrag.keyLine
+        const hadKeyLine = currentFrag.impliedKeyLine
         // transition to injected content
         currentFrag = customFrags.shift()
         if (hadKeyLine) {
-          currentFrag.tagLines.unshift(currentFrag.keyLine || '#EXT-X-KEY:METHOD=NONE')
+          currentFrag.tagLines.unshift(currentFrag.impliedKeyLine || '#EXT-X-KEY:METHOD=NONE')
         }
         if (!currentFrag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
           currentFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')

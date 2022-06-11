@@ -15,19 +15,21 @@ class ManifestServer {
   public getLevel = (remoteText: string, remoteIsLive: boolean, simulatorOptions: SimulatorOptions) => {
     const { sessionId, dvrWindowSeconds = -1, keepVod = false } = simulatorOptions
     const injections = SessionState.getInjections(sessionId)
+    const liveManifestMaxLength = SessionState.getSessionTime(sessionId)
 
     let manifestObject = textToTypescript(remoteText)
-    manifestObject = proxyLevel(manifestObject, simulatorOptions)
     if (remoteIsLive) {
       // live to live
+      manifestObject = proxyLevel(manifestObject, simulatorOptions)
       manifestObject = addCustomManifests(manifestObject, injections, -1, true)
       manifestObject = boundToDvr(manifestObject, dvrWindowSeconds)
     } else if (keepVod) {
       // vod to vod
+      manifestObject = proxyLevel(manifestObject, simulatorOptions)
       manifestObject = addCustomManifests(manifestObject, injections, -1)
     } else {
       // vod to live
-      const liveManifestMaxLength = SessionState.getSessionTime(sessionId)
+      manifestObject = proxyLevel(manifestObject, simulatorOptions)
       manifestObject = vodToLive(manifestObject, liveManifestMaxLength)
       manifestObject = addCustomManifests(manifestObject, injections, liveManifestMaxLength)
       manifestObject = boundToDvr(manifestObject, dvrWindowSeconds)

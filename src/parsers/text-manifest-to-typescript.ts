@@ -4,7 +4,7 @@ import { possiblePlaylistTags } from '../utils/HlsTags'
 export type Frag = {
   tagLines: string[]
   url: string
-  keyLine: string | null
+  impliedKeyLine: string | null
   duration: number
 }
 
@@ -50,7 +50,7 @@ export const textToTypescript = (levelManifest: string): LevelManifest => {
       frags.push({
         tagLines: currentFragHeaderTags,
         url: line,
-        keyLine: currentKeyLine,
+        impliedKeyLine: currentKeyLine,
         duration: currentFragDuration,
       })
       currentFragDuration = -1

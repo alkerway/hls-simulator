@@ -61,7 +61,7 @@ export const proxyLevel = (manifest: LevelManifest, simulatorOptions: SimulatorO
     return {
       ...frag,
       tagLines: frag.tagLines.map((fragTag) => replaceTagUris(fragTag, remoteUrl)),
-      keyLine: replaceTagUris(frag.keyLine, remoteUrl),
+      impliedKeyLine: replaceTagUris(frag.impliedKeyLine, remoteUrl),
       url: proxyUrl,
     }
   })
