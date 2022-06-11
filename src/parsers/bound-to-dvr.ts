@@ -5,6 +5,7 @@ export const boundToDvr = (manifest: LevelManifest, dvrWindowSeconds: number): L
 
   let secondsIntoWindowSoFar = 0
   let numFragsRemoved = 0
+  let numDiscontinuitiesRemoved = 0
 
   manifest.frags = manifest.frags
     .slice()
@@ -12,6 +13,9 @@ export const boundToDvr = (manifest: LevelManifest, dvrWindowSeconds: number): L
     .filter((frag) => {
       if (secondsIntoWindowSoFar + frag.duration > dvrWindowSeconds) {
         numFragsRemoved += 1
+        if (frag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
+          numDiscontinuitiesRemoved += 1
+        }
         return false
       } else {
         secondsIntoWindowSoFar += frag.duration
@@ -25,6 +29,12 @@ export const boundToDvr = (manifest: LevelManifest, dvrWindowSeconds: number): L
   if (firstFrag && firstFrag.impliedKeyLine && !firstFrag.tagLines.find((tag) => tag.startsWith('#EXT-X-KEY'))) {
     firstFrag.tagLines.unshift(firstFrag.impliedKeyLine)
   }
+  if (firstFrag && firstFrag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
+    // remove redundant discontinuity tag on first frag
+    firstFrag.tagLines = firstFrag.tagLines.filter((line) => !line.startsWith('#EXT-X-DISCONTINUITY'))
+    // also increment disco sequence if we remove
+    numDiscontinuitiesRemoved += 1
+  }
 
   // update media sequence and remove playlist type header, if they exist
   manifest.headerTagLines = manifest.headerTagLines
@@ -35,6 +45,9 @@ export const boundToDvr = (manifest: LevelManifest, dvrWindowSeconds: number): L
         const foundMediaSequenceValue = Number(line.slice('#EXT-X-MEDIA-SEQUENCE:'.length)) || 0
         // add it back later
         return `#EXT-X-MEDIA-SEQUENCE:${foundMediaSequenceValue + numFragsRemoved}`
+      } else if (line.startsWith('#EXT-X-DISCONTINUITY-SEQUENCE')) {
+        const foundDiscoSequence = Number(line.slice('#EXT-X-DISCONTINUITY-SEQUENCE:'.length)) || 0
+        return `#EXT-X-DISCONTINUITY-SEQUENCE:${foundDiscoSequence + numDiscontinuitiesRemoved}`
       }
       return line
     })
