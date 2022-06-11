@@ -2,9 +2,9 @@
 
 With this tool one can:
 
-1. Create common failures (timeouts, stalls, etc) in frag or level requests [jump to section](#http-incidents)
+1. Create common failures (timeouts, stalls, etc) in frag or level requests ([jump to section](#http-incidents))
 1. Serve VOD manifests as live manifests
-1. Inject any text (ads) whenever [jump to section](#inject-custom-text)
+1. Inject any text (ads) whenever ([jump to section](#inject-custom-text))
 
 ## Demo (outdated)
 
@@ -114,7 +114,7 @@ Any issues created by the above requests will go away. For example, if `AllFrag4
 
 ### Inject Custom Text
 
-Custom text can be injected into manifests to simulate ad breaks and content changes. This application cannot split up the actual fragments, so any text injected may alter the timings of the returned manifest. It is assumed that any custom text sent is in HLS level manifest form.
+Custom text can be injected into manifests to simulate ad breaks and content changes. This application cannot split up any fragments as they are hosted on their respective remote servers, so any text injected may alter the timings of the returned manifest. It is assumed that any custom text sent is an HLS Level manifest with or without header tags.
 
 Inject a manifest by pasting text into the text area and clicking Send. See the sections below for more details on where the injected text will appear in relation to the original manifest.
 
@@ -129,17 +129,17 @@ To clear all injected texts, click the Clear button below the text area.
 
 #### How it works and Limitations: Vod to Vod and Vod to Live
 
-The time that custom text is injected can be set with the input above the text area, or if the number in the input is negative, the value of the session timer at the time the custom text is sent will be used.
+The manifest time that custom text is injected can be set with the input above the text area. If the number in the input is negative, the value of the session timer at the time the custom text is sent will be used.
 
-The server will inject the text at the point where a new fragment needs to be added to the manifest, after the time passed with the injected text. For example, for a manifest with ten second fragments, if the custom text is injected at a session time of 26, the server will return three ten second original fragments and then start adding the custom text.
+The server will inject the text at the point where the next fragment would be added to the manifest after the time sent with the injected text. For example, for a manifest with ten second fragments, if the custom text is injected at a time of 26.5, the server will return three ten second original fragments and then start adding the custom text.
 
-If the total time of the injected text doesn't evenly match an integer number of fragments, the server will always add more time to the manifest (never take any away). If custom text containing 3 fragments, each 4 seconds long, is injected at time 26 of a manifest with 10 second fragments, the manifest returned should be three original 10 second fragments (sequence numbers 0, 1, 2), the three injected fragments, then original fragments at sequence numbers 4, 5, etc. The original fragment number 3 will be replaced by the custom text. The resulting manifest will be two seconds longer.
+If the total time of the injected text does not evenly match an integer number of fragments, the server will always add more time to the manifest and never take any time away. If custom text containing 3 fragments, each 4 seconds long, is injected at time 26.5 of a manifest with 10 second fragments, the manifest returned should be three original 10 second fragments (sequence numbers 0, 1, 2), the three injected fragments, then original fragments at sequence numbers 4, 5, etc. The original fragment number 3 will be replaced by the custom text. The manifest with injected text will be two seconds longer than the original manifest.
 
 #### How it works and Limitations: Live to Live
 
 Live to live means the remote manifest is live.
 
-For live to live, timing of injected text is based on media sequence and not time. If no positive value is provided in the input above the text area, the next level request will set the media sequence on the injected text to be one greater than the greatest media sequence in the manifest. If a positive value is provided in the input above the text area, the first injected fragment will replace the original fragment at the provided media sequence.
+For live to live, timing of injected text is based on media sequence and not time. If no positive value is provided in the input above the text area, the next level request will set the media sequence on the injected text to be one greater than the greatest media sequence in the manifest. If a positive value is provided in the input above the text area, the first injected fragment will replace the original fragment at the media sequence matching the provided positive value.
 
 For live to live, instead of trying to get the timing of the original and modified manifests to match each other, the original fragments are simply replaced one for one with the injected fragments. This may also affect the timing of the manifest - if the original manifest is a rolling dvr window of 6 fragments at 10 seconds each, and the injected text is 3 fragments at 8 seconds each, when one fragment is replaced the manifest will be shorter by 2 seconds, when two fragments are replaced the manifest will be shorter by 4 seconds, etc.
 
