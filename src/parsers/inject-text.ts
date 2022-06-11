@@ -1,3 +1,4 @@
+import { Tags } from '../utils/HlsTags'
 import { CustomManifest } from '../sessions/session-state'
 import { Frag, LevelManifest } from './text-manifest-to-typescript'
 
@@ -10,8 +11,8 @@ const injectTextLiveToLive = (originalManifest: LevelManifest, newText: CustomMa
     customFragMsMap[newText.startTimeOrMediaSequence + index] = frag
   })
 
-  const mediaSequenceTag = originalManifest.headerTagLines.find((tag) => tag.startsWith('#EXT-X-MEDIA-SEQUENCE:'))
-  const initialMediaSequence = Number(mediaSequenceTag.slice('#EXT-X-MEDIA-SEQUENCE:'.length)) || 0
+  const mediaSequenceTag = originalManifest.headerTagLines?.findTag(Tags.MediaSequence)
+  const initialMediaSequence = Number(mediaSequenceTag.slice(Tags.MediaSequence.length)) || 0
 
   originalManifest.frags = originalManifest.frags.map((frag, fragIndex) => {
     const currentMediaSequence = initialMediaSequence + fragIndex
@@ -22,8 +23,8 @@ const injectTextLiveToLive = (originalManifest: LevelManifest, newText: CustomMa
       if (lastFragHadKey) {
         manifestFrag.tagLines.unshift(manifestFrag.impliedKeyLine || '#EXT-X-KEY:METHOD=NONE')
       }
-      if (!manifestFrag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
-        manifestFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')
+      if (!manifestFrag.tagLines.findTag(Tags.Discontinuity)) {
+        manifestFrag.tagLines.unshift(Tags.Discontinuity)
       }
     } else if (currentMediaSequence === newText.startTimeOrMediaSequence + newText.manifest.frags.length) {
       // stop inject
@@ -32,8 +33,8 @@ const injectTextLiveToLive = (originalManifest: LevelManifest, newText: CustomMa
         // always set key file on content if exists
         manifestFrag.tagLines.unshift(manifestFrag.impliedKeyLine || '#EXT-X-KEY:METHOD=NONE')
       }
-      if (!manifestFrag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
-        manifestFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')
+      if (!manifestFrag.tagLines.findTag(Tags.Discontinuity)) {
+        manifestFrag.tagLines.unshift(Tags.Discontinuity)
       }
     }
     return manifestFrag
@@ -54,8 +55,8 @@ const injectText = (
   if (isLiveToLive) {
     if (!startTimeOrMediaSequence) {
       // set a media sequence to keep track if one isn't set
-      const mediaSequenceTag = originalManifest.headerTagLines.find((tag) => tag.startsWith('#EXT-X-MEDIA-SEQUENCE:'))
-      const startingMediaSequenceValue = Number(mediaSequenceTag.slice('#EXT-X-MEDIA-SEQUENCE:'.length)) || 0
+      const mediaSequenceTag = originalManifest.headerTagLines.findTag(Tags.MediaSequence)
+      const startingMediaSequenceValue = Number(mediaSequenceTag.slice(Tags.MediaSequence.length)) || 0
       newText.startTimeOrMediaSequence = startingMediaSequenceValue + originalManifest.frags.length
     }
     return injectTextLiveToLive(originalManifest, newText)
@@ -99,12 +100,12 @@ const injectText = (
         // transition to original content
         if (
           (currentFrag.impliedKeyLine || newFrags[newFrags.length - 1]?.impliedKeyLine) &&
-          !currentFrag.tagLines.find((line) => line.startsWith('#EXT-X-KEY'))
+          !currentFrag.tagLines.findTag(Tags.Key)
         ) {
           currentFrag.tagLines.unshift(currentFrag.impliedKeyLine || '#EXT-X-KEY:METHOD=NONE')
         }
-        if (!currentFrag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
-          currentFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')
+        if (!currentFrag.tagLines.findTag(Tags.Discontinuity)) {
+          currentFrag.tagLines.unshift(Tags.Discontinuity)
         }
       }
     } else {
@@ -115,8 +116,8 @@ const injectText = (
         if (hadKeyLine) {
           currentFrag.tagLines.unshift(currentFrag.impliedKeyLine || '#EXT-X-KEY:METHOD=NONE')
         }
-        if (!currentFrag.tagLines.find((line) => line.startsWith('#EXT-X-DISCONTINUITY'))) {
-          currentFrag.tagLines.unshift('#EXT-X-DISCONTINUITY')
+        if (!currentFrag.tagLines.findTag(Tags.Discontinuity)) {
+          currentFrag.tagLines.unshift(Tags.Discontinuity)
         }
         appendingcustomManifest = true
       } else {

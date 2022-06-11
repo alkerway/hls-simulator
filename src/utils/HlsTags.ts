@@ -20,3 +20,22 @@ export const possiblePlaylistTags = [
   '#EXT-X-INDEPENDENT-SEGMENTS',
   '#EXT-X-START',
 ]
+
+export enum Tags {
+  Inf = '#EXTINF',
+  Discontinuity = '#EXT-X-DISCONTINUITY',
+  Pdt = '#EXT-X-PROGRAM-DATE-TIME',
+  Key = '#EXT-X-KEY',
+  MediaSequence = '#EXT-X-MEDIA-SEQUENCE',
+  DiscontinuitySequence = '#EXT-X-DISCONTINUITY-SEQUENCE',
+  PlaylistType = '#EXT-X-PLAYLIST-TYPE',
+  End = '#EXT-X-ENDLIST',
+}
+
+String.prototype.isTag = function (tag: Tags) {
+  return this.startsWith(tag)
+}
+
+Array.prototype.findTag = function (tag: Tags) {
+  return this.find((line: string) => line.isTag(tag))
+}

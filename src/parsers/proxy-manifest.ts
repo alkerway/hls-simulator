@@ -1,6 +1,7 @@
 import { getFullUrl } from '../utils/url-converter'
 import { SimulatorOptions } from '../api/request-options'
 import { LevelManifest } from './text-manifest-to-typescript'
+import { Tags } from '../utils/HlsTags'
 
 const replaceTagUris = (tag: string, remoteUrl: string) => {
   if (!tag || tag.startsWith('##')) return tag
@@ -47,10 +48,10 @@ export const proxyMaster = (originalManifest: string, simulatorOptions: Simulato
 
 export const proxyLevel = (manifest: LevelManifest, simulatorOptions: SimulatorOptions): LevelManifest => {
   const { remoteUrl, sessionId } = simulatorOptions
-  const mediaSequenceTag = manifest.headerTagLines.find((tag) => tag.startsWith('#EXT-X-MEDIA-SEQUENCE:'))
+  const mediaSequenceTag = manifest.headerTagLines.findTag(Tags.MediaSequence)
   let mediaSequenceOffset = 0
   if (mediaSequenceTag) {
-    mediaSequenceOffset = Number(mediaSequenceTag.slice('#EXT-X-MEDIA-SEQUENCE:'.length)) || 0
+    mediaSequenceOffset = Number(mediaSequenceTag.slice(Tags.MediaSequence.length)) || 0
   }
   manifest.headerTagLines = manifest.headerTagLines.map((headerTag) => replaceTagUris(headerTag, remoteUrl))
   manifest.frags = manifest.frags.map((frag, fragIndex) => {
