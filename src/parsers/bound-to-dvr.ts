@@ -17,6 +17,8 @@ export const boundToDvr = (manifest: LevelManifest, dvrWindowSeconds: number): L
         if (frag.tagLines.findTag(Tags.Discontinuity)) {
           numDiscontinuitiesRemoved += 1
         }
+        // set seconds to high number so no short frags make the cut
+        secondsIntoWindowSoFar = Infinity
         return false
       } else {
         secondsIntoWindowSoFar += frag.duration
