@@ -1,5 +1,5 @@
 import { Tags } from '../utils/HlsTags'
-import { pdtTagToUnix } from '../utils/hls-string'
+import { addMsToPdtLine, pdtTagToUnix } from '../utils/hls-string'
 import { Frag, LevelManifest } from './text-manifest-to-typescript'
 
 export const vodToLive = (manifest: LevelManifest, maxLevelDuration: number): LevelManifest => {
@@ -19,7 +19,21 @@ export const vodToLive = (manifest: LevelManifest, maxLevelDuration: number): Le
       const lastFrag = newFrags[newFrags.length - 1]
       const lastFragPdtLine = lastFrag.tagLines.findTag(Tags.Pdt) || lastFrag.impliedPDTLine
       if (lastFragPdtLine) {
-        pdtOffsetMs = pdtTagToUnix(lastFragPdtLine) + 1000 * lastFrag.duration
+        pdtOffsetMs = newFrags.reduce((total, curFrag) => total + curFrag.duration, 0) * 1000
+      }
+    }
+    // apply pdt offset to all frags on looped manifest
+    if (pdtOffsetMs) {
+      if (currentFrag.impliedPDTLine) {
+        currentFrag.impliedPDTLine = addMsToPdtLine(currentFrag.impliedPDTLine, pdtOffsetMs)
+      }
+      if (currentFrag.tagLines.findTag(Tags.Pdt)) {
+        currentFrag.tagLines = currentFrag.tagLines.map((line) => {
+          if (line.isTag(Tags.Pdt)) {
+            return addMsToPdtLine(line, pdtOffsetMs)
+          }
+          return line
+        })
       }
     }
     newFrags.push(currentFrag)

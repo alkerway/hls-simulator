@@ -1,3 +1,5 @@
+import { Tags } from './HlsTags'
+
 export const getExtInfDuration = (infLine: string): number => {
   const durationRegex = /EXTINF\:(.+),/
   const match = durationRegex.exec(infLine)
@@ -16,4 +18,15 @@ export const pdtTagToUnix = (tag: string): number | null => {
     console.warn('Error converting pdt string to unix', err)
   }
   return null
+}
+
+export const unixToPdtTag = (unixTime: number) => {
+  const isoString = new Date(unixTime).toISOString()
+  return `${Tags.Pdt}:${isoString}`
+}
+
+export const addMsToPdtLine = (line: string, ms: number) => {
+  const prevTime = pdtTagToUnix(line)
+  const newTime = prevTime + ms
+  return unixToPdtTag(newTime)
 }

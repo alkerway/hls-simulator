@@ -50,7 +50,7 @@ class SessionState {
 
   public startSession = (sessionId?: string): { sessionStartTime: number; sessionId: string } => {
     if (!sessionId) sessionId = this.generateSessionId()
-    const sessionStartTime = Math.floor(Date.now() / 1000 - 60 * 6)
+    const sessionStartTime = Math.floor(Date.now() / 1000)
     if (this.sessions[sessionId]) {
       // restart but do not reset
       this.sessions[sessionId].startTimeSeconds = sessionStartTime
