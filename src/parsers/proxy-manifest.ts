@@ -7,17 +7,19 @@ const replaceTagUris = (tag: string, remoteUrl: string) => {
   if (!tag || tag.startsWith('##')) return tag
   const tagName = tag.slice(0, tag.indexOf(':') + 1)
   const tagAttributes = tag.slice(tagName.length).match(/("[^"]*")|[^,]+/g)
-  const uriAttribute = tagAttributes.find((attribute) => attribute.startsWith('URI='))
-  if (uriAttribute) {
-    const fullUri = getFullUrl(uriAttribute.slice(5, -1), remoteUrl)
-    return (
-      tagName +
-      tagAttributes
-        .map((attribute) => {
-          return attribute.startsWith('URI') ? `URI="${fullUri}"` : attribute
-        })
-        .join(',')
-    )
+  if (tagAttributes) {
+    const uriAttribute = tagAttributes.find((attribute) => attribute.startsWith('URI='))
+    if (uriAttribute) {
+      const fullUri = getFullUrl(uriAttribute.slice(5, -1), remoteUrl)
+      return (
+        tagName +
+        tagAttributes
+          .map((attribute) => {
+            return attribute.startsWith('URI') ? `URI="${fullUri}"` : attribute
+          })
+          .join(',')
+      )
+    }
   }
   return tag
 }
@@ -62,7 +64,7 @@ export const proxyLevel = (manifest: LevelManifest, simulatorOptions: SimulatorO
     return {
       ...frag,
       tagLines: frag.tagLines.map((fragTag) => replaceTagUris(fragTag, remoteUrl)),
-      impliedKeyLine: replaceTagUris(frag.impliedKeyLine, remoteUrl),
+      impliedKeyLine: frag.impliedKeyLine && replaceTagUris(frag.impliedKeyLine, remoteUrl),
       url: proxyUrl,
     }
   })

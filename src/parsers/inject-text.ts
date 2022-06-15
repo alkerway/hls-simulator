@@ -53,7 +53,7 @@ const injectText = (
   const customManifestStartTime = startTimeOrMediaSequence ?? fallbackStartTime
 
   if (isLiveToLive) {
-    if (!startTimeOrMediaSequence) {
+    if (startTimeOrMediaSequence < 0) {
       // set a media sequence to keep track if one isn't set
       const mediaSequenceTag = originalManifest.headerTagLines.findTag(Tags.MediaSequence)
       const startingMediaSequenceValue = Number(mediaSequenceTag.slice(Tags.MediaSequence.length)) || 0
@@ -70,12 +70,14 @@ const injectText = (
 
   let currentFrag
   if (customManifestStartTime === 0 && customFrags.length) {
-    currentFrag = customFrags.shift()
+    currentFrag = customFrags.shift()!
     appendingcustomManifest = true
     amountInjectedTextIsAhead = currentFrag.duration
   } else {
     currentFrag = originalManifest.frags.shift()
   }
+  if (!currentFrag) return originalManifest
+
   let currentParseTime = currentFrag.duration
 
   while (currentFrag && (currentParseTime <= sessionTime || sessionTime < 0)) {
@@ -96,23 +98,26 @@ const injectText = (
           amountInjectedTextIsAhead -= currentFrag.duration
           currentFrag = originalManifest.frags.shift()
         }
-        currentParseTime += currentFrag.duration
-        // transition to original content
-        if (
-          (currentFrag.impliedKeyLine || newFrags[newFrags.length - 1]?.impliedKeyLine) &&
-          !currentFrag.tagLines.findTag(Tags.Key)
-        ) {
-          currentFrag.tagLines.unshift(currentFrag.impliedKeyLine || '#EXT-X-KEY:METHOD=NONE')
-        }
-        if (!currentFrag.tagLines.findTag(Tags.Discontinuity)) {
-          currentFrag.tagLines.unshift(Tags.Discontinuity)
+        // if we run out of frags let it be, unlikely to happen though
+        if (currentFrag) {
+          currentParseTime += currentFrag.duration
+          // transition to original content
+          if (
+            (currentFrag.impliedKeyLine || newFrags[newFrags.length - 1]?.impliedKeyLine) &&
+            !currentFrag.tagLines.findTag(Tags.Key)
+          ) {
+            currentFrag.tagLines.unshift(currentFrag.impliedKeyLine || '#EXT-X-KEY:METHOD=NONE')
+          }
+          if (!currentFrag.tagLines.findTag(Tags.Discontinuity)) {
+            currentFrag.tagLines.unshift(Tags.Discontinuity)
+          }
         }
       }
     } else {
       if (currentParseTime >= customManifestStartTime && customFrags.length) {
         const hadKeyLine = currentFrag.impliedKeyLine
         // transition to injected content
-        currentFrag = customFrags.shift()
+        currentFrag = customFrags.shift()!
         if (hadKeyLine) {
           currentFrag.tagLines.unshift(currentFrag.impliedKeyLine || '#EXT-X-KEY:METHOD=NONE')
         }

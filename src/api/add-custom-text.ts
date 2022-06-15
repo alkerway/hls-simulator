@@ -7,7 +7,7 @@ export const addInjectedText = async (req: Request, res: Response) => {
   const sessionId = req.query.sessionId && String(req.query.sessionId)
   const startPositionFromQuery = Number(req.query.startAfter)
 
-  if (!SessionState.sessionExists(sessionId)) {
+  if (!sessionId || !SessionState.sessionExists(sessionId)) {
     return res.status(400).send('No session found for id ' + sessionId + '  \n')
   }
 
@@ -47,7 +47,7 @@ export const addInjectedText = async (req: Request, res: Response) => {
 export const clearInjectText = async (req: Request, res: Response) => {
   const sessionId = req.query.sessionId && String(req.query.sessionId)
 
-  if (!SessionState.sessionExists(sessionId)) {
+  if (!sessionId || !SessionState.sessionExists(sessionId)) {
     return res.status(400).send('No session found for id ' + sessionId + '  \n')
   }
 

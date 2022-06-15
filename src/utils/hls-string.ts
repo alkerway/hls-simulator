@@ -27,6 +27,5 @@ export const unixToPdtTag = (unixTime: number) => {
 
 export const addMsToPdtLine = (line: string, ms: number) => {
   const prevTime = pdtTagToUnix(line)
-  const newTime = prevTime + ms
-  return unixToPdtTag(newTime)
+  return prevTime ? unixToPdtTag(prevTime + ms) : line
 }

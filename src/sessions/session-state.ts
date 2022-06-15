@@ -14,7 +14,7 @@ export type Session = {
   messageState: MessageState
   injections: CustomManifest[]
   lastLevel: string
-  deleteTimer: NodeJS.Timeout
+  deleteTimer: NodeJS.Timeout | null
 }
 
 type SessionStore = Record<string, Session>
@@ -41,7 +41,7 @@ class SessionState {
   }
 
   public isMessageActive = (sessionId: string, message: Messages): boolean => {
-    return this.sessions[sessionId]?.messageState[message]
+    return !!this.sessions[sessionId]?.messageState[message]
   }
 
   public sessionExists = (sessionId: string) => {
@@ -80,7 +80,7 @@ class SessionState {
   public addInjectedManifest = (sessionId: string, manifest: LevelManifest, startPositionFromQuery: number) => {
     if (this.sessions[sessionId]) {
       this.sessions[sessionId].injections.push({
-        startTimeOrMediaSequence: isNaN(startPositionFromQuery) ? null : startPositionFromQuery,
+        startTimeOrMediaSequence: isNaN(startPositionFromQuery) ? -1 : startPositionFromQuery,
         fallbackStartTime: this.getSessionTime(sessionId),
         manifest,
       })
@@ -115,8 +115,9 @@ class SessionState {
 
   public setupSessionClear = (sessionId: string) => {
     if (this.sessions[sessionId]) {
-      if (this.sessions[sessionId].deleteTimer) {
-        clearTimeout(this.sessions[sessionId].deleteTimer)
+      const { deleteTimer } = this.sessions[sessionId]
+      if (deleteTimer) {
+        clearTimeout(deleteTimer)
       }
       this.sessions[sessionId].deleteTimer = setTimeout(() => {
         // clear session after a day
