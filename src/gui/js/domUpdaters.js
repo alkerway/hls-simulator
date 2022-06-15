@@ -25,6 +25,10 @@ Events.sessionUpdated$.subscribe(({ sessionStartTime, sessionId }) => {
   }, 100)
 })
 
+Events.resetTimerInputUpdated$.subscribe((offset) => {
+  AppState.resetAtInputValue = offset
+})
+
 Events.inputUrlUpdated$.subscribe((inputUrl) => {
   AppState.inputUrl = inputUrl
   setGeneratedUrl()

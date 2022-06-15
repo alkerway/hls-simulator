@@ -48,9 +48,12 @@ class SessionState {
     return !!this.sessions[sessionId]
   }
 
-  public startSession = (sessionId?: string): { sessionStartTime: number; sessionId: string } => {
+  public startSession = (
+    sessionId: string | undefined,
+    startOffset: number
+  ): { sessionStartTime: number; sessionId: string } => {
     if (!sessionId) sessionId = this.generateSessionId()
-    const sessionStartTime = Math.floor(Date.now() / 1000)
+    const sessionStartTime = Math.floor(Date.now() / 1000 - Math.max(startOffset, 0))
     if (this.sessions[sessionId]) {
       // restart but do not reset
       this.sessions[sessionId].startTimeSeconds = sessionStartTime

@@ -1,3 +1,4 @@
+AppState.resetAtInputValue = Elements.resetTimerInput.value
 AppState.inputUrl = Elements.inputUrl.value
 AppState.dvrWindow = Elements.dvrWindowInput.value
 AppState.keepVod = Elements.keepVodInput.checked
@@ -25,16 +26,26 @@ const makeRequest = (url, returnJson = false) => {
 
 Elements.startSessionButton.addEventListener('click', () => {
   Events.log$.next('Sending start session request...')
-  makeRequest('/startSession', true)
+  makeRequest(`/startSession?offset=${Math.max(0, AppState.resetAtInputValue)}`, true)
     .then(Events.sessionUpdated$.next)
     .catch((err) => Events.log$.next(err))
 })
 
 Elements.resetTimerButton.addEventListener('click', () => {
   Events.log$.next('Sending reset session request...')
-  makeRequest(`/startSession?sessionId=${AppState.sessionId}`, true)
+  makeRequest(`/startSession?sessionId=${AppState.sessionId}&offset=${Math.max(0, AppState.resetAtInputValue)}`, true)
     .then(Events.sessionUpdated$.next)
     .catch((err) => Events.log$.next(err))
+})
+
+Elements.resetTimerInput.addEventListener('keyup', () => {
+  const curValue = Elements.resetTimerInput.value
+  Events.resetTimerInputUpdated$.next(curValue)
+})
+
+Elements.resetTimerInput.addEventListener('mouseup', () => {
+  const curValue = Elements.resetTimerInput.value
+  Events.resetTimerInputUpdated$.next(curValue)
 })
 
 Elements.inputUrl.addEventListener('keyup', () => {

@@ -3,6 +3,7 @@ const Elements = {
   sessionStartTimeDisplay: document.getElementById('sessionStartTimeDisplay'),
   sessionIdDisplay: document.getElementById('sessionIdDisplay'),
   resetTimerButton: document.getElementById('resetTimerButton'),
+  resetTimerInput: document.getElementById('resetTimerInput'),
 
   inputUrl: document.getElementById('inputUrl'),
   dvrWindowInput: document.getElementById('rollingDvrInput'),

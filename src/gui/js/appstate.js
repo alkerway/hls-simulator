@@ -1,4 +1,5 @@
 const AppState = {
+  resetAtInputValue: 0,
   sessionTimerInterval: null,
   sessionId: '',
   inputUrl: '',

@@ -13,6 +13,7 @@ class Event {
 
 const Events = {
   sessionUpdated$: new Event(),
+  resetTimerInputUpdated$: new Event(),
   inputUrlUpdated$: new Event(),
   dvrWindowUpdated$: new Event(),
   keepVodUpdated$: new Event(),

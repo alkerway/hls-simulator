@@ -22,6 +22,8 @@ To set up the app, clone the repo then run the following:
 2. `npm run build`
 3. `npm run start`
 
+NOTE: Node >=17 is needed for the app to work.
+
 ## 1: Starting a Session
 
 Clicking `Start Session` will return a session Id and start the vod-to-live manifest timer. A manifest level request 60 seconds after the `startSession` call will return a manifest around 60 seconds long.
@@ -31,6 +33,10 @@ Clicking `Start Session` will return a session Id and start the vod-to-live mani
 Clicking `Reset Timer` will keep the session but reset the timer.
 
 > Curl equivalent: `curl http://localhost:8880/startSession?sessionId=abc`
+
+Adding a value in the input next to the `Reset Timer` button will offset the initial time of the timer by the value given, in seonds.
+
+> Curl equivalent: `curl http://localhost:8880/startSession?sessionId=abc&offset=60`
 
 ## 2: Constructing a live stream url
 
@@ -50,7 +56,7 @@ To get a simulated live manifest url, enter a manifest url into the url input. T
 
 ### Rolling Dvr
 
-For vod, the Rolling Dvr Length option tells the server to start returning a rolling dvr level manifest once the vod-to-live manifest timer exceeds the specified number of seconds. A dvr length of 60 means the level returned will be a maximnum of 60 seconds long. If this parameter is not specified or not positive, the app will return a event-style playlist.
+For vod, the Rolling Dvr Length option tells the server to start returning a rolling dvr level manifest once the vod-to-live manifest timer exceeds the specified number of seconds. A dvr length of 60 means the level returned will be a maximnum of 60 seconds long. If this parameter is not specified or not positive, the app will return an event-style playlist.
 
 For live, the Rolling Dvr Length option tells the server to trim the live manifest to match the dvr window, if its length exceeds the specified window length.
 
@@ -141,6 +147,6 @@ Live to live means the remote manifest is live.
 
 For live to live, timing of injected text is based on media sequence and not time. If no positive value is provided in the input above the text area, the next level request will set the media sequence on the injected text to be one greater than the greatest media sequence in the manifest. If a positive value is provided in the input above the text area, the first injected fragment will replace the original fragment at the media sequence matching the provided positive value.
 
-For live to live, instead of trying to get the timing of the original and modified manifests to match each other, the original fragments are simply replaced one for one with the injected fragments. This may also affect the timing of the manifest - if the original manifest is a rolling dvr window of 6 fragments at 10 seconds each, and the injected text is 3 fragments at 8 seconds each, when one fragment is replaced the manifest will be shorter by 2 seconds, when two fragments are replaced the manifest will be shorter by 4 seconds, etc.
+For live to live, instead of trying to get the timing of the original and modified manifests to match each other, the original fragments are replaced one for one with the injected fragments. This may affect the timing of the manifest - if the original manifest is a rolling dvr window of 6 fragments at 10 seconds each, and the injected text is 3 fragments at 8 seconds each, when one fragment is replaced the manifest will be shorter by 2 seconds, when two fragments are replaced the manifest will be shorter by 4 seconds, etc.
 
 ---
