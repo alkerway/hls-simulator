@@ -99,19 +99,6 @@ const deliverMessage = (message, query) => {
     .catch((err) => Events.log$.next(err))
 }
 
-Elements.resetButton.addEventListener('click', () => deliverMessage('Reset'))
-Elements.stallAllLevelButton.addEventListener('click', () => deliverMessage('AllLevelStall'))
-Elements.stallOneLevelButton.addEventListener('click', () => deliverMessage('OneLevelStall'))
-Elements.failOneLevelButton.addEventListener('click', () => deliverMessage('FailOneLevel'))
-Elements.failFragsAtOneLevelButton.addEventListener('click', () => deliverMessage('FailFragsAtOneLevel'))
-Elements.streamEndButton.addEventListener('click', () => deliverMessage('StreamEnd'))
-Elements.serverResponseButton.addEventListener('click', () => {
-  const applyTo = document.querySelector('input[name="ServerResponseApplyToRadio"]:checked').value
-  const once = document.querySelector('input[name="ServerResponseApplyOnceRadio"]:checked').value === 'once'
-  const statusDropdown = document.getElementById('ServerResponseStatusDropdown')
-  const status = statusDropdown.options[statusDropdown.selectedIndex].text
-  deliverMessage('ServerResponse', { status, applyTo, once })
-})
 Elements.networkFaultButton.addEventListener('click', () => {
   const applyTo = document.querySelector('input[name="NetworkFaultApplyToRadio"]:checked').value
   const once = document.querySelector('input[name="NetworkFaultOnceRadio"]:checked').value === 'once'
@@ -119,6 +106,19 @@ Elements.networkFaultButton.addEventListener('click', () => {
   const fault = incidentDropdown.options[incidentDropdown.selectedIndex].text
   deliverMessage('NetworkFault', { fault, applyTo, once })
 })
+Elements.serverResponseButton.addEventListener('click', () => {
+  const applyTo = document.querySelector('input[name="ServerResponseApplyToRadio"]:checked').value
+  const once = document.querySelector('input[name="ServerResponseApplyOnceRadio"]:checked').value === 'once'
+  const statusDropdown = document.getElementById('ServerResponseStatusDropdown')
+  const status = statusDropdown.options[statusDropdown.selectedIndex].text
+  deliverMessage('ServerResponse', { status, applyTo, once })
+})
+Elements.failOneLevelButton.addEventListener('click', () => deliverMessage('FailOneLevel'))
+Elements.failFragsAtOneLevelButton.addEventListener('click', () => deliverMessage('FailFragsAtOneLevel'))
+Elements.stallAllLevelButton.addEventListener('click', () => deliverMessage('AllLevelStall'))
+Elements.stallOneLevelButton.addEventListener('click', () => deliverMessage('OneLevelStall'))
+Elements.streamEndButton.addEventListener('click', () => deliverMessage('StreamEnd'))
+Elements.resetButton.addEventListener('click', () => deliverMessage('Reset'))
 
 Elements.insertTextStartInput.addEventListener('keyup', () => {
   const curValue = Elements.insertTextStartInput.value

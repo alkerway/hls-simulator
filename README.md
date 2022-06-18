@@ -6,9 +6,9 @@ With this tool one can:
 1. Serve VOD manifests as live manifests
 1. Inject any text (ads) whenever ([jump to section](#inject-custom-text))
 
-## Demo (outdated)
+## Screenshot of GUI
 
-![GUI gif](./demo.gif)
+![GUI screenshot](./screenshot.png)
 
 # Docs
 
@@ -25,7 +25,7 @@ NOTE: Node >=17 is needed for the app to work.
 
 ## 1: Starting a Session
 
-Clicking `Start Session` will return a session Id and start the vod-to-live manifest timer. A manifest level request 60 seconds after the `startSession` call will return a manifest around 60 seconds long.
+Clicking `Start Session` will return a session Id and start the vod-to-live manifest timer. A manifest level request 60 seconds after the `startSession` call will return a manifest of maximum 60 seconds length.
 
 > Curl equivalent: `curl http://localhost:8880/startSession` will return the session start time in seconds, and a sessionId (e.g. "abc") to match the startTime and following messages (below).
 
@@ -33,7 +33,7 @@ Clicking `Reset Timer` will keep the session but reset the timer.
 
 > Curl equivalent: `curl http://localhost:8880/startSession?sessionId=abc`
 
-Adding a value in the input next to the `Reset Timer` button will offset the initial time of the timer by the value given, in seonds.
+Adding a value in the input next to the `Reset Timer` button will offset the initial time of the timer by the value given, in seconds.
 
 > Curl equivalent: `curl http://localhost:8880/startSession?sessionId=abc&offset=60`
 
@@ -55,7 +55,7 @@ To get a simulated live manifest url, enter a manifest url into the url input. T
 
 ### Rolling Dvr
 
-For vod, the Rolling Dvr Length option tells the server to start returning a rolling dvr level manifest once the vod-to-live manifest timer exceeds the specified number of seconds. A dvr length of 60 means the level returned will be a maximnum of 60 seconds long. If this parameter is not specified or not positive, the app will return an event-style playlist.
+For vod, the Rolling Dvr Length option tells the server to start returning a rolling dvr level manifest once the vod-to-live manifest timer exceeds the specified number of dvr seconds. A dvr length of 60 means the level returned will be a maximum of 60 seconds long. If this parameter is not specified or not positive, the app will return an event-style playlist.
 
 For live, the Rolling Dvr Length option tells the server to trim the live manifest to match the dvr window, if its length exceeds the specified window length.
 
@@ -63,59 +63,110 @@ For live, the Rolling Dvr Length option tells the server to trim the live manife
 
 ### KeepVod
 
-By default, given a vod manifest, the app will return a live manifest that updates according to the sesion timer. To return a vod manifest instead that mirrors the remote vod manifest, set the keepVod option. One can still simulate frag network events and custom injections with this setup.
+By default, given a vod manifest, the app will return a live manifest that updates according to the session timer. To return a vod manifest instead that mirrors the remote vod manifest, set the keepVod option. One can still simulate frag network events and custom injections with this setup.
 
 > Curl equivalent: append `&keepVod=true` to the generated manifest url
 
 ## 3: Simulate Events
 
-### HTTP Incidents
+### HTTP or Stream Events
 
-The buttons in step 3 can all be clicked to simulate events. The events are listed below.
+The buttons in step 3 can all be clicked to simulate the events detailed below. Their ordering matters a little - messages are checked in the order they are
+listed in this README so if two are active at once the one higher up here will have priority.
 
-> Curl equivalent: `curl http://<hls-simulator-server>/deliver?sessionId=<id>&msg=<message-text>`
+> Curl equivalents
+>
+> List All Messages: `curl http://<hls-simulator-server>/listMessages`
+>
+> Deliver Message: `curl http://<hls-simulator-server>/deliver?sessionId=<id>&msg=<message-name>&option1=foo&option2=bar`
 >
 > Note: the messages are case sensitive
 
-#### `NextFrag403`
+#### `NetworkFault`
 
-The next frag request will get a 403 status and html page response; subsequent frag requests will return normally
+The radio buttons detail whether the network fault will happen on the next fragment request only, next level request only, every following fragment request, or every following level request. The network faults are:
 
-#### `AllFrag403`
+##### Timeout
 
-Any following frag request will get a 403 status and html page response
+The network request will never return a response
 
-#### `NextFragTimeout`
+##### shortDelay
 
-The next frag request will time out without a response
+The network request will be delayed by a number chosen uniformly at random from 1 second to 5 seconds
 
-#### `AllFragDelay`
+##### longDelay
 
-Any following frag requests will be delayed a random number of seconds (between 1 and 20) before receiving a response.
+The network request will be delayed by a number chosen uniformly at random from 10 second to 20 seconds
 
-#### `NextLevel403`
+> Curl equivalent: `curl http://<hls-simulator-server>/deliver?sessionId=<id>&msg=NetworkFault&fault=timeout&applyTo=level&once=true`
+>
+> fault options: `timeout`, `shortDelay`, `longDelay`
+>
+> applyTo options: `frag`, `level`
+>
+> once options: `true`, `false`
 
-The next level manifest request will get a 403 status and html page response; subsequent level manifest requests will return normally
+#### `ServerResponse`
 
-#### `AllLevel403`
+The radio buttons detail whether the custom response status will happen on the next fragment request only, next level request only, every following fragment request, or every following level request.
 
-Any following level manifest request will get a 403 status and html page response
+A response with this message active will have the error status chosen in the dropdown and the response content will be an html page.
 
-#### `NextLevelTimeout`
+> Curl equivalent: `curl http://<hls-simulator-server>/deliver?sessionId=<id>&msg=ServerResponse&status=403&applyTo=level&once=true`
+>
+> status options: any number between 400 and 599
+>
+> applyTo options: `frag`, `level`
+>
+> once options: `true`, `false`
 
-The next level manifest request will time out without a response
+#### `FailOneLevel`
 
-#### `LevelStall`
+The server will return a 500 response and html page for the level requests of one chosen bitrate, and will return normal level responses for all other levels.
 
-Any following level requests will return the same level manifest as the last request before the message. The level manifest will not update with new frags, but will still return ok.
+The level to fail is chosen as the next level request the server receives.
+
+> Curl equivalent: `curl http://<hls-simulator-server>/deliver?sessionId=<id>&msg=FailOneLevel`
+
+#### `FailFragsAtOneLevel`
+
+The server will return a 500 response and html page for the fragment requests of one chosen bitrate, and will return normal fragment and level responses for all other levels. The failing level's level request will return as normal.
+
+The level to fail is chosen as the next level request the server receives.
+
+> Curl equivalent: `curl http://<hls-simulator-server>/deliver?sessionId=<id>&msg=FailFragsAtOneLevel`
+
+#### `AllLevelStall`
+
+##### Remote manifest is VOD
+
+All levels will stall at the time the session timer is at when the message is delivered. The server responses will be normal but the level manifests will not update with new fragments.
+
+##### Remote manifest is LIVE
+
+The last live level manifest returned will be returned for all subsequent level requests, regardless of bitrate. This reflects a limitation of the app - it cannot control the remote response of a live manifest like it can for VOD.
+
+> Curl equivalent: `curl http://<hls-simulator-server>/deliver?sessionId=<id>&msg=AllLevelStall`
+
+#### `OneLevelStall`
+
+One chosen level will stall at the time the session timer is at when the message is delivered. The server response will be normal but the one chosen level manifest will not update with new fragments. All other levels will update with new fragments as normal.
+
+The level to fail is chosen as the next level request the server receives.
+
+This is how it works for both LIVE and VOD remote manifests.
+
+> Curl equivalent: `curl http://<hls-simulator-server>/deliver?sessionId=<id>&msg=OneLevelStall`
 
 #### `StreamEnd`
 
-The next level manifest will have an `#EXT-X-ENDLIST` tag appended to the end. Further level requests will receive the same manifest.
+All subsequent level manifest requests will have an `#EXT-X-ENDLIST` tag appended to the end.
+
+> Curl equivalent: `curl http://<hls-simulator-server>/deliver?sessionId=<id>&msg=StreamEnd`
 
 #### `Reset`
 
-Any issues created by the above requests will go away. For example, if `AllFrag403` was called previously, a call to `Reset` means following fragment requests will no longer return a 403 response. If `LevelStall` or `StreamEnd` was called previously, the level will update according in line with the session timer (most likely jump ahead).
+Any issues created by the above requests will go away. For example, if the `ServerResponse` message with the `every request` option was delivered previously, a call to `Reset` means following fragment requests will no longer return an error response. If `AllLevelStall`, `OneLevelStall` or `StreamEnd` was called previously, new level requests will update according to the session timer and most likely jump ahead.
 
 ### Inject Custom Text
 

@@ -1,12 +1,12 @@
 export enum Messages {
-  ALL_LEVEL_STALL = 'AllLevelStall',
-  ONE_LEVEL_STALL = 'OneLevelStall',
+  NETWORK_FAULT = 'NetworkFault',
+  SERVER_RESPONSE = 'ServerResponse',
 
   FAIL_ONE_LEVEL = 'FailOneLevel',
   FAIL_FRAGS_AT_ONE_LEVEL = 'FailFragsAtOneLevel',
 
-  SERVER_RESPONSE = 'ServerResponse',
-  NETWORK_FAULT = 'NetworkFault',
+  ALL_LEVEL_STALL = 'AllLevelStall',
+  ONE_LEVEL_STALL = 'OneLevelStall',
 
   STREAM_END = 'StreamEnd',
   RESET = 'Reset',

@@ -68,14 +68,14 @@ Events.clearLog$.subscribe(() => {
 })
 
 Events.messageDelivered$.subscribe(({ message, messageState }) => {
-  setHighlight(Elements.stallAllLevelButton, messageState.AllLevelStall.active)
-  setHighlight(Elements.stallOneLevelButton, messageState.OneLevelStall.active)
+  setHighlight(Elements.networkFaultButton, messageState.NetworkFault.active && !messageState.NetworkFault.once)
+  setHighlight(Elements.serverResponseButton, messageState.ServerResponse.active && !messageState.ServerResponse.once)
+
   setHighlight(Elements.failOneLevelButton, messageState.FailOneLevel.active)
   setHighlight(Elements.failFragsAtOneLevelButton, messageState.FailFragsAtOneLevel.active)
+  setHighlight(Elements.stallAllLevelButton, messageState.AllLevelStall.active)
+  setHighlight(Elements.stallOneLevelButton, messageState.OneLevelStall.active)
   setHighlight(Elements.streamEndButton, messageState.StreamEnd.active)
-
-  setHighlight(Elements.serverResponseButton, messageState.ServerResponse.active && !messageState.ServerResponse.once)
-  setHighlight(Elements.networkFaultButton, messageState.NetworkFault.active && !messageState.NetworkFault.once)
 })
 
 Events.insertTextStartUpdated$.subscribe((value) => {
