@@ -152,7 +152,7 @@ The last live level manifest returned will be returned for all subsequent level 
 
 One chosen level will stall at the time the session timer is at when the message is delivered. The server response will be normal but the one chosen level manifest will not update with new fragments. All other levels will update with new fragments as normal.
 
-The level to fail is chosen as the next level request the server receives.
+The level to stall is chosen as the next level request the server receives.
 
 This is how it works for both LIVE and VOD remote manifests.
 
@@ -167,6 +167,8 @@ All subsequent level manifest requests will have an `#EXT-X-ENDLIST` tag appende
 #### `Reset`
 
 Any issues created by the above requests will go away. For example, if the `ServerResponse` message with the `every request` option was delivered previously, a call to `Reset` means following fragment requests will no longer return an error response. If `AllLevelStall`, `OneLevelStall` or `StreamEnd` was called previously, new level requests will update according to the session timer and most likely jump ahead.
+
+> Curl equivalent: `curl http://<hls-simulator-server>/deliver?sessionId=<id>&msg=Reset`
 
 ### Inject Custom Text
 
