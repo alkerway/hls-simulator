@@ -144,6 +144,11 @@ class SessionState {
     this.sessions[sessionId].messageState[Messages.STREAM_END] = { active: true, endTime }
   }
 
+  public resetMessage = (sessionId: string, message: Messages) => {
+    if (!this.sessions[sessionId]) return
+    this.sessions[sessionId].messageState[message] = structuredClone(this.originalMessages)[message] as any
+  }
+
   public addInjectedManifest = (sessionId: string, manifest: LevelManifest, startPositionFromQuery: number) => {
     if (this.sessions[sessionId]) {
       this.sessions[sessionId].injections.push({

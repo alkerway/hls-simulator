@@ -29,7 +29,7 @@ export const remoteManifest = async (req: Request, res: Response) => {
     headers.MimeType = 'application/x-mpegURL'
     res.set(headers)
 
-    request(remoteUrl, (err, remoteResponse, body) => {
+    request(remoteUrl, async (err, remoteResponse, body) => {
       let responseStatus = 200
       let responseBody = ''
       let shouldSendResponse = true
@@ -65,7 +65,7 @@ export const remoteManifest = async (req: Request, res: Response) => {
             break
           case 'vodlevel':
           case 'livelevel':
-            const isSafe = Botcher.botchLevel(req, res, sessionId)
+            const isSafe = await Botcher.botchLevel(req, res, sessionId)
             if (isSafe) {
               const remoteManifestText = manifestText
               responseStatus = 200
@@ -86,7 +86,7 @@ export const remoteManifest = async (req: Request, res: Response) => {
       }
     })
   } else if (reqIsFrag) {
-    const isSafe = Botcher.botchFrag(req, res, sessionId, remoteUrl)
+    const isSafe = await Botcher.botchFrag(req, res, sessionId, remoteUrl)
     if (isSafe) {
       res.redirect(remoteUrl)
     }
