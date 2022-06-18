@@ -33,6 +33,7 @@ class Botcher {
       [Messages.FAIL_FRAGS_AT_ONE_LEVEL]: failFragsOneLevel,
       [Messages.ALL_LEVEL_STALL]: allLevelStall,
       [Messages.ONE_LEVEL_STALL]: oneLevelStall,
+      [Messages.STREAM_END]: streamEnd,
     } = messageState
 
     if (failFragsOneLevel.active) {
@@ -113,6 +114,10 @@ class Botcher {
           return { ...botchResponse, timerOverride: oneLevelStall.stallTime }
         }
       }
+    }
+
+    if (streamEnd.active) {
+      return { ...botchResponse, endManifest: true }
     }
 
     return botchResponse

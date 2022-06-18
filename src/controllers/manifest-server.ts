@@ -6,6 +6,7 @@ import { SimulatorOptions } from '../api/request-options'
 import { proxyMaster, proxyLevel } from '../parsers/proxy-manifest'
 import { textToTypescript } from '../parsers/text-manifest-to-typescript'
 import { typescriptToText } from '../parsers/typescript-manifest-to-text'
+import { Tags } from '../utils/HlsTags'
 
 class ManifestServer {
   public getMaster = (remoteText: string, requestOptions: SimulatorOptions) => {
@@ -13,9 +14,9 @@ class ManifestServer {
   }
 
   public getLevel = (remoteText: string, remoteIsLive: boolean, simulatorOptions: SimulatorOptions) => {
-    const { sessionId, dvrWindowSeconds = -1, keepVod = false } = simulatorOptions
+    const { sessionId, dvrWindowSeconds = -1, keepVod = false, sessionTimerOverride, endManifest } = simulatorOptions
     const injections = SessionState.getInjections(sessionId)
-    const liveManifestMaxLength = simulatorOptions.sessionTimerOverride || SessionState.getSessionTime(sessionId)
+    const liveManifestMaxLength = sessionTimerOverride || SessionState.getSessionTime(sessionId)
 
     let manifestObject = textToTypescript(remoteText)
     if (remoteIsLive) {
@@ -35,7 +36,9 @@ class ManifestServer {
       manifestObject = boundToDvr(manifestObject, dvrWindowSeconds)
     }
     const levelResponse = typescriptToText(manifestObject)
-    SessionState.setLastLevel(sessionId, levelResponse)
+    if (endManifest && !levelResponse.includes(Tags.End)) {
+      return levelResponse + '\n' + Tags.End
+    }
     return levelResponse
   }
 }

@@ -175,16 +175,6 @@ class SessionState {
     }
   }
 
-  public setLastLevel = (sessionId: string, level: string) => {
-    if (this.sessions[sessionId]) {
-      this.sessions[sessionId].lastLevel = level
-    }
-  }
-
-  public getLastLevel = (sessionId: string) => {
-    return this.sessions[sessionId]?.lastLevel || ''
-  }
-
   public getInjections = (sessionId: string): CustomManifest[] => {
     return this.sessions[sessionId].injections
   }
