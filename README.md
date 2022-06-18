@@ -2,7 +2,7 @@
 
 With this tool one can:
 
-1. Create common failures (timeouts, stalls, etc) in frag or level requests ([jump to section](#http-incidents))
+1. Create common failures (timeouts, stalls, etc) in frag or level requests ([jump to section](#http-or-stream-events))
 1. Serve VOD manifests as live manifests
 1. Inject any text (ads) whenever ([jump to section](#inject-custom-text))
 
