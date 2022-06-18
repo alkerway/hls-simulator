@@ -32,6 +32,7 @@ class Botcher {
       [Messages.FAIL_ONE_LEVEL]: failOneLevel,
       [Messages.FAIL_FRAGS_AT_ONE_LEVEL]: failFragsOneLevel,
       [Messages.ALL_LEVEL_STALL]: allLevelStall,
+      [Messages.ONE_LEVEL_STALL]: oneLevelStall,
     } = messageState
 
     if (failFragsOneLevel.active) {
@@ -92,6 +93,25 @@ class Botcher {
         return { ...botchResponse, isSafe: false }
       } else {
         return { ...botchResponse, timerOverride: allLevelStall.stallTime }
+      }
+    }
+
+    if (oneLevelStall.active) {
+      if (remoteIsLive) {
+        if (!oneLevelStall.lastLiveLevel || !oneLevelStall.remoteLevelUrl) {
+          SessionState.setMessageOneLevelStall(sessionId, oneLevelStall.stallTime, remoteUrl, levelManifestText)
+        }
+        if (oneLevelStall.remoteLevelUrl === remoteUrl && oneLevelStall.lastLiveLevel) {
+          res.status(200).send(oneLevelStall.lastLiveLevel)
+          return { ...botchResponse, isSafe: false }
+        }
+      } else {
+        if (!oneLevelStall.remoteLevelUrl) {
+          SessionState.setMessageOneLevelStall(sessionId, oneLevelStall.stallTime, remoteUrl, '')
+        }
+        if (oneLevelStall.remoteLevelUrl === remoteUrl) {
+          return { ...botchResponse, timerOverride: oneLevelStall.stallTime }
+        }
       }
     }
 
