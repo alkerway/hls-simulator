@@ -3,7 +3,7 @@ import { Messages } from './messages'
 
 type MessageState = {
   [Messages.ALL_LEVEL_STALL]: { active: boolean; lastLiveLevel: string; stallTime: number }
-  [Messages.NEXT_LEVEL_STALL]: { active: boolean; lastLiveLevel: string; remoteLevelUrl: string; stallTime: number }
+  [Messages.ONE_LEVEL_STALL]: { active: boolean; lastLiveLevel: string; remoteLevelUrl: string; stallTime: number }
   [Messages.FAIL_ONE_LEVEL]: { active: boolean; remoteLevelUrl: string }
   [Messages.FAIL_FRAGS_AT_ONE_LEVEL]: { active: boolean; remoteLevelUrl: string }
   [Messages.SERVER_RESPONSE]: { active: boolean; status: number; applyTo: 'frag' | 'level'; once: boolean }
@@ -36,7 +36,7 @@ type SessionStore = Record<string, Session>
 class SessionState {
   private originalMessages: MessageState = {
     [Messages.ALL_LEVEL_STALL]: { active: false, stallTime: -1, lastLiveLevel: '' },
-    [Messages.NEXT_LEVEL_STALL]: { active: false, stallTime: -1, lastLiveLevel: '', remoteLevelUrl: '' },
+    [Messages.ONE_LEVEL_STALL]: { active: false, stallTime: -1, lastLiveLevel: '', remoteLevelUrl: '' },
     [Messages.FAIL_ONE_LEVEL]: { active: false, remoteLevelUrl: '' },
     [Messages.FAIL_FRAGS_AT_ONE_LEVEL]: { active: false, remoteLevelUrl: '' },
     [Messages.SERVER_RESPONSE]: { active: false, status: -1, applyTo: 'frag', once: false },
@@ -99,14 +99,14 @@ class SessionState {
     this.sessions[sessionId].messageState[Messages.ALL_LEVEL_STALL] = { active: true, stallTime, lastLiveLevel }
   }
 
-  public setMessageNextLevelStall = (
+  public setMessageOneLevelStall = (
     sessionId: string,
     stallTime: number,
     remoteLevelUrl: string,
     lastLiveLevel: string
   ) => {
     if (!this.sessions[sessionId]) return
-    this.sessions[sessionId].messageState[Messages.NEXT_LEVEL_STALL] = {
+    this.sessions[sessionId].messageState[Messages.ONE_LEVEL_STALL] = {
       active: true,
       stallTime,
       lastLiveLevel,

@@ -64,24 +64,8 @@ Events.messageDelivered$.subscribe((message) => {
     case 'StreamEnd':
       Elements.streamEndButton.classList.add('highlight')
       break
-    case 'LevelStall':
-      Elements.levelStallButton.classList.add('highlight')
-      break
-    case 'AllLevel403':
-      Elements.allLevel403Button.classList.add('highlight')
-      break
-    case 'AllFrag403':
-      Elements.allFrag403Button.classList.add('highlight')
-      break
-    case 'AllFragDelay':
-      Elements.allFragDelayButton.classList.add('highlight')
-      break
     case 'Reset':
       Elements.streamEndButton.classList.remove('highlight')
-      Elements.levelStallButton.classList.remove('highlight')
-      Elements.allLevel403Button.classList.remove('highlight')
-      Elements.allFrag403Button.classList.remove('highlight')
-      Elements.allFragDelayButton.classList.remove('highlight')
       break
     default:
       break

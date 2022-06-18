@@ -86,21 +86,21 @@ Elements.clearLogsButton.addEventListener('click', () => {
   Events.clearLog$.next()
 })
 
-const deliverMessage = (message) => {
+const deliverMessage = (message, query) => {
   Events.log$.next(`Sending ${message} request...`)
-  makeRequest(`/deliver?sessionId=${AppState.sessionId}&msg=${message}`)
+  let requestUrl = `/deliver?sessionId=${AppState.sessionId}&msg=${message}`
+  if (query && Object.keys(query).length) {
+    requestUrl = Object.keys(query).reduce((fullUrl, key) => `${fullUrl}&${key}=${query[key]}`, requestUrl)
+  }
+  makeRequest(requestUrl, true)
     .then(() => Events.messageDelivered$.next(message))
     .catch((err) => Events.log$.next(err))
 }
 
-Elements.nextFrag403Button.addEventListener('click', () => deliverMessage('NextFrag403'))
-Elements.nextLevel403Button.addEventListener('click', () => deliverMessage('NextLevel403'))
-Elements.nextLevelTimeoutButton.addEventListener('click', () => deliverMessage('NextLevelTimeout'))
-Elements.nextFragTimeoutButton.addEventListener('click', () => deliverMessage('NextFragTimeout'))
-Elements.allFrag403Button.addEventListener('click', () => deliverMessage('AllFrag403'))
-Elements.allLevel403Button.addEventListener('click', () => deliverMessage('AllLevel403'))
-Elements.allFragDelayButton.addEventListener('click', () => deliverMessage('AllFragDelay'))
-Elements.levelStallButton.addEventListener('click', () => deliverMessage('LevelStall'))
+Elements.stallAllLevelButton.addEventListener('click', () => deliverMessage('AllLevelStall'))
+Elements.stallOneLevelButton.addEventListener('click', () => deliverMessage('OneLevelStall'))
+Elements.failOneLevelButton.addEventListener('click', () => deliverMessage('FailOneLevel'))
+Elements.failFragsAtOneLevelButton.addEventListener('click', () => deliverMessage('FailFragsAtOneLevel'))
 Elements.streamEndButton.addEventListener('click', () => deliverMessage('StreamEnd'))
 Elements.resetButton.addEventListener('click', () => deliverMessage('Reset'))
 

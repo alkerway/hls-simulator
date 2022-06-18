@@ -17,8 +17,8 @@ export const deliver = async (req: Request, res: Response) => {
     case Messages.ALL_LEVEL_STALL:
       SessionState.setMessageAllLevelStall(sessionId, sessionTimeOfRequest, '')
       break
-    case Messages.NEXT_LEVEL_STALL:
-      SessionState.setMessageNextLevelStall(sessionId, sessionTimeOfRequest, '', '')
+    case Messages.ONE_LEVEL_STALL:
+      SessionState.setMessageOneLevelStall(sessionId, sessionTimeOfRequest, '', '')
       break
     case Messages.FAIL_ONE_LEVEL:
       SessionState.setMessageFailOneLevel(sessionId, '')

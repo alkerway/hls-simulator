@@ -1,6 +1,6 @@
 export enum Messages {
   ALL_LEVEL_STALL = 'AllLevelStall',
-  NEXT_LEVEL_STALL = 'NextLevelStall',
+  ONE_LEVEL_STALL = 'OneLevelStall',
 
   FAIL_ONE_LEVEL = 'FailOneLevel',
   FAIL_FRAGS_AT_ONE_LEVEL = 'FailFragsAtOneLevel',
