@@ -15,7 +15,7 @@ class ManifestServer {
   public getLevel = (remoteText: string, remoteIsLive: boolean, simulatorOptions: SimulatorOptions) => {
     const { sessionId, dvrWindowSeconds = -1, keepVod = false } = simulatorOptions
     const injections = SessionState.getInjections(sessionId)
-    const liveManifestMaxLength = SessionState.getSessionTime(sessionId)
+    const liveManifestMaxLength = simulatorOptions.sessionTimerOverride || SessionState.getSessionTime(sessionId)
 
     let manifestObject = textToTypescript(remoteText)
     if (remoteIsLive) {

@@ -3,4 +3,6 @@ export type SimulatorOptions = {
   dvrWindowSeconds?: number
   sessionId: string
   remoteUrl: string
+  sessionTimerOverride?: number
+  endManifest?: boolean
 }

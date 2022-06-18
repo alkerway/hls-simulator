@@ -65,8 +65,17 @@ export const remoteManifest = async (req: Request, res: Response) => {
             break
           case 'vodlevel':
           case 'livelevel':
-            const isSafe = await Botcher.botchLevel(res, sessionId, remoteUrl, manifestText)
+            const { isSafe, timerOverride, endManifest } = await Botcher.botchLevel(
+              res,
+              sessionId,
+              remoteUrl,
+              manifestText,
+              manifestType === 'livelevel'
+            )
             if (isSafe) {
+              if (timerOverride) simulatorOptions.sessionTimerOverride = timerOverride
+              if (endManifest) simulatorOptions.endManifest = endManifest
+
               const remoteManifestText = manifestText
               responseStatus = 200
               responseBody = ManifestServer.getLevel(remoteManifestText, manifestType === 'livelevel', simulatorOptions)

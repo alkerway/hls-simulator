@@ -5,15 +5,25 @@ import SessionState from '../sessions/session-state'
 import { sleep } from '../utils/promisify'
 import { getFragUrls } from '../parsers/get-frag-urls'
 
+export type LevelBotchResponse = {
+  isSafe: boolean
+  timerOverride?: number
+  endManifest?: boolean
+}
+
 class Botcher {
   public botchLevel = async (
     res: Response,
     sessionId: string,
     remoteUrl: string,
-    levelManifestText: string
-  ): Promise<boolean> => {
+    levelManifestText: string,
+    remoteIsLive: boolean
+  ): Promise<LevelBotchResponse> => {
+    const botchResponse = {
+      isSafe: true,
+    }
     const messageState = SessionState.getMessageValues(sessionId)
-    if (!messageState) return true
+    if (!messageState) return botchResponse
 
     // easier var names
     const {
@@ -21,14 +31,17 @@ class Botcher {
       [Messages.SERVER_RESPONSE]: serverResponse,
       [Messages.FAIL_ONE_LEVEL]: failOneLevel,
       [Messages.FAIL_FRAGS_AT_ONE_LEVEL]: failFragsOneLevel,
+      [Messages.ALL_LEVEL_STALL]: allLevelStall,
     } = messageState
 
     if (failFragsOneLevel.active) {
+      let firstRequest = false
       // set frag urls to fail then fail when the frags are requested in botchFrag
       if (!failFragsOneLevel.remoteLevelUrl) {
         SessionState.setMessageFailFragsAtOneLevel(sessionId, remoteUrl, new Set())
+        firstRequest = true
       }
-      if (failFragsOneLevel.remoteLevelUrl === remoteUrl) {
+      if (failFragsOneLevel.remoteLevelUrl === remoteUrl || firstRequest) {
         const remoteFragUrls = getFragUrls(levelManifestText, remoteUrl)
         SessionState.setMessageFailFragsAtOneLevel(sessionId, remoteUrl, remoteFragUrls)
       }
@@ -39,7 +52,7 @@ class Botcher {
         SessionState.resetMessage(sessionId, Messages.NETWORK_FAULT)
       }
       if (networkFault.fault === 'timeout') {
-        return false
+        return { ...botchResponse, isSafe: false }
       } else if (networkFault.fault === 'shortDelay') {
         const delayTimeSeconds = Math.random() * 5 + 1
         await sleep(delayTimeSeconds * 1000)
@@ -54,21 +67,35 @@ class Botcher {
         SessionState.resetMessage(sessionId, Messages.SERVER_RESPONSE)
       }
       res.status(serverResponse.status).send(getHtmlErrorPage(serverResponse.status))
-      return false
+      return { ...botchResponse, isSafe: false }
     }
 
     if (failOneLevel.active) {
+      let firstRequest = false
       if (!failOneLevel.remoteLevelUrl) {
         SessionState.setMessageFailOneLevel(sessionId, remoteUrl)
+        firstRequest = true
       }
 
-      if (failOneLevel.remoteLevelUrl === remoteUrl) {
+      if (failOneLevel.remoteLevelUrl === remoteUrl || firstRequest) {
         res.status(500).send(getHtmlErrorPage(500))
-        return false
+        return { ...botchResponse, isSafe: false }
       }
     }
 
-    return true
+    if (allLevelStall.active) {
+      if (remoteIsLive) {
+        if (!allLevelStall.lastLiveLevel) {
+          SessionState.setMessageAllLevelStall(sessionId, allLevelStall.stallTime, levelManifestText)
+        }
+        res.status(200).send(allLevelStall.lastLiveLevel || levelManifestText)
+        return { ...botchResponse, isSafe: false }
+      } else {
+        return { ...botchResponse, timerOverride: allLevelStall.stallTime }
+      }
+    }
+
+    return botchResponse
   }
 
   public botchFrag = async (req: Request, res: Response, sessionId: string, remoteUrl: string): Promise<boolean> => {
