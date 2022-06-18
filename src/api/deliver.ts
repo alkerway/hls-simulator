@@ -49,6 +49,7 @@ export const deliver = async (req: Request, res: Response) => {
       break
     case Messages.RESET:
       SessionState.reset(sessionId)
+      break
     default:
       messageIsValid = false
       break

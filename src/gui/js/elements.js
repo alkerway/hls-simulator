@@ -12,12 +12,14 @@ const Elements = {
   copyGeneratedUrlButton: document.getElementById('copyGeneratedUrlButton'),
   logRemoteManifestButton: document.getElementById('logRemoteManifestButton'),
 
+  resetButton: document.getElementById('ResetButton'),
   stallAllLevelButton: document.getElementById('StallAllLevelButton'),
   stallOneLevelButton: document.getElementById('StallOneLevelButton'),
   failOneLevelButton: document.getElementById('FailOneLevelButton'),
   failFragsAtOneLevelButton: document.getElementById('FailFragsAtOneLevelButton'),
   streamEndButton: document.getElementById('StreamEndButton'),
-  resetButton: document.getElementById('ResetButton'),
+  serverResponseButton: document.getElementById('ServerResponseButton'),
+  networkFaultButton: document.getElementById('NetworkFaultButton'),
 
   sendInsertTextButton: document.getElementById('sendInsertTextButton'),
   clearInsertTextButton: document.getElementById('clearInsertTextButton'),

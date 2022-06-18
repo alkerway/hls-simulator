@@ -13,6 +13,14 @@ const setGeneratedUrl = () => {
   Elements.generatedUrlDisplay.textContent = url
 }
 
+const setHighlight = (element, shouldHighlight) => {
+  if (shouldHighlight) {
+    element.classList.add('highlight')
+  } else {
+    element.classList.remove('highlight')
+  }
+}
+
 Events.sessionUpdated$.subscribe(({ sessionStartTime, sessionId }) => {
   AppState.sessionId = sessionId
   Elements.sessionIdDisplay.textContent = sessionId
@@ -59,17 +67,15 @@ Events.clearLog$.subscribe(() => {
   Elements.logsWindow.innerHTML = ''
 })
 
-Events.messageDelivered$.subscribe((message) => {
-  switch (message) {
-    case 'StreamEnd':
-      Elements.streamEndButton.classList.add('highlight')
-      break
-    case 'Reset':
-      Elements.streamEndButton.classList.remove('highlight')
-      break
-    default:
-      break
-  }
+Events.messageDelivered$.subscribe(({ message, messageState }) => {
+  setHighlight(Elements.stallAllLevelButton, messageState.AllLevelStall.active)
+  setHighlight(Elements.stallOneLevelButton, messageState.OneLevelStall.active)
+  setHighlight(Elements.failOneLevelButton, messageState.FailOneLevel.active)
+  setHighlight(Elements.failFragsAtOneLevelButton, messageState.FailFragsAtOneLevel.active)
+  setHighlight(Elements.streamEndButton, messageState.StreamEnd.active)
+
+  setHighlight(Elements.serverResponseButton, messageState.ServerResponse.active && !messageState.ServerResponse.once)
+  setHighlight(Elements.networkFaultButton, messageState.NetworkFault.active && !messageState.NetworkFault.once)
 })
 
 Events.insertTextStartUpdated$.subscribe((value) => {
