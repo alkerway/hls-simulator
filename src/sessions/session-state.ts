@@ -5,7 +5,7 @@ type MessageState = {
   [Messages.ALL_LEVEL_STALL]: { active: boolean; lastLiveLevel: string; stallTime: number }
   [Messages.ONE_LEVEL_STALL]: { active: boolean; lastLiveLevel: string; remoteLevelUrl: string; stallTime: number }
   [Messages.FAIL_ONE_LEVEL]: { active: boolean; remoteLevelUrl: string }
-  [Messages.FAIL_FRAGS_AT_ONE_LEVEL]: { active: boolean; remoteLevelUrl: string }
+  [Messages.FAIL_FRAGS_AT_ONE_LEVEL]: { active: boolean; remoteLevelUrl: string; failFragRemoteUrls: Set<string> }
   [Messages.SERVER_RESPONSE]: { active: boolean; status: number; applyTo: 'frag' | 'level'; once: boolean }
   [Messages.NETWORK_FAULT]: {
     active: boolean
@@ -38,7 +38,7 @@ class SessionState {
     [Messages.ALL_LEVEL_STALL]: { active: false, stallTime: -1, lastLiveLevel: '' },
     [Messages.ONE_LEVEL_STALL]: { active: false, stallTime: -1, lastLiveLevel: '', remoteLevelUrl: '' },
     [Messages.FAIL_ONE_LEVEL]: { active: false, remoteLevelUrl: '' },
-    [Messages.FAIL_FRAGS_AT_ONE_LEVEL]: { active: false, remoteLevelUrl: '' },
+    [Messages.FAIL_FRAGS_AT_ONE_LEVEL]: { active: false, remoteLevelUrl: '', failFragRemoteUrls: new Set() },
     [Messages.SERVER_RESPONSE]: { active: false, status: -1, applyTo: 'frag', once: false },
     [Messages.NETWORK_FAULT]: {
       active: false,
@@ -119,9 +119,19 @@ class SessionState {
     this.sessions[sessionId].messageState[Messages.FAIL_ONE_LEVEL] = { active: true, remoteLevelUrl }
   }
 
-  public setMessageFailFragsAtOneLevel = (sessionId: string, remoteLevelUrl: string) => {
+  public setMessageFailFragsAtOneLevel = (
+    sessionId: string,
+    remoteLevelUrl: string,
+    failFragRemoteUrls: Set<string>
+  ) => {
     if (!this.sessions[sessionId]) return
-    this.sessions[sessionId].messageState[Messages.FAIL_FRAGS_AT_ONE_LEVEL] = { active: true, remoteLevelUrl }
+    const unionOldAndNew = this.sessions[sessionId].messageState[Messages.FAIL_FRAGS_AT_ONE_LEVEL].failFragRemoteUrls
+    failFragRemoteUrls.forEach((url) => unionOldAndNew.add(url))
+    this.sessions[sessionId].messageState[Messages.FAIL_FRAGS_AT_ONE_LEVEL] = {
+      active: true,
+      remoteLevelUrl,
+      failFragRemoteUrls: unionOldAndNew,
+    }
   }
 
   public setMessageServerResponse = (sessionId: string, status: number, applyTo: 'frag' | 'level', once: boolean) => {

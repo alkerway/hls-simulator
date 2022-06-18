@@ -54,7 +54,7 @@ export const remoteManifest = async (req: Request, res: Response) => {
         }
         const simulatorOptions: SimulatorOptions = {
           keepVod: req.query.keepVod === 'true',
-          dvrWindowSeconds: Number(req.query.dvrWindowSeconds) ?? 0,
+          dvrWindowSeconds: Number(req.query.dvrWindowSeconds) || 0,
           remoteUrl,
           sessionId,
         }
@@ -65,7 +65,7 @@ export const remoteManifest = async (req: Request, res: Response) => {
             break
           case 'vodlevel':
           case 'livelevel':
-            const isSafe = await Botcher.botchLevel(res, sessionId, remoteUrl)
+            const isSafe = await Botcher.botchLevel(res, sessionId, remoteUrl, manifestText)
             if (isSafe) {
               const remoteManifestText = manifestText
               responseStatus = 200

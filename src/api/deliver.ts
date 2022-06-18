@@ -24,7 +24,7 @@ export const deliver = async (req: Request, res: Response) => {
       SessionState.setMessageFailOneLevel(sessionId, '')
       break
     case Messages.FAIL_FRAGS_AT_ONE_LEVEL:
-      SessionState.setMessageFailFragsAtOneLevel(sessionId, '')
+      SessionState.setMessageFailFragsAtOneLevel(sessionId, '', new Set())
       break
     case Messages.SERVER_RESPONSE:
       const queryStatus = Number(req.query.status)
