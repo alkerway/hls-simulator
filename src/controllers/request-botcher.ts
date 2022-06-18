@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { html403 } from '../utils/errorstrings'
+import { baseHtmlPage } from '../utils/errorstrings'
 import { Messages } from '../sessions/messages'
 import SessionState from '../sessions/session-state'
 import { sleep } from '../utils/promisify'
@@ -10,7 +10,7 @@ class Botcher {
     if (!messageState) return true
 
     const networkFault = messageState[Messages.NETWORK_FAULT]
-    if (networkFault?.active && networkFault.applyTo === 'level') {
+    if (networkFault.active && networkFault.applyTo === 'level') {
       if (networkFault.once) {
         SessionState.resetMessage(sessionId, Messages.NETWORK_FAULT)
       }
@@ -24,19 +24,16 @@ class Botcher {
         await sleep(delayTimeSeconds * 1000)
       }
     }
-    // if (SessionState.isMessageActive(sessionId, Messages.ALL_LEVEL_403)) {
-    //   res.status(403).send(html403)
-    //   return false
-    // }
-    // if (SessionState.isMessageActive(sessionId, Messages.NEXT_LEVEL_403)) {
-    //   res.status(403).send(html403)
-    //   SessionState.setMessageValue(sessionId, Messages.NEXT_LEVEL_403, false)
-    //   return false
-    // }
-    // if (SessionState.isMessageActive(sessionId, Messages.NEXT_LEVEL_TIMEOUT)) {
-    //   SessionState.setMessageValue(sessionId, Messages.NEXT_LEVEL_TIMEOUT, false)
-    //   return false
-    // }
+
+    const serverResponse = messageState[Messages.SERVER_RESPONSE]
+    if (serverResponse.active && serverResponse.applyTo === 'level') {
+      if (serverResponse.once) {
+        SessionState.resetMessage(sessionId, Messages.SERVER_RESPONSE)
+      }
+      const errorPageWithStatus = baseHtmlPage.replace(/%%status%%/g, String(serverResponse.status))
+      res.status(serverResponse.status).send(errorPageWithStatus)
+      return false
+    }
     // if (SessionState.isMessageActive(sessionId, Messages.LEVEL_STALL)) {
     //   res.status(200).send(SessionState.getLastLevel(sessionId))
     //   return false
@@ -63,25 +60,16 @@ class Botcher {
         await sleep(delayTimeSeconds * 1000)
       }
     }
-    // if (SessionState.isMessageActive(sessionId, Messages.ALL_FRAG_403)) {
-    //   res.status(403).send(html403)
-    //   return false
-    // }
-    // if (SessionState.isMessageActive(sessionId, Messages.NEXT_FRAG_403)) {
-    //   res.status(403).send(html403)
-    //   SessionState.setMessageValue(sessionId, Messages.NEXT_FRAG_403, false)
-    //   return false
-    // }
-    // if (SessionState.isMessageActive(sessionId, Messages.NEXT_FRAG_TIMEOUT)) {
-    //   SessionState.setMessageValue(sessionId, Messages.NEXT_FRAG_TIMEOUT, false)
-    //   return false
-    // }
-    // if (SessionState.isMessageActive(sessionId, Messages.ALL_FRAG_DELAY)) {
-    //   // random delay time between 1 and 21 seconds
-    //   const delayTimeSeconds = Math.random() * 20 + 1
-    //   setTimeout(() => res.redirect(remoteUrl), 1000 * delayTimeSeconds)
-    //   return false
-    // }
+
+    const serverResponse = messageState[Messages.SERVER_RESPONSE]
+    if (serverResponse.active && serverResponse.applyTo === 'frag') {
+      if (serverResponse.once) {
+        SessionState.resetMessage(sessionId, Messages.SERVER_RESPONSE)
+      }
+      const errorPageWithStatus = baseHtmlPage.replace(/%%status%%/g, String(serverResponse.status))
+      res.status(serverResponse.status).send(errorPageWithStatus)
+      return false
+    }
     return true
   }
 }
