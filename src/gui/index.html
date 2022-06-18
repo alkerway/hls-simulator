@@ -16,7 +16,7 @@
         <button id="startSessionButton" class="button-primary">Start Session</button>
         <div>Session Id: <span id="sessionIdDisplay"></span></div>
         <div>Manifest Timer: <span id="sessionStartTimeDisplay">0.0</span></div>
-        <button id="resetTimerButton">Reset Timer</button> at
+        <button id="resetTimerButton" class="reset">Reset Timer</button> at
         <input style="width: 80px" type="number" id="resetTimerInput" value="0" />
       </div>
       <div class="eight columns">
@@ -42,15 +42,34 @@
         <h4>Step 3: Simulate Things</h4>
         <div class="row">
           <div class="five columns">
-            <h5>Stream Incidents <button class="optionButton" id="ResetButton">Reset</button></h5>
-            <div>
-              <button class="optionButton" id="StallAllLevelButton">Stall All Level</button>
-              <button class="optionButton" id="StallOneLevelButton">Stall One Level</button>
-              <button class="optionButton" id="FailOneLevelButton">Fail One Level</button>
-              <button class="optionButton" id="FailFragsAtOneLevelButton">Fail Frags @ Level</button>
-              <button class="optionButton" id="StreamEndButton">Stream End</button>
+            <h5>Http/Stream Events</h5>
+            <div style="margin-bottom: 10px">
+              <div style="float: left">
+                <label for="NetworkFaultIncidentDropdown">Fault:</label>
+                <select name="NetworkFaultIncidentDropdown" id="NetworkFaultIncidentDropdown">
+                  <option value="timeout">timeout</option>
+                  <option value="shortDelay">shortDelay</option>
+                  <option value="longDelay">longDelay</option>
+                </select>
+              </div>
+              <div style="float: left">
+                <div>
+                  <input type="radio" id="networkFaultApplyFrag" name="NetworkFaultApplyToRadio" value="frag" checked />
+                  <label for="networkFaultApplyFrag">frag</label>
+                  <input type="radio" id="networkFaultApplyLevel" name="NetworkFaultApplyToRadio" value="level" />
+                  <label for="networkFaultApplyLevel">level</label>
+                </div>
+                <div>
+                  <input type="radio" id="networkFaultOnce" name="NetworkFaultOnceRadio" value="once" checked />
+                  <label for="networkFaultOnce">next req</label>
+                  <input type="radio" id="networkFaultEvery" name="NetworkFaultOnceRadio" value="every" />
+                  <label for="networkFaultEvery">every req</label>
+                </div>
+              </div>
+              <div style="clear: both"></div>
+              <button class="optionButton" id="NetworkFaultButton">Network Fault</button>
             </div>
-            <div>
+            <div style="margin-bottom: 10px">
               <div style="float: left">
                 <label for="statusDropdown">Status:</label>
                 <select name="statusDropdown" id="ServerResponseStatusDropdown">
@@ -61,7 +80,6 @@
                   <option value="503">503</option>
                 </select>
               </div>
-
               <div style="float: left">
                 <div>
                   <input
@@ -92,34 +110,16 @@
               <button class="optionButton" id="ServerResponseButton">Server Response</button>
             </div>
             <div>
-              <div style="float: left">
-                <label for="NetworkFaultIncidentDropdown">Fault:</label>
-                <select name="NetworkFaultIncidentDropdown" id="NetworkFaultIncidentDropdown">
-                  <option value="timeout">timeout</option>
-                  <option value="shortDelay">shortDelay</option>
-                  <option value="longDelay">longDelay</option>
-                </select>
-              </div>
-              <div style="float: left">
-                <div>
-                  <input type="radio" id="networkFaultApplyFrag" name="NetworkFaultApplyToRadio" value="frag" checked />
-                  <label for="networkFaultApplyFrag">frag</label>
-                  <input type="radio" id="networkFaultApplyLevel" name="NetworkFaultApplyToRadio" value="level" />
-                  <label for="networkFaultApplyLevel">level</label>
-                </div>
-                <div>
-                  <input type="radio" id="networkFaultOnce" name="NetworkFaultOnceRadio" value="once" checked />
-                  <label for="networkFaultOnce">next req</label>
-                  <input type="radio" id="networkFaultEvery" name="NetworkFaultOnceRadio" value="every" />
-                  <label for="networkFaultEvery">every req</label>
-                </div>
-              </div>
-              <div style="clear: both"></div>
-              <button class="optionButton" id="NetworkFaultButton">Network Fault</button>
+              <button class="optionButton" id="StallAllLevelButton">Stall All Level</button>
+              <button class="optionButton" id="StallOneLevelButton">Stall One Level</button>
+              <button class="optionButton" id="FailOneLevelButton">Fail One Level</button>
+              <button class="optionButton" id="FailFragsAtOneLevelButton">Fail Frags @ Level</button>
+              <button class="optionButton" id="StreamEndButton">Stream End</button>
+              <button class="optionButton reset" id="ResetButton">Reset</button>
             </div>
           </div>
           <div class="seven columns">
-            <h5>Inject Text <button id="clearInsertTextButton">Clear Injections for Session</button></h5>
+            <h5>Inject Text</h5>
             <div>Position will be after manifest timer (default)</div>
             <div>
               Or enter a time (vod to vod, vod to live) or media sequence (live to live):
@@ -127,19 +127,19 @@
             </div>
             <textarea style="width: 100%; min-height: 250px" id="insertTextInput"></textarea>
             <button id="sendInsertTextButton">Send</button>
+            <button id="clearInsertTextButton" style="float: right" class="reset">Clear Injections for Session</button>
           </div>
         </div>
       </div>
       <div class="five columns">
-        <h4>Logs <button id="clearLogsButton">Clear</button></h4>
+        <h4>Logs <button id="clearLogsButton" class="reset">Clear</button></h4>
         <div
           id="logsWindow"
           style="border: 1px solid #aaa; width: 100%; height: 350px; overflow: scroll; white-space: pre"
         ></div>
         <br />
-        <br />
         <div style="text-align: right">
-          Github repo + docs:
+          Github repo + documentation:
           <a target="_blank" href="https://github.com/alkerway/hls-simulator/"
             >https://github.com/alkerway/hls-simulator/</a
           >
