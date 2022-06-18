@@ -1,7 +1,21 @@
 import { LevelManifest } from '../parsers/text-manifest-to-typescript'
 import { Messages } from './messages'
 
-type MessageState = { [key in Messages]?: boolean }
+type MessageState = {
+  [Messages.ALL_LEVEL_STALL]: { active: boolean; lastLiveLevel: string; stallTime: number }
+  [Messages.NEXT_LEVEL_STALL]: { active: boolean; lastLiveLevel: string; remoteLevelUrl: string; stallTime: number }
+  [Messages.FAIL_ONE_LEVEL]: { active: boolean; remoteLevelUrl: string }
+  [Messages.FAIL_FRAGS_AT_ONE_LEVEL]: { active: boolean; remoteLevelUrl: string }
+  [Messages.SERVER_RESPONSE]: { active: boolean; status: number; applyTo: 'frag' | 'level'; once: boolean }
+  [Messages.NETWORK_FAULT]: {
+    active: boolean
+    fault: 'timeout' | 'shortDelay' | 'longDelay'
+    applyTo: 'frag' | 'level'
+    once: boolean
+  }
+  [Messages.STREAM_END]: { active: boolean; endTime: number }
+  [Messages.RESET]: { active: boolean }
+}
 
 export type CustomManifest = {
   startTimeOrMediaSequence: number
@@ -21,17 +35,19 @@ type SessionStore = Record<string, Session>
 
 class SessionState {
   private originalMessages: MessageState = {
-    [Messages.NEXT_FRAG_403]: false,
-    [Messages.NEXT_FRAG_TIMEOUT]: false,
-    [Messages.ALL_FRAG_403]: false,
-    [Messages.ALL_FRAG_DELAY]: false,
-
-    [Messages.NEXT_LEVEL_403]: false,
-    [Messages.NEXT_LEVEL_TIMEOUT]: false,
-    [Messages.ALL_LEVEL_403]: false,
-    [Messages.LEVEL_STALL]: false,
-
-    [Messages.STREAM_END]: false,
+    [Messages.ALL_LEVEL_STALL]: { active: false, stallTime: -1, lastLiveLevel: '' },
+    [Messages.NEXT_LEVEL_STALL]: { active: false, stallTime: -1, lastLiveLevel: '', remoteLevelUrl: '' },
+    [Messages.FAIL_ONE_LEVEL]: { active: false, remoteLevelUrl: '' },
+    [Messages.FAIL_FRAGS_AT_ONE_LEVEL]: { active: false, remoteLevelUrl: '' },
+    [Messages.SERVER_RESPONSE]: { active: false, status: -1, applyTo: 'frag', once: false },
+    [Messages.NETWORK_FAULT]: {
+      active: false,
+      fault: 'timeout',
+      applyTo: 'frag',
+      once: false,
+    },
+    [Messages.STREAM_END]: { active: false, endTime: -1 },
+    [Messages.RESET]: { active: false },
   }
 
   private sessions: SessionStore = {}
@@ -42,6 +58,10 @@ class SessionState {
 
   public isMessageActive = (sessionId: string, message: Messages): boolean => {
     return !!this.sessions[sessionId]?.messageState[message]
+  }
+
+  public getMessageValues = (sessionId: string): MessageState | undefined => {
+    return structuredClone(this.sessions[sessionId]?.messageState)
   }
 
   public sessionExists = (sessionId: string) => {
@@ -60,7 +80,7 @@ class SessionState {
     } else {
       this.sessions[sessionId] = {
         startTimeSeconds: sessionStartTime,
-        messageState: Object.assign({}, this.originalMessages),
+        messageState: structuredClone(this.originalMessages),
         injections: [],
         lastLevel: '',
         deleteTimer: null,
@@ -74,10 +94,54 @@ class SessionState {
     return this.sessions[sessionId] ? Date.now() / 1000 - this.sessions[sessionId].startTimeSeconds : -1
   }
 
-  public setMessageValue = (sessionId: string, messageKey: Messages, messageVal: boolean) => {
-    if (this.sessions[sessionId]) {
-      this.sessions[sessionId].messageState[messageKey] = messageVal
+  public setMessageAllLevelStall = (sessionId: string, stallTime: number, lastLiveLevel: string) => {
+    if (!this.sessions[sessionId]) return
+    this.sessions[sessionId].messageState[Messages.ALL_LEVEL_STALL] = { active: true, stallTime, lastLiveLevel }
+  }
+
+  public setMessageNextLevelStall = (
+    sessionId: string,
+    stallTime: number,
+    remoteLevelUrl: string,
+    lastLiveLevel: string
+  ) => {
+    if (!this.sessions[sessionId]) return
+    this.sessions[sessionId].messageState[Messages.NEXT_LEVEL_STALL] = {
+      active: true,
+      stallTime,
+      lastLiveLevel,
+      remoteLevelUrl,
     }
+  }
+
+  public setMessageFailOneLevel = (sessionId: string, remoteLevelUrl: string) => {
+    if (!this.sessions[sessionId]) return
+    this.sessions[sessionId].messageState[Messages.FAIL_ONE_LEVEL] = { active: true, remoteLevelUrl }
+  }
+
+  public setMessageFailFragsAtOneLevel = (sessionId: string, remoteLevelUrl: string) => {
+    if (!this.sessions[sessionId]) return
+    this.sessions[sessionId].messageState[Messages.FAIL_FRAGS_AT_ONE_LEVEL] = { active: true, remoteLevelUrl }
+  }
+
+  public setMessageServerResponse = (sessionId: string, status: number, applyTo: 'frag' | 'level', once: boolean) => {
+    if (!this.sessions[sessionId]) return
+    this.sessions[sessionId].messageState[Messages.SERVER_RESPONSE] = { active: true, status, applyTo, once }
+  }
+
+  public setMessageNetworkFault = (
+    sessionId: string,
+    fault: 'timeout' | 'shortDelay' | 'longDelay',
+    applyTo: 'frag' | 'level',
+    once: boolean
+  ) => {
+    if (!this.sessions[sessionId]) return
+    this.sessions[sessionId].messageState[Messages.NETWORK_FAULT] = { active: true, fault, applyTo, once }
+  }
+
+  public setMessageStreamEnd = (sessionId: string, endTime: number) => {
+    if (!this.sessions[sessionId]) return
+    this.sessions[sessionId].messageState[Messages.STREAM_END] = { active: true, endTime }
   }
 
   public addInjectedManifest = (sessionId: string, manifest: LevelManifest, startPositionFromQuery: number) => {
@@ -112,7 +176,7 @@ class SessionState {
 
   public reset = (sessionId: string) => {
     if (this.sessions[sessionId]) {
-      this.sessions[sessionId].messageState = Object.assign({}, this.originalMessages)
+      this.sessions[sessionId].messageState = structuredClone(this.originalMessages)
     }
   }
 

@@ -19,8 +19,7 @@ The app's structure is API-based. One can use curl to perform requests, or use t
 To set up the app, clone the repo then run the following:
 
 1. `npm install`
-2. `npm run build`
-3. `npm run start`
+2. `npm run dev`
 
 NOTE: Node >=17 is needed for the app to work.
 
