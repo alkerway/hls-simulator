@@ -65,7 +65,7 @@ export const remoteManifest = async (req: Request, res: Response) => {
             break
           case 'vodlevel':
           case 'livelevel':
-            const isSafe = await Botcher.botchLevel(req, res, sessionId)
+            const isSafe = await Botcher.botchLevel(res, sessionId, remoteUrl)
             if (isSafe) {
               const remoteManifestText = manifestText
               responseStatus = 200

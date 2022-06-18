@@ -1,4 +1,4 @@
-export const baseHtmlPage = `<!DOCTYPE html>
+const baseHtmlPage = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,3 +10,7 @@ export const baseHtmlPage = `<!DOCTYPE html>
     <h1>Error %%status%%</h1>
 </body>
 </html>`
+
+export const getHtmlErrorPage = (status = 404) => {
+  return baseHtmlPage.replace(/%%status%%/g, String(status))
+}

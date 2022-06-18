@@ -1,11 +1,11 @@
 import { Request, Response } from 'express'
-import { baseHtmlPage } from '../utils/errorstrings'
+import { getHtmlErrorPage } from '../utils/errorstrings'
 import { Messages } from '../sessions/messages'
 import SessionState from '../sessions/session-state'
 import { sleep } from '../utils/promisify'
 
 class Botcher {
-  public botchLevel = async (req: Request, res: Response, sessionId: string): Promise<boolean> => {
+  public botchLevel = async (res: Response, sessionId: string, remoteUrl: string): Promise<boolean> => {
     const messageState = SessionState.getMessageValues(sessionId)
     if (!messageState) return true
 
@@ -30,14 +30,21 @@ class Botcher {
       if (serverResponse.once) {
         SessionState.resetMessage(sessionId, Messages.SERVER_RESPONSE)
       }
-      const errorPageWithStatus = baseHtmlPage.replace(/%%status%%/g, String(serverResponse.status))
-      res.status(serverResponse.status).send(errorPageWithStatus)
+      res.status(serverResponse.status).send(getHtmlErrorPage(serverResponse.status))
       return false
     }
-    // if (SessionState.isMessageActive(sessionId, Messages.LEVEL_STALL)) {
-    //   res.status(200).send(SessionState.getLastLevel(sessionId))
-    //   return false
-    // }
+
+    const failOneLevel = messageState[Messages.FAIL_ONE_LEVEL]
+    if (failOneLevel.active) {
+      if (!failOneLevel.remoteLevelUrl) {
+        SessionState.setMessageFailOneLevel(sessionId, remoteUrl)
+      }
+
+      if (failOneLevel.remoteLevelUrl === remoteUrl) {
+        res.status(500).send(getHtmlErrorPage(500))
+        return false
+      }
+    }
     return true
   }
 
@@ -66,8 +73,7 @@ class Botcher {
       if (serverResponse.once) {
         SessionState.resetMessage(sessionId, Messages.SERVER_RESPONSE)
       }
-      const errorPageWithStatus = baseHtmlPage.replace(/%%status%%/g, String(serverResponse.status))
-      res.status(serverResponse.status).send(errorPageWithStatus)
+      res.status(serverResponse.status).send(getHtmlErrorPage(serverResponse.status))
       return false
     }
     return true
