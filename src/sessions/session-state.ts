@@ -69,10 +69,18 @@ class SessionState {
   }
 
   public startSession = (
-    sessionId: string | undefined,
+    sessionIdQuery: string | undefined,
     startOffset: number
-  ): { sessionStartTime: number; sessionId: string } => {
-    if (!sessionId) sessionId = this.generateSessionId()
+  ): { sessionStartTime: number; sessionId: string; error: boolean } => {
+    const sessionId = sessionIdQuery || this.generateSessionId()
+    if (!sessionIdQuery && this.sessions[sessionId]) {
+      // Assume if no session id provided then request is for a new session
+      // If new session's new session id already exists return an error
+      // Don't want to overwrite an existing session
+      // There are 62 * 62 * 62 = 238328 possible session ids so this
+      // shouldn't happen too much.
+      return { sessionStartTime: 0, sessionId: '', error: true }
+    }
     const sessionStartTime = Math.floor(Date.now() / 1000 - Math.max(startOffset, 0))
     if (this.sessions[sessionId]) {
       // restart but do not reset
@@ -87,7 +95,7 @@ class SessionState {
       }
     }
     this.setupSessionClear(sessionId)
-    return { sessionStartTime, sessionId }
+    return { sessionStartTime, sessionId, error: false }
   }
 
   public getSessionTime = (sessionId: string) => {
