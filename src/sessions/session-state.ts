@@ -29,6 +29,7 @@ export type Session = {
   injections: CustomManifest[]
   lastLevel: string
   deleteTimer: NodeJS.Timeout | null
+  clientIp: string
 }
 
 type SessionStore = Record<string, Session>
@@ -56,10 +57,6 @@ class SessionState {
     return message in this.originalMessages
   }
 
-  public isMessageActive = (sessionId: string, message: Messages): boolean => {
-    return !!this.sessions[sessionId]?.messageState[message]
-  }
-
   public getMessageValues = (sessionId: string): MessageState | undefined => {
     return structuredClone(this.sessions[sessionId]?.messageState)
   }
@@ -70,7 +67,8 @@ class SessionState {
 
   public startSession = (
     sessionIdQuery: string | undefined,
-    startOffset: number
+    startOffset: number,
+    clientIp: string
   ): { sessionStartTime: number; sessionId: string; error: boolean } => {
     const sessionId = sessionIdQuery || this.generateSessionId()
     if (!sessionIdQuery && this.sessions[sessionId]) {
@@ -86,12 +84,25 @@ class SessionState {
       // restart but do not reset
       this.sessions[sessionId].startTimeSeconds = sessionStartTime
     } else {
+      const allSessionsWithIp = Object.keys(this.sessions)
+        .filter((session) => this.sessions[session].clientIp === clientIp)
+        .sort(
+          (sessionA, sessionB) => this.sessions[sessionA].startTimeSeconds - this.sessions[sessionB].startTimeSeconds
+        )
+      if (allSessionsWithIp.length >= 200) {
+        // limit number of sessions just in case things get out of hand. This shouldn't happen because
+        // who even starts 200 sessions in one day
+        const earliestSession = this.sessions[allSessionsWithIp[0]]
+        if (earliestSession.deleteTimer) clearTimeout(earliestSession.deleteTimer)
+        delete this.sessions[allSessionsWithIp[0]]
+      }
       this.sessions[sessionId] = {
         startTimeSeconds: sessionStartTime,
         messageState: structuredClone(this.originalMessages),
         injections: [],
         lastLevel: '',
         deleteTimer: null,
+        clientIp,
       }
     }
     this.setupSessionClear(sessionId)

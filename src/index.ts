@@ -1,9 +1,10 @@
-import cors from 'cors'
 import express from 'express'
 import * as routes from './api/routes'
 
 const app = express()
-const port = 8880
+const port = process.env.PORT || 8880
+
+app.set('trust proxy', true)
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -21,7 +22,6 @@ process.on('unhandledRejection', (reason, p) => {
 
 app.use(express.static('./src/gui'))
 routes.register(app)
-app.use(cors())
 // start the Express server
 app.listen(port, () => {
   console.log(`server started at http://localhost:${port}`)
