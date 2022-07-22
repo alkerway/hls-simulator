@@ -50,7 +50,7 @@ const injectText = (
   isLiveToLive?: boolean
 ): LevelManifest => {
   const { fallbackStartTime, startTimeOrMediaSequence, manifest } = newText
-  const customManifestStartTime = startTimeOrMediaSequence ?? fallbackStartTime
+  const customManifestStartTime = startTimeOrMediaSequence < 0 ? fallbackStartTime : startTimeOrMediaSequence
 
   if (isLiveToLive) {
     if (startTimeOrMediaSequence < 0) {

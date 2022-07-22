@@ -63,7 +63,7 @@ export const textToTypescript = (levelManifest: string): LevelManifest => {
       if (lastPdtUnix && !currentFragHeaderTags.findTag(Tags.Pdt)) {
         // calculate implied pdt and set if no pdt tag on frag
         const fragPdtUnix = currentFragDuration * 1000 + lastPdtUnix
-        impliedPDTLine = `#EXT-X-PROGRAM-DATE-TIME:${new Date(fragPdtUnix).toISOString()}`
+        impliedPDTLine = `${Tags.Pdt}:${new Date(fragPdtUnix).toISOString()}`
         lastPdtUnix = fragPdtUnix
       }
 
@@ -78,7 +78,7 @@ export const textToTypescript = (levelManifest: string): LevelManifest => {
           }, {} as Record<string, string>)
 
           if (keyAttributes && keyAttributes.METHOD !== 'NONE' && !keyAttributes.IV) {
-            impliedIVString= `IV=${currentFragMediaSequence.toString(16).toUpperCase().padStart(16, '0')}`
+            impliedIVString= `IV=0x${currentFragMediaSequence.toString(16).toUpperCase().padStart(32, '0')}`
           }
       }
 

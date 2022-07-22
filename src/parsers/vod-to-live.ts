@@ -55,7 +55,7 @@ export const vodToLive = (manifest: LevelManifest, maxLevelDuration: number): Le
               ? `${line},${currentFrag.impliedIVString}`
               : line)
         }
-      } else {
+      } else if (currentFrag.impliedIVString) {
         currentFrag.tagLines.unshift(`${currentFrag.impliedKeyLine},${currentFrag.impliedIVString}`)
       }
     }
