@@ -52,11 +52,11 @@ const injectText = (
   const { fallbackStartTime, startTimeOrMediaSequence, manifest } = newText
   const customManifestStartTime = startTimeOrMediaSequence < 0 ? fallbackStartTime : startTimeOrMediaSequence
 
+  const mediaSequenceTag = originalManifest.headerTagLines.findTag(Tags.MediaSequence)
+  const startingMediaSequenceValue = Number(mediaSequenceTag.slice(Tags.MediaSequence.length + 1)) || 0
   if (isLiveToLive) {
     if (startTimeOrMediaSequence < 0) {
       // set a media sequence to keep track if one isn't set
-      const mediaSequenceTag = originalManifest.headerTagLines.findTag(Tags.MediaSequence)
-      const startingMediaSequenceValue = Number(mediaSequenceTag.slice(Tags.MediaSequence.length + 1)) || 0
       newText.startTimeOrMediaSequence = startingMediaSequenceValue + originalManifest.frags.length
     }
     return injectTextLiveToLive(originalManifest, newText)
@@ -106,7 +106,14 @@ const injectText = (
             (currentFrag.impliedKeyLine || newFrags[newFrags.length - 1]?.impliedKeyLine) &&
             !currentFrag.tagLines.findTag(Tags.Key)
           ) {
-            currentFrag.tagLines.unshift(currentFrag.impliedKeyLine || '#EXT-X-KEY:METHOD=NONE')
+            let newKeyLine = currentFrag.impliedKeyLine
+            const currentFragMediaSequence = startingMediaSequenceValue + newFrags.length
+            if (newKeyLine &&
+              currentFragMediaSequence !== currentFrag.originalMediaSequence &&
+              currentFrag.impliedIVString) {
+                newKeyLine += `,${currentFrag.impliedIVString}`
+            }
+            currentFrag.tagLines.unshift(newKeyLine || '#EXT-X-KEY:METHOD=NONE')
           }
           if (!currentFrag.tagLines.findTag(Tags.Discontinuity)) {
             currentFrag.tagLines.unshift(Tags.Discontinuity)
@@ -127,6 +134,13 @@ const injectText = (
         appendingcustomManifest = true
       } else {
         currentFrag = originalManifest.frags.shift()
+        if (currentFrag &&
+            currentFrag.originalMediaSequence !== newFrags.length + startingMediaSequenceValue &&
+            currentFrag.impliedIVString &&
+            !currentFrag.tagLines.findTag(Tags.Key)?.includes(',IV=')) {
+          const newKeyLine = `${currentFrag.impliedKeyLine},${currentFrag.impliedIVString}`
+          currentFrag.tagLines.unshift(newKeyLine)
+        }
       }
       currentParseTime += currentFrag?.duration || 0
     }
