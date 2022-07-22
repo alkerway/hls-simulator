@@ -53,7 +53,7 @@ export const proxyLevel = (manifest: LevelManifest, simulatorOptions: SimulatorO
   const mediaSequenceTag = manifest.headerTagLines.findTag(Tags.MediaSequence)
   let mediaSequenceOffset = 0
   if (mediaSequenceTag) {
-    mediaSequenceOffset = Number(mediaSequenceTag.slice(Tags.MediaSequence.length)) || 0
+    mediaSequenceOffset = Number(mediaSequenceTag.slice(Tags.MediaSequence.length + 1)) || 0
   }
   manifest.headerTagLines = manifest.headerTagLines.map((headerTag) => replaceTagUris(headerTag, remoteUrl))
   manifest.frags = manifest.frags.map((frag, fragIndex) => {

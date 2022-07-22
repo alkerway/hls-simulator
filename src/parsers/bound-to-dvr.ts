@@ -49,11 +49,11 @@ export const boundToDvr = (manifest: LevelManifest, dvrWindowSeconds: number): L
       if (line.isTag(Tags.PlaylistType)) {
         return ''
       } else if (line.isTag(Tags.MediaSequence)) {
-        const foundMediaSequenceValue = Number(line.slice(Tags.MediaSequence.length)) || 0
+        const foundMediaSequenceValue = Number(line.slice(Tags.MediaSequence.length + 1)) || 0
         // add it back later
         return `${Tags.MediaSequence}:${foundMediaSequenceValue + numFragsRemoved}`
       } else if (line.isTag(Tags.DiscontinuitySequence)) {
-        const foundDiscoSequence = Number(line.slice(Tags.DiscontinuitySequence.length)) || 0
+        const foundDiscoSequence = Number(line.slice(Tags.DiscontinuitySequence.length + 1)) || 0
         return `${Tags.DiscontinuitySequence}:${foundDiscoSequence + numDiscontinuitiesRemoved}`
       }
       return line

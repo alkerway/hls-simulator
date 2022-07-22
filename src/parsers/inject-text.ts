@@ -12,7 +12,7 @@ const injectTextLiveToLive = (originalManifest: LevelManifest, newText: CustomMa
   })
 
   const mediaSequenceTag = originalManifest.headerTagLines?.findTag(Tags.MediaSequence)
-  const initialMediaSequence = Number(mediaSequenceTag.slice(Tags.MediaSequence.length)) || 0
+  const initialMediaSequence = Number(mediaSequenceTag.slice(Tags.MediaSequence.length + 1)) || 0
 
   originalManifest.frags = originalManifest.frags.map((frag, fragIndex) => {
     const currentMediaSequence = initialMediaSequence + fragIndex
@@ -56,7 +56,7 @@ const injectText = (
     if (startTimeOrMediaSequence < 0) {
       // set a media sequence to keep track if one isn't set
       const mediaSequenceTag = originalManifest.headerTagLines.findTag(Tags.MediaSequence)
-      const startingMediaSequenceValue = Number(mediaSequenceTag.slice(Tags.MediaSequence.length)) || 0
+      const startingMediaSequenceValue = Number(mediaSequenceTag.slice(Tags.MediaSequence.length + 1)) || 0
       newText.startTimeOrMediaSequence = startingMediaSequenceValue + originalManifest.frags.length
     }
     return injectTextLiveToLive(originalManifest, newText)

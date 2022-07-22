@@ -7,13 +7,20 @@ export const vodToLive = (manifest: LevelManifest, maxLevelDuration: number): Le
 
   const newFrags: Frag[] = []
 
+  const originalNumFrags = manifest.frags.length
   let currentFragIdx = 0
   let currentFrag = structuredClone(manifest.frags[currentFragIdx])
   let totalLevelDuration = currentFrag.duration
-  let fragCounter = 0
+  const startMediaSequenceTag = manifest.headerTagLines.findTag(Tags.MediaSequence)
+  const startMediaSequence = Number(startMediaSequenceTag.slice(Tags.MediaSequence.length + 1)) || 0
+  let currentMediaSequence = startMediaSequence
   let pdtOffsetMs = 0
   while (totalLevelDuration < maxLevelDuration) {
-    if (currentFragIdx === 0 && fragCounter !== 0) {
+    if (currentFragIdx === 0 && currentMediaSequence !== startMediaSequence) {
+      if (currentFrag.impliedKeyLine && !currentFrag.tagLines.findTag(Tags.Key)) {
+        const newKeyLine = currentFrag.impliedKeyLine
+        currentFrag.tagLines.unshift(newKeyLine)
+      }
       currentFrag.tagLines.unshift(Tags.Discontinuity)
       // get last frag pdt and set as offset
       const lastFrag = newFrags[newFrags.length - 1]
@@ -36,13 +43,31 @@ export const vodToLive = (manifest: LevelManifest, maxLevelDuration: number): Le
         })
       }
     }
+
+    // make sure IV matches up
+    if (currentFrag.originalMediaSequence !== currentMediaSequence && currentFrag.impliedKeyLine) {
+      const existingKeyTag = currentFrag.tagLines.findTag(Tags.Key)
+      const hasIV = existingKeyTag?.includes('IV=')
+      if (existingKeyTag) {
+        if (!hasIV) {
+          currentFrag.tagLines = currentFrag.tagLines.map(line =>
+            line.isTag(Tags.Key)
+              ? `${line},${currentFrag.impliedIVString}`
+              : line)
+        }
+      } else {
+        currentFrag.tagLines.unshift(`${currentFrag.impliedKeyLine},${currentFrag.impliedIVString}`)
+      }
+    }
+
+
     newFrags.push(currentFrag)
 
     // reassign before check not after
     currentFragIdx = (currentFragIdx + 1) % manifest.frags.length
     currentFrag = structuredClone(manifest.frags[currentFragIdx])
     totalLevelDuration += currentFrag.duration
-    fragCounter += 1
+    currentMediaSequence += 1
   }
   manifest.frags = newFrags
   manifest.isLive = true

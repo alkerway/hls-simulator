@@ -5,8 +5,10 @@ export type Frag = {
   tagLines: string[]
   url: string
   impliedKeyLine: string | null
+  impliedIVString: string | null
   impliedPDTLine: string | null
   duration: number
+  originalMediaSequence: number
 }
 
 export type LevelManifest = {
@@ -17,9 +19,10 @@ export type LevelManifest = {
 
 export const textToTypescript = (levelManifest: string): LevelManifest => {
   const frags: Frag[] = []
-  const manifestHaderTagLines: string[] = []
+  const manifestHeaderTagLines: string[] = []
   let currentFragHeaderTags: string[] = []
   let currentFragDuration = -1
+  let currentFragMediaSequence = 0
   let isLive = true
   let currentKeyLine: string | null = null // '#EXT-X-KEY:METHOD=NONE'
   let lastPdtUnix: number | null = null
@@ -29,7 +32,7 @@ export const textToTypescript = (levelManifest: string): LevelManifest => {
       if (frags.length || currentFragHeaderTags.length) {
         currentFragHeaderTags.push(line)
       } else {
-        manifestHaderTagLines.push(line)
+        manifestHeaderTagLines.push(line)
       }
     } else if (line.startsWith('#')) {
       // line is tag
@@ -38,7 +41,11 @@ export const textToTypescript = (levelManifest: string): LevelManifest => {
       if (isEndlist) {
         isLive = false
       } else if (isHeaderTag) {
-        manifestHaderTagLines.push(line)
+        const isMediaSeq = line.isTag(Tags.MediaSequence)
+        if (isMediaSeq) {
+          currentFragMediaSequence = Number(line.slice(Tags.MediaSequence.length + 1)) || 0
+        }
+        manifestHeaderTagLines.push(line)
       } else {
         if (line.isTag(Tags.Inf)) {
           currentFragDuration = getExtInfDuration(line)
@@ -60,20 +67,38 @@ export const textToTypescript = (levelManifest: string): LevelManifest => {
         lastPdtUnix = fragPdtUnix
       }
 
+      let impliedIVString = null
+      if (currentKeyLine) {
+        const keyAttributes = currentKeyLine
+          .slice(Tags.Key.length + 1)
+          .match(/("[^"]*")|[^,]+/g)
+          ?.reduce((attributeMap, attribute) => {
+            const [key, val] = attribute.split(/=(.*)/)
+            return {...attributeMap, [key]: val }
+          }, {} as Record<string, string>)
+
+          if (keyAttributes && keyAttributes.METHOD !== 'NONE' && !keyAttributes.IV) {
+            impliedIVString= `IV=${currentFragMediaSequence.toString(16).toUpperCase().padStart(16, '0')}`
+          }
+      }
+
       frags.push({
         tagLines: currentFragHeaderTags,
         url: line,
         impliedKeyLine: currentKeyLine,
         impliedPDTLine,
+        impliedIVString,
+        originalMediaSequence: currentFragMediaSequence,
         duration: currentFragDuration,
       })
+      currentFragMediaSequence += 1
       currentFragDuration = -1
       currentFragHeaderTags = []
     }
   })
   return {
     frags,
-    headerTagLines: manifestHaderTagLines,
+    headerTagLines: manifestHeaderTagLines,
     isLive,
   }
 }
