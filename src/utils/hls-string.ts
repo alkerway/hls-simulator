@@ -29,3 +29,30 @@ export const addMsToPdtLine = (line: string, ms: number) => {
   const prevTime = pdtTagToUnix(line)
   return prevTime ? unixToPdtTag(prevTime + ms) : line
 }
+
+export const splitAttributes = (attributeList: string) => {
+  const attributes = []
+  let currentAttribute = ''
+  let withinQuotes = false
+
+  let canEscapeNextChar = false
+  attributeList.split('').forEach((char) => {
+    const isEscapingCurrentChar = canEscapeNextChar && char === '"'
+
+    if (char === ',' && !withinQuotes) {
+      attributes.push(currentAttribute)
+      currentAttribute = ''
+    } else {
+      if (char === '"' && !isEscapingCurrentChar) {
+        withinQuotes = !withinQuotes
+      }
+      currentAttribute += char
+    }
+
+    // escape next if character is backslash and backslash hasn't been escaped
+    // by the last time looping
+    canEscapeNextChar = (char === '\\' && !canEscapeNextChar)
+  })
+  attributes.push(currentAttribute)
+  return attributes
+}

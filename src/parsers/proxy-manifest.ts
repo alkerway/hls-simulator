@@ -2,21 +2,23 @@ import { getFullUrl } from '../utils/url-converter'
 import { SimulatorOptions } from '../api/request-options'
 import { LevelManifest } from './text-manifest-to-typescript'
 import { Tags } from '../utils/HlsTags'
+import { splitAttributes } from '../utils/hls-string'
+
 
 const replaceTagUris = (tag: string, remoteUrl: string) => {
   if (!tag || tag.startsWith('##')) return tag
+
   const tagName = tag.slice(0, tag.indexOf(':') + 1)
-  const tagAttributes = tag.slice(tagName.length).match(/("[^"]*")|[^,]+/g)
+
+  const tagAttributes = splitAttributes(tag.slice(tagName.length))
   if (tagAttributes) {
-    const uriAttribute = tagAttributes.find((attribute) => attribute.startsWith('URI='))
-    if (uriAttribute) {
-      const fullUri = getFullUrl(uriAttribute.slice(5, -1), remoteUrl)
+    const uriAttributeContent = tagAttributes.find((attribute) => attribute.startsWith('URI='))?.slice(5, -1)
+    if (uriAttributeContent && !uriAttributeContent.match(/^"?data:/)) {
+      const fullUri = getFullUrl(uriAttributeContent, remoteUrl)
       return (
         tagName +
         tagAttributes
-          .map((attribute) => {
-            return attribute.startsWith('URI') ? `URI="${fullUri}"` : attribute
-          })
+          .map((attribute) =>  attribute.startsWith('URI') ? `URI="${fullUri}"` : attribute)
           .join(',')
       )
     }
@@ -75,6 +77,6 @@ export const proxycustomManifest = (manifest: LevelManifest, sessionId: string):
   ...manifest,
   frags: manifest.frags.map((frag, fragIndex) => ({
     ...frag,
-    url: `custom_frag_${fragIndex}?sessionId=${sessionId}&url=${frag.url}`,
+    url: `custom_frag_${fragIndex}?sessionId=${sessionId}&url=${encodeURIComponent(frag.url)}`,
   })),
 })

@@ -11,7 +11,7 @@ const injectTextLiveToLive = (originalManifest: LevelManifest, newText: CustomMa
     customFragMsMap[newText.startTimeOrMediaSequence + index] = frag
   })
 
-  const mediaSequenceTag = originalManifest.headerTagLines?.findTag(Tags.MediaSequence)
+  const mediaSequenceTag = originalManifest.headerTagLines?.findTag(Tags.MediaSequence) || ''
   const initialMediaSequence = Number(mediaSequenceTag.slice(Tags.MediaSequence.length + 1)) || 0
 
   originalManifest.frags = originalManifest.frags.map((frag, fragIndex) => {
@@ -52,7 +52,7 @@ const injectText = (
   const { fallbackStartTime, startTimeOrMediaSequence, manifest } = newText
   const customManifestStartTime = startTimeOrMediaSequence < 0 ? fallbackStartTime : startTimeOrMediaSequence
 
-  const mediaSequenceTag = originalManifest.headerTagLines.findTag(Tags.MediaSequence)
+  const mediaSequenceTag = originalManifest.headerTagLines.findTag(Tags.MediaSequence) || ''
   const startingMediaSequenceValue = Number(mediaSequenceTag.slice(Tags.MediaSequence.length + 1)) || 0
   if (isLiveToLive) {
     if (startTimeOrMediaSequence < 0) {

@@ -4,7 +4,7 @@ export {}
 
 declare global {
   interface Array<T> {
-    findTag(tag: Tags): Tags
+    findTag(tag: Tags): Tags | undefined
   }
 
   interface String {
