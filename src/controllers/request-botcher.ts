@@ -33,8 +33,17 @@ class Botcher {
       [Messages.FAIL_FRAGS_AT_ONE_LEVEL]: failFragsOneLevel,
       [Messages.ALL_LEVEL_STALL]: allLevelStall,
       [Messages.ONE_LEVEL_STALL]: oneLevelStall,
+      [Messages.DIY]: diyMessage,
       [Messages.STREAM_END]: streamEnd,
     } = messageState
+
+    if (diyMessage.active) {
+      // Custom message handling here for all master/level requests
+      // set isSafe on botchResponse to false to disallow request from moving on to
+      // manifest manipulation, proxying, etc
+      // call SessionState.resetMessage(sessionId, Messages.DIY) to only run this on one request
+      // return botchResponse
+    }
 
     if (failFragsOneLevel.active) {
       let firstRequest = false
@@ -126,6 +135,13 @@ class Botcher {
   public botchFrag = async (req: Request, res: Response, sessionId: string, remoteUrl: string): Promise<boolean> => {
     const messageState = SessionState.getMessageValues(sessionId)
     if (!messageState) return true
+
+    const diyMessage = messageState[Messages.DIY]
+    if (diyMessage?.active) {
+      // Custom message handling here for fragment requests
+      // call SessionState.resetMessage(sessionId, Messages.DIY) to only run this on one request
+      // return false to botch request
+    }
 
     const networkFault = messageState[Messages.NETWORK_FAULT]
     if (networkFault?.active && networkFault.applyTo === 'frag') {

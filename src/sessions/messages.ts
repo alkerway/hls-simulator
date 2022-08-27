@@ -9,5 +9,8 @@ export enum Messages {
   ONE_LEVEL_STALL = 'OneLevelStall',
 
   STREAM_END = 'StreamEnd',
+
+  DIY = 'DIY',
+
   RESET = 'Reset',
 }

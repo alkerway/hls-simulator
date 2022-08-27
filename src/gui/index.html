@@ -24,8 +24,8 @@
         <input style="width: 100%" type="text" id="inputUrl" placeholder="Manifest Url Here" />
         <div>
           Rolling Dvr Length (in seconds):
-          <input style="width: 80px" type="number" id="rollingDvrInput" value="-1" /> Return vod response (vod only,
-          default false): <input type="checkbox" id="keepVodInput" />
+          <input style="width: 80px" type="number" id="rollingDvrInput" value="-1" /> Return vod response (for remote vod manifest only):
+          <input type="checkbox" id="keepVodInput" />
         </div>
         <h5>
           Generated Url
@@ -38,87 +38,90 @@
       </div>
     </div>
     <div class="row">
-      <div class="seven columns">
+      <div class="ten columns">
         <h4>Step 3: Simulate Things</h4>
         <div class="row">
-          <div class="five columns">
-            <h5>Http/Stream Events</h5>
-            <div style="margin-bottom: 10px">
-              <div style="float: left">
-                <label for="NetworkFaultIncidentDropdown">Fault:</label>
-                <select name="NetworkFaultIncidentDropdown" id="NetworkFaultIncidentDropdown">
-                  <option value="timeout">timeout</option>
-                  <option value="shortDelay">shortDelay</option>
-                  <option value="longDelay">longDelay</option>
-                </select>
-              </div>
-              <div style="float: left">
-                <div>
-                  <input type="radio" id="networkFaultApplyFrag" name="NetworkFaultApplyToRadio" value="frag" checked />
-                  <label for="networkFaultApplyFrag">frag</label>
-                  <input type="radio" id="networkFaultApplyLevel" name="NetworkFaultApplyToRadio" value="level" />
-                  <label for="networkFaultApplyLevel">level</label>
+          <div class="seven columns">
+            <div class="six columns">
+              <h5>Http/Stream Events</h5>
+              <div style="margin-bottom: 10px">
+                <div style="float: left">
+                  <label for="NetworkFaultIncidentDropdown">Fault:</label>
+                  <select name="NetworkFaultIncidentDropdown" id="NetworkFaultIncidentDropdown">
+                    <option value="timeout">timeout</option>
+                    <option value="shortDelay">shortDelay</option>
+                    <option value="longDelay">longDelay</option>
+                  </select>
                 </div>
-                <div>
-                  <input type="radio" id="networkFaultOnce" name="NetworkFaultOnceRadio" value="once" checked />
-                  <label for="networkFaultOnce">next req</label>
-                  <input type="radio" id="networkFaultEvery" name="NetworkFaultOnceRadio" value="every" />
-                  <label for="networkFaultEvery">every req</label>
+                <div style="float: left">
+                  <div>
+                    <input type="radio" id="networkFaultApplyFrag" name="NetworkFaultApplyToRadio" value="frag" checked />
+                    <label for="networkFaultApplyFrag">frag</label>
+                    <input type="radio" id="networkFaultApplyLevel" name="NetworkFaultApplyToRadio" value="level" />
+                    <label for="networkFaultApplyLevel">level</label>
+                  </div>
+                  <div>
+                    <input type="radio" id="networkFaultOnce" name="NetworkFaultOnceRadio" value="once" checked />
+                    <label for="networkFaultOnce">next req</label>
+                    <input type="radio" id="networkFaultEvery" name="NetworkFaultOnceRadio" value="every" />
+                    <label for="networkFaultEvery">every req</label>
+                  </div>
                 </div>
+                <div style="clear: both"></div>
+                <button class="optionButton" id="NetworkFaultButton">Network Fault</button>
               </div>
-              <div style="clear: both"></div>
-              <button class="optionButton" id="NetworkFaultButton">Network Fault</button>
+              <div style="margin-bottom: 10px">
+                <div style="float: left">
+                  <label for="statusDropdown">Status:</label>
+                  <select name="statusDropdown" id="ServerResponseStatusDropdown">
+                    <option value="403">403</option>
+                    <option value="404">404</option>
+                    <option value="429">429</option>
+                    <option value="500">500</option>
+                    <option value="503">503</option>
+                  </select>
+                </div>
+                <div style="float: left">
+                  <div>
+                    <input
+                      type="radio"
+                      id="serverResponseApplyFrag"
+                      name="ServerResponseApplyToRadio"
+                      value="frag"
+                      checked
+                    />
+                    <label for="serverResponseApplyFrag">frag</label>
+                    <input type="radio" id="serverResponseApplyLevel" name="ServerResponseApplyToRadio" value="level" />
+                    <label for="serverResponseApplyLevel">level</label>
+                  </div>
+                  <div>
+                    <input
+                      type="radio"
+                      id="serverResponseOnce"
+                      name="ServerResponseApplyOnceRadio"
+                      value="once"
+                      checked
+                    />
+                    <label for="serverResponseOnce">next req</label>
+                    <input type="radio" id="serverResponseEvery" name="ServerResponseApplyOnceRadio" value="every" />
+                    <label for="serverResponseEvery">every req</label>
+                  </div>
+                </div>
+                <div style="clear: both"></div>
+                <button class="optionButton" id="ServerResponseButton">Server Response</button>
+              </div>
             </div>
-            <div style="margin-bottom: 10px">
-              <div style="float: left">
-                <label for="statusDropdown">Status:</label>
-                <select name="statusDropdown" id="ServerResponseStatusDropdown">
-                  <option value="403">403</option>
-                  <option value="404">404</option>
-                  <option value="429">429</option>
-                  <option value="500">500</option>
-                  <option value="503">503</option>
-                </select>
-              </div>
-              <div style="float: left">
-                <div>
-                  <input
-                    type="radio"
-                    id="serverResponseApplyFrag"
-                    name="ServerResponseApplyToRadio"
-                    value="frag"
-                    checked
-                  />
-                  <label for="serverResponseApplyFrag">frag</label>
-                  <input type="radio" id="serverResponseApplyLevel" name="ServerResponseApplyToRadio" value="level" />
-                  <label for="serverResponseApplyLevel">level</label>
-                </div>
-                <div>
-                  <input
-                    type="radio"
-                    id="serverResponseOnce"
-                    name="ServerResponseApplyOnceRadio"
-                    value="once"
-                    checked
-                  />
-                  <label for="serverResponseOnce">next req</label>
-                  <input type="radio" id="serverResponseEvery" name="ServerResponseApplyOnceRadio" value="every" />
-                  <label for="serverResponseEvery">every req</label>
-                </div>
-              </div>
-              <div style="clear: both"></div>
-              <button class="optionButton" id="ServerResponseButton">Server Response</button>
-            </div>
-            <div>
+            <div class="six columns">
               <button class="optionButton" id="FailOneLevelButton">Fail One Level</button>
               <button class="optionButton" id="FailFragsAtOneLevelButton">Fail Frags @ Level</button>
               <button class="optionButton" id="StallAllLevelButton">Stall All Level</button>
               <button class="optionButton" id="StallOneLevelButton">Stall One Level</button>
               <button class="optionButton" id="StreamEndButton">Stream End</button>
+              <button class="optionButton" id="DIYButton">DIY (Custom)</button>
               <button class="optionButton reset" id="ResetButton">Reset</button>
             </div>
           </div>
-          <div class="seven columns">
+          <div class="five columns">
             <h5>Inject Text</h5>
             <div>Position will be after manifest timer (default)</div>
             <div>
@@ -131,7 +134,7 @@
           </div>
         </div>
       </div>
-      <div class="five columns">
+      <div class="two columns">
         <h4>Logs <button id="clearLogsButton" class="reset">Clear</button></h4>
         <div
           id="logsWindow"

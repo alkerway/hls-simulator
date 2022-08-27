@@ -14,6 +14,7 @@ type MessageState = {
     once: boolean
   }
   [Messages.STREAM_END]: { active: boolean; endTime: number }
+  [Messages.DIY]: {active: boolean},
   [Messages.RESET]: { active: boolean }
 }
 
@@ -47,6 +48,7 @@ class SessionState {
       once: false,
     },
     [Messages.STREAM_END]: { active: false, endTime: -1 },
+    [Messages.DIY]: { active: false },
     [Messages.RESET]: { active: false },
   }
 
@@ -160,6 +162,11 @@ class SessionState {
   public setMessageStreamEnd = (sessionId: string, endTime: number) => {
     if (!this.sessions[sessionId]) return
     this.sessions[sessionId].messageState[Messages.STREAM_END] = { active: true, endTime }
+  }
+
+  public setMessageDIY = (sessionId: string) => {
+    if (!this.sessions[sessionId]) return
+    this.sessions[sessionId].messageState[Messages.DIY] = { active: true, }
   }
 
   public resetMessage = (sessionId: string, message: Messages) => {

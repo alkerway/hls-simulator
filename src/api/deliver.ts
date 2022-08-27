@@ -47,6 +47,9 @@ export const deliver = async (req: Request, res: Response) => {
     case Messages.STREAM_END:
       SessionState.setMessageStreamEnd(sessionId, sessionTimeOfRequest)
       break
+    case Messages.DIY:
+      SessionState.setMessageDIY(sessionId)
+      break
     case Messages.RESET:
       SessionState.reset(sessionId)
       break

@@ -164,6 +164,12 @@ All subsequent level manifest requests will have an `#EXT-X-ENDLIST` tag appende
 
 > Curl equivalent: `curl http://<hls-simulator-server>/deliver?sessionId=<id>&msg=StreamEnd`
 
+#### `DIY`
+
+Does nothing. Add your own code to `request-botcher.ts` to do something with this message.
+
+> Curl equivalent: `curl http://<hls-simulator-server>/deliver?sessionId=<id>&msg=DIY`
+
 #### `Reset`
 
 Any issues created by the above requests will go away. For example, if the `ServerResponse` message with the `every request` option was delivered previously, a call to `Reset` means following fragment requests will no longer return an error response. If `AllLevelStall`, `OneLevelStall` or `StreamEnd` was called previously, new level requests will update according to the session timer and most likely jump ahead.

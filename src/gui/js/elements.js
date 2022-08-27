@@ -19,6 +19,7 @@ const Elements = {
   stallAllLevelButton: document.getElementById('StallAllLevelButton'),
   stallOneLevelButton: document.getElementById('StallOneLevelButton'),
   streamEndButton: document.getElementById('StreamEndButton'),
+  diyButton: document.getElementById('DIYButton'),
   resetButton: document.getElementById('ResetButton'),
 
   sendInsertTextButton: document.getElementById('sendInsertTextButton'),

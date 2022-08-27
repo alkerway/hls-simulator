@@ -118,6 +118,7 @@ Elements.failFragsAtOneLevelButton.addEventListener('click', () => deliverMessag
 Elements.stallAllLevelButton.addEventListener('click', () => deliverMessage('AllLevelStall'))
 Elements.stallOneLevelButton.addEventListener('click', () => deliverMessage('OneLevelStall'))
 Elements.streamEndButton.addEventListener('click', () => deliverMessage('StreamEnd'))
+Elements.diyButton.addEventListener('click', () => deliverMessage('DIY'))
 Elements.resetButton.addEventListener('click', () => deliverMessage('Reset'))
 
 Elements.insertTextStartInput.addEventListener('keyup', () => {
