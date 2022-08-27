@@ -19,6 +19,7 @@ const Events = {
   keepVodUpdated$: new Event(),
   messageDelivered$: new Event(),
   log$: new Event(),
+  openLinkInModal$: new Event(),
   clearLog$: new Event(),
   insertTextStartUpdated$: new Event(),
   insertTextInputUpdated$: new Event(),

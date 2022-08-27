@@ -63,6 +63,105 @@ Events.log$.subscribe((text) => {
   }
 })
 
+const clickOutsideModalListener = (clickEvent) => {
+  const boxLeft = Elements.modalContents.offsetLeft
+  const boxTop = Elements.modalContents.offsetTop
+  const boxRight = boxLeft + Elements.modalContents.offsetWidth
+  const boxBottom = boxTop + Elements.modalContents.offsetHeight
+
+  if (clickEvent.clientX < boxLeft ||
+      clickEvent.clientX > boxRight ||
+      clickEvent.clientY < boxTop ||
+      clickEvent.clientY > boxBottom) {
+    Elements.modalContainer.style.display = 'none'
+    Elements.modalBody.innerHTML = ''
+    Elements.modalHeader.innerHTML = ''
+    document.removeEventListener('click', clickOutsideModalListener)
+  }
+}
+
+Events.openLinkInModal$.subscribe(({ link, masterUrl }) => {
+  Elements.modalContainer.style.display = ''
+  Elements.modalHeader.innerHTML = 'Loading...'
+  Elements.modalBody.innerHTML = ''
+  makeRequest(link)
+    .then((serverResponse) => {
+      if (serverResponse && serverResponse.includes('#EXTM3U')) {
+        const modalElements = serverResponse.split('\n').map(line => {
+          const lineElement = document.createElement('div')
+          lineElement.innerText = line
+          if (line && !line.startsWith('#') && line.includes('.m3u8')) {
+            lineElement.classList.add('manifestLink')
+            lineElement.addEventListener('click', () => {
+              const linkWithoutPath = link.split('?')[0].split('/').slice(0, -1).join('/')
+              const levelUrl = `${linkWithoutPath}/${line}`
+              Events.openLinkInModal$.next({link: levelUrl, masterUrl: link})
+            })
+            return lineElement
+          }
+          return lineElement
+        })
+        return {
+          modalElements,
+          serverResponse
+        }
+      } else {
+        const manifestSpan = document.createElement('span')
+        manifestSpan.innerText = serverResponse
+        return {
+          modalElements: [manifestSpan],
+          serverResponse
+        }
+      }
+    })
+    .then(({modalElements, serverResponse}) => {
+      modalElements.forEach((element) => {
+        Elements.modalBody.appendChild(element)
+      })
+      Elements.modalHeader.innerHTML = 'Response: '
+      const copyLink = document.createElement('span')
+      copyLink.classList.add('manifestLink')
+      copyLink.style.float = 'right'
+      copyLink.style.marginLeft = '10px'
+      copyLink.addEventListener('click', () => {
+        navigator.clipboard
+          .writeText(serverResponse)
+          .then(() => Events.log$.next('Copy success'))
+          .catch((err) => Events.log$.next(err))
+      })
+      copyLink.innerText = 'Copy'
+      Elements.modalHeader.appendChild(copyLink)
+
+      const refreshLink = document.createElement('span')
+      refreshLink.classList.add('manifestLink')
+      refreshLink.style.float = 'right'
+      refreshLink.style.marginLeft = '10px'
+      refreshLink.addEventListener('click', () => {
+        Events.openLinkInModal$.next({ link, masterUrl })
+      })
+      refreshLink.innerText = 'Refresh'
+      Elements.modalHeader.appendChild(refreshLink)
+
+      if (masterUrl) {
+        const masterClickLink = document.createElement('span')
+        masterClickLink.classList.add('manifestLink')
+        masterClickLink.style.float = 'right'
+        masterClickLink.addEventListener('click', () => {
+          Events.openLinkInModal$.next({ link: masterUrl })
+        })
+        masterClickLink.innerText = 'Master'
+        Elements.modalHeader.appendChild(masterClickLink)
+      }
+    })
+    .catch((err) => {
+      Elements.modalHeader.innerText = 'Response:'
+      Elements.modalBody.innerText = err.toString()
+    })
+    .finally(() => {
+      document.addEventListener('click', clickOutsideModalListener)
+    })
+})
+
 Events.clearLog$.subscribe(() => {
   Elements.logsWindow.innerHTML = ''
 })

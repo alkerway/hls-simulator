@@ -10,6 +10,12 @@
     <script src="js/events.js"></script>
   </head>
   <body>
+    <div id="modalContainer" style="display: none;">
+      <div id="modalContents">
+        <div id="modalHeader"></div>
+        <div id="modalBody"></div>
+      </div>
+    </div>
     <div class="row">
       <div class="four columns">
         <h4>Step 1: Start a Session</h4>
@@ -30,7 +36,7 @@
         <h5>
           Generated Url
           <button id="copyGeneratedUrlButton">Copy Generated Url</button>
-          <button id="logRemoteManifestButton">Log Remote Manifest</button>
+          <button id="logRemoteManifestButton">Log Session Manifest</button>
         </h5>
         <div>
           <textarea style="width: 100%" id="generatedUrlDisplay"></textarea>

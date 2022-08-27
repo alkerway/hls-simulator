@@ -77,9 +77,11 @@ Elements.copyGeneratedUrlButton.addEventListener('click', () => {
 })
 
 Elements.logRemoteManifestButton.addEventListener('click', () => {
-  makeRequest(Elements.generatedUrlDisplay.value)
-    .then(Events.log$.next)
-    .catch((err) => Events.log$.next(err))
+  if (Elements.generatedUrlDisplay.value) {
+    Events.openLinkInModal$.next({ link: Elements.generatedUrlDisplay.value })
+  } else {
+    Events.log$.next('No url to request')
+  }
 })
 
 Elements.clearLogsButton.addEventListener('click', () => {

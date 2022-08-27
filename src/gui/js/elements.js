@@ -29,4 +29,9 @@ const Elements = {
 
   logsWindow: document.getElementById('logsWindow'),
   clearLogsButton: document.getElementById('clearLogsButton'),
+
+  modalContainer: document.getElementById('modalContainer'),
+  modalContents: document.getElementById('modalContents'),
+  modalHeader: document.getElementById('modalHeader'),
+  modalBody: document.getElementById('modalBody')
 }
