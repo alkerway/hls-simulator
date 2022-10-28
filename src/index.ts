@@ -2,6 +2,16 @@ import cors from 'cors'
 import express from 'express'
 import * as routes from './api/routes'
 
+process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
+  console.log('Unhandled rejection: ', promise, `reason: ${reason}`)
+  process.exit(1)
+})
+
+process.on('uncaughtException', (reason) => {
+  console.log('Unhandled exception at ', reason)
+  process.exit(1)
+})
+
 const app = express()
 const port = 8880
 

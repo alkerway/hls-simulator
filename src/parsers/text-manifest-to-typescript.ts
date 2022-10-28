@@ -7,6 +7,7 @@ export type Frag = {
   impliedKeyLine: string | null
   impliedIVString: string | null
   impliedPDTLine: string | null
+  impliedMapLine: string | null
   duration: number
   originalMediaSequence: number
 }
@@ -26,6 +27,7 @@ export const textToTypescript = (levelManifest: string): LevelManifest => {
   let isLive = true
   let currentKeyLine: string | null = null // '#EXT-X-KEY:METHOD=NONE'
   let lastPdtUnix: number | null = null
+  let lastMapTagEncountered: string | null = null
   levelManifest.split('\n').forEach((line) => {
     if (line.startsWith('##') || !line) {
       // line is comment or blank
@@ -53,6 +55,8 @@ export const textToTypescript = (levelManifest: string): LevelManifest => {
           currentKeyLine = line
         } else if (line.isTag(Tags.Pdt)) {
           lastPdtUnix = pdtTagToUnix(line) || lastPdtUnix
+        } else if (line.isTag(Tags.Map)) {
+          lastMapTagEncountered = line
         }
         currentFragHeaderTags.push(line)
       }
@@ -74,12 +78,12 @@ export const textToTypescript = (levelManifest: string): LevelManifest => {
           .match(/("[^"]*")|[^,]+/g)
           ?.reduce((attributeMap, attribute) => {
             const [key, val] = attribute.split(/=(.*)/)
-            return {...attributeMap, [key]: val }
+            return { ...attributeMap, [key]: val }
           }, {} as Record<string, string>)
 
-          if (keyAttributes && keyAttributes.METHOD !== 'NONE' && !keyAttributes.IV) {
-            impliedIVString= `IV=0x${currentFragMediaSequence.toString(16).toUpperCase().padStart(32, '0')}`
-          }
+        if (keyAttributes && keyAttributes.METHOD !== 'NONE' && !keyAttributes.IV) {
+          impliedIVString = `IV=0x${currentFragMediaSequence.toString(16).toUpperCase().padStart(32, '0')}`
+        }
       }
 
       frags.push({
@@ -88,6 +92,7 @@ export const textToTypescript = (levelManifest: string): LevelManifest => {
         impliedKeyLine: currentKeyLine,
         impliedPDTLine,
         impliedIVString,
+        impliedMapLine: lastMapTagEncountered,
         originalMediaSequence: currentFragMediaSequence,
         duration: currentFragDuration,
       })

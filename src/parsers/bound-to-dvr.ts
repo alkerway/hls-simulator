@@ -32,6 +32,9 @@ export const boundToDvr = (manifest: LevelManifest, dvrWindowSeconds: number): L
   if (firstFrag?.impliedKeyLine && !firstFrag.tagLines.findTag(Tags.Key)) {
     firstFrag.tagLines.unshift(firstFrag.impliedKeyLine)
   }
+  if (firstFrag?.impliedMapLine && !firstFrag.tagLines.findTag(Tags.Map)) {
+    firstFrag.tagLines.unshift(firstFrag.impliedMapLine)
+  }
   // If had a previous pdt, add the implied one to the first frag
   if (firstFrag?.impliedPDTLine && !firstFrag.tagLines.findTag(Tags.Pdt)) {
     firstFrag.tagLines.unshift(firstFrag.impliedPDTLine)

@@ -89,7 +89,6 @@ Events.openLinkInModal$.subscribe(({ link, masterUrl }) => {
       if (serverResponse && serverResponse.includes('#EXTM3U')) {
         const modalElements = serverResponse.split('\n').map(line => {
           const lineElement = document.createElement('div')
-          lineElement.innerText = line
           if (line && !line.startsWith('#') && line.includes('.m3u8')) {
             lineElement.classList.add('manifestLink')
             lineElement.addEventListener('click', () => {
@@ -97,7 +96,32 @@ Events.openLinkInModal$.subscribe(({ link, masterUrl }) => {
               const levelUrl = `${linkWithoutPath}/${line}`
               Events.openLinkInModal$.next({link: levelUrl, masterUrl: link})
             })
+            lineElement.innerText = line
             return lineElement
+          } else if (line && line.startsWith('#EXT-X-MEDIA:')) {
+            const lineURIMatch = line.match(/#EXT-X-MEDIA.+URI="(.*?)"/)
+            if (lineURIMatch && lineURIMatch[1]) {
+              const lineURI = lineURIMatch[1]
+              const lineWithoutURIParts = line.split(lineURI)
+              lineWithoutURIParts.forEach((part, partIdx) => {
+                lineElement.append(part)
+                if (partIdx < lineWithoutURIParts.length - 1) {
+                  const lineURISpan = document.createElement('span')
+                  lineURISpan.innerText = lineURI
+                  lineURISpan.classList.add('manifestLink')
+                  lineURISpan.addEventListener('click', () => {
+                    const linkWithoutPath = link.split('?')[0].split('/').slice(0, -1).join('/')
+                    const levelUrl = `${linkWithoutPath}/${lineURI}`
+                    Events.openLinkInModal$.next({link: levelUrl, masterUrl: link})
+                  })
+                  lineElement.append(lineURISpan)
+                }
+              })
+            } else {
+              lineElement.innerText = line
+            }
+          } else {
+            lineElement.innerText = line
           }
           return lineElement
         })

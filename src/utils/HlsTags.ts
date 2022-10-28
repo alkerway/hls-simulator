@@ -26,6 +26,7 @@ export enum Tags {
   Discontinuity = '#EXT-X-DISCONTINUITY',
   Pdt = '#EXT-X-PROGRAM-DATE-TIME',
   Key = '#EXT-X-KEY',
+  Media = '#EXT-X-MEDIA',
   Map = '#EXT-X-MAP',
   MediaSequence = '#EXT-X-MEDIA-SEQUENCE',
   DiscontinuitySequence = '#EXT-X-DISCONTINUITY-SEQUENCE',

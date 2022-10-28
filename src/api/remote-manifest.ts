@@ -14,9 +14,9 @@ export const remoteManifest = async (req: Request, res: Response) => {
     return res.status(400).send('Invalid or missing remote level url in query parameters\n')
   }
 
-  const extension = path.extname(remoteUrl).split('?')[0]
+  const extension = path.extname(remoteUrl.split('?')[0])
   const reqIsFrag = ['.ts', '.mp4', '.fmp4'].includes(extension.toLowerCase())
-  const reqIsManifest = extension.toLowerCase() === '.m3u8'
+  const reqIsManifest = ['.m3u8', '.vtt'].includes(extension.toLowerCase())
 
   const sessionId = String(req.query.sessionId)
 
@@ -83,6 +83,10 @@ export const remoteManifest = async (req: Request, res: Response) => {
               shouldSendResponse = false
             }
             break
+          case 'webvtt':
+            responseStatus = 200
+            shouldSendResponse = false
+            res.redirect(remoteUrl)
           case 'notamanifest':
           default:
             responseStatus = 400
@@ -91,6 +95,7 @@ export const remoteManifest = async (req: Request, res: Response) => {
         }
       }
       if (shouldSendResponse) {
+        res.set('Content-type', 'application/vnd.apple.mpegurl')
         res.status(responseStatus).send(responseBody)
       }
     })
