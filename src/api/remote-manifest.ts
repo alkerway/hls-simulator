@@ -1,5 +1,5 @@
-import { Request, response, Response } from 'express'
-import { OutgoingHttpHeaders, get } from 'http'
+import { Request, Response } from 'express'
+import { OutgoingHttpHeaders } from 'http'
 import path from 'path'
 import request from 'request'
 import { whatIsThisManifest } from '../parsers/manifestclassifier'
@@ -49,7 +49,7 @@ export const remoteManifest = async (req: Request, res: Response) => {
               manifestType = whatIsThisManifest(decodedResponse)
               manifestText = decodedResponse
             }
-            /* tslint:disable:no-empty */
+            // eslint-disable-next-line no-empty
           } catch (err) {}
         }
         const simulatorOptions: SimulatorOptions = {
@@ -64,13 +64,13 @@ export const remoteManifest = async (req: Request, res: Response) => {
             responseBody = ManifestServer.getMaster(manifestText, simulatorOptions)
             break
           case 'vodlevel':
-          case 'livelevel':
+          case 'livelevel': {
             const { isSafe, timerOverride, endManifest } = await Botcher.botchLevel(
               res,
               sessionId,
               remoteUrl,
               manifestText,
-              manifestType === 'livelevel'
+              manifestType === 'livelevel',
             )
             if (isSafe) {
               if (timerOverride) simulatorOptions.sessionTimerOverride = timerOverride
@@ -83,10 +83,12 @@ export const remoteManifest = async (req: Request, res: Response) => {
               shouldSendResponse = false
             }
             break
+          }
           case 'webvtt':
             responseStatus = 200
             shouldSendResponse = false
             res.redirect(remoteUrl)
+            break
           case 'notamanifest':
           default:
             responseStatus = 400

@@ -18,10 +18,9 @@ The app's structure is API-based. One can use curl to perform requests, or use t
 
 To set up the app, clone the repo then run the following:
 
+1. `nvm use` (If not using Node >=18)
 1. `npm install`
-2. `npm run dev`
-
-NOTE: Node >=17 is needed for the app to work.
+1. `npm run dev`
 
 ## 1: Starting a Session
 
@@ -176,7 +175,7 @@ Any issues created by the above requests will go away. For example, if the `Serv
 
 > Curl equivalent: `curl http://<hls-simulator-server>/deliver?sessionId=<id>&msg=Reset`
 
-### Inject Custom Text
+### Inject Custom Text (experimental)
 
 Custom text can be injected into manifests to simulate ad breaks and content changes. This application cannot split up any fragments as they are hosted on their respective remote servers, so any text injected may alter the timings of the returned manifest. It is assumed that any custom text sent is an HLS Level manifest with or without header tags.
 

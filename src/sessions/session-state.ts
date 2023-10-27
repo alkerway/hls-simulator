@@ -14,7 +14,7 @@ type MessageState = {
     once: boolean
   }
   [Messages.STREAM_END]: { active: boolean; endTime: number }
-  [Messages.DIY]: {active: boolean},
+  [Messages.DIY]: { active: boolean }
   [Messages.RESET]: { active: boolean }
 }
 
@@ -72,7 +72,7 @@ class SessionState {
 
   public startSession = (
     sessionIdQuery: string | undefined,
-    startOffset: number
+    startOffset: number,
   ): { sessionStartTime: number; sessionId: string; error: boolean } => {
     const sessionId = sessionIdQuery || this.generateSessionId()
     if (!sessionIdQuery && this.sessions[sessionId]) {
@@ -113,7 +113,7 @@ class SessionState {
     sessionId: string,
     stallTime: number,
     remoteLevelUrl: string,
-    lastLiveLevel: string
+    lastLiveLevel: string,
   ) => {
     if (!this.sessions[sessionId]) return
     this.sessions[sessionId].messageState[Messages.ONE_LEVEL_STALL] = {
@@ -132,7 +132,7 @@ class SessionState {
   public setMessageFailFragsAtOneLevel = (
     sessionId: string,
     remoteLevelUrl: string,
-    failFragRemoteUrls: Set<string>
+    failFragRemoteUrls: Set<string>,
   ) => {
     if (!this.sessions[sessionId]) return
     const unionOldAndNew = this.sessions[sessionId].messageState[Messages.FAIL_FRAGS_AT_ONE_LEVEL].failFragRemoteUrls
@@ -153,7 +153,7 @@ class SessionState {
     sessionId: string,
     fault: 'timeout' | 'shortDelay' | 'longDelay',
     applyTo: 'frag' | 'level',
-    once: boolean
+    once: boolean,
   ) => {
     if (!this.sessions[sessionId]) return
     this.sessions[sessionId].messageState[Messages.NETWORK_FAULT] = { active: true, fault, applyTo, once }
@@ -166,11 +166,12 @@ class SessionState {
 
   public setMessageDIY = (sessionId: string) => {
     if (!this.sessions[sessionId]) return
-    this.sessions[sessionId].messageState[Messages.DIY] = { active: true, }
+    this.sessions[sessionId].messageState[Messages.DIY] = { active: true }
   }
 
   public resetMessage = (sessionId: string, message: Messages) => {
     if (!this.sessions[sessionId]) return
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.sessions[sessionId].messageState[message] = structuredClone(this.originalMessages)[message] as any
   }
 
@@ -206,17 +207,20 @@ class SessionState {
       if (deleteTimer) {
         clearTimeout(deleteTimer)
       }
-      this.sessions[sessionId].deleteTimer = setTimeout(() => {
-        // clear session after a day
-        delete this.sessions[sessionId]
-      }, 24 * 60 * 60 * 1000)
+      this.sessions[sessionId].deleteTimer = setTimeout(
+        () => {
+          // clear session after a day
+          delete this.sessions[sessionId]
+        },
+        24 * 60 * 60 * 1000,
+      )
     }
   }
 
   private generateSessionId = (): string => {
     const letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
     let id = ''
-    for (const key of Array(3)) {
+    while (id.length < 3) {
       id += letters[Math.floor(Math.random() * letters.length)]
     }
     return id

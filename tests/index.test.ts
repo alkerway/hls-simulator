@@ -62,11 +62,13 @@ describe('Test Level Proxy', () => {
           startAfter: '20',
         },
         body: injectedTwoFrags,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any,
       {
         status: () => ({
           send: () => {},
         }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any  
       } as any
     )
     expect(injectedManifestMock).toHaveBeenCalledWith(
@@ -90,6 +92,7 @@ describe('Test Level Proxy', () => {
           startTimeOrMediaSequence: 20,
           manifest: customManifestLastInjected,
         },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ] as any
     })
     const result = ManifestServer.getLevel(remoteVodLevelAES, false, {
@@ -108,6 +111,7 @@ describe('Test Level Proxy', () => {
           startTimeOrMediaSequence: 260,
           manifest: customManifestLastInjected,
         },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ] as any
     })
     const result = ManifestServer.getLevel(remoteVodLevelAES, false, {

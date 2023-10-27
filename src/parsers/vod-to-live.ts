@@ -1,5 +1,5 @@
 import { Tags } from '../utils/HlsTags'
-import { addMsToPdtLine, pdtTagToUnix } from '../utils/hls-string'
+import { addMsToPdtLine } from '../utils/hls-string'
 import { Frag, LevelManifest } from './text-manifest-to-typescript'
 
 export const vodToLive = (manifest: LevelManifest, maxLevelDuration: number): LevelManifest => {
@@ -7,7 +7,6 @@ export const vodToLive = (manifest: LevelManifest, maxLevelDuration: number): Le
 
   const newFrags: Frag[] = []
 
-  const originalNumFrags = manifest.frags.length
   let currentFragIdx = 0
   let currentFrag = structuredClone(manifest.frags[currentFragIdx])
   let totalLevelDuration = currentFrag.duration
@@ -50,16 +49,14 @@ export const vodToLive = (manifest: LevelManifest, maxLevelDuration: number): Le
       const hasIV = existingKeyTag?.includes('IV=')
       if (existingKeyTag) {
         if (!hasIV) {
-          currentFrag.tagLines = currentFrag.tagLines.map(line =>
-            line.isTag(Tags.Key)
-              ? `${line},${currentFrag.impliedIVString}`
-              : line)
+          currentFrag.tagLines = currentFrag.tagLines.map((line) =>
+            line.isTag(Tags.Key) ? `${line},${currentFrag.impliedIVString}` : line,
+          )
         }
       } else if (currentFrag.impliedIVString) {
         currentFrag.tagLines.unshift(`${currentFrag.impliedKeyLine},${currentFrag.impliedIVString}`)
       }
     }
-
 
     newFrags.push(currentFrag)
 

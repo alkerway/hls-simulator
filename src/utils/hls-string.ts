@@ -1,7 +1,7 @@
 import { Tags } from './HlsTags'
 
 export const getExtInfDuration = (infLine: string): number => {
-  const durationRegex = /EXTINF\:(.+),/
+  const durationRegex = /EXTINF:(.+),/
   const match = durationRegex.exec(infLine)
   if (match && match[1]) {
     return Number(match[1])
@@ -51,7 +51,7 @@ export const splitAttributes = (attributeList: string) => {
 
     // escape next if character is backslash and backslash hasn't been escaped
     // by the last time looping
-    canEscapeNextChar = (char === '\\' && !canEscapeNextChar)
+    canEscapeNextChar = char === '\\' && !canEscapeNextChar
   })
   attributes.push(currentAttribute)
   return attributes
